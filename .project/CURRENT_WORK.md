@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-05-02  
-**Phase:** Phase 1 — Core Voice Pipeline (in progress)
+**Phase:** Phase 1 — Core Voice Pipeline (in progress) | Inbox processed
 
 ---
 
@@ -31,11 +31,11 @@ Repo structure initialized. All directories (`pi/`, `server/`, `shared/`, `confi
 
 ## Last Completed
 
-- Phase 1 / Shared: `shared/config.py` — `AppConfig` dataclass tree (`ServerConfig`, `OllamaConfig`, `GoogleConfig`, `SpotifyConfig`, `CtaConfig`, `WeatherConfig`, `AndroidTvConfig`) with `load()` function; reads `config/settings.yaml`, falls back to defaults if missing, respects `SETTINGS_PATH` env var
+- Inbox processing: checked off "agent writes to INBOX.md at startup" — added Agent Startup Log section to INBOX.md, added task to plan.md Phase 6, wrote first startup entry
 
 ## Next Task
 
-- Phase 1 / Shared: `config/settings.yaml` — skeleton config file (no real secrets yet)
+- Phase 1 / Server: `config/settings.yaml` — skeleton config file (no real secrets yet)
 
 ## Open Questions
 

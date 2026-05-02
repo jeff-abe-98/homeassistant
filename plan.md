@@ -133,6 +133,7 @@
 - [ ] Logging: structured logs to file with rotation
 - [ ] Wake word false positive rate — tune sensitivity
 - [ ] Latency profiling — identify and fix slow spots in the pipeline
+- [ ] Agent startup check-in: agent writes a brief status note to `INBOX.md` (Agent Startup Log section) at the start of each session
 
 ---
 
