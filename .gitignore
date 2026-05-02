@@ -1,0 +1,41 @@
+# Secrets
+config/settings.yaml
+config/google_credentials.json
+config/google_token.json
+config/*.json
+config/*.yaml
+
+# Keep the config directory but not secrets
+!config/.gitkeep
+
+# Voice profiles (personal data)
+config/voice_profiles/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+*.egg
+
+# Piper TTS models (large binary files)
+pi/tts/models/
+
+# Whisper models (large binary files)
+pi/stt/models/
+server/stt/models/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
