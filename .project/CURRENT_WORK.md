@@ -31,11 +31,11 @@ Repo structure initialized. All directories (`pi/`, `server/`, `shared/`, `confi
 
 ## Last Completed
 
-- Phase 1 / Shared: `shared/models.py` — Pydantic v2 models: `AudioChunk` (session_id, sequence, audio_bytes, sample_rate, is_final), `Transcript` (session_id, text), `SpeakerResult` (session_id, user, confidence), `AssistantResponse` (session_id, text)
+- Phase 1 / Shared: `shared/config.py` — `AppConfig` root dataclass + per-section dataclasses for all config sections; `load_config(path)` reads and maps `config/settings.yaml` via PyYAML
 
 ## Next Task
 
-- Phase 1 / Shared: `shared/config.py` — load `config/settings.yaml` into dataclasses
+- Phase 1 / Shared: `config/settings.yaml` — skeleton config file with placeholder values (no real secrets)
 
 ## Open Questions
 

@@ -13,7 +13,7 @@
 - [x] `requirements-server.txt` with: fastapi, uvicorn, ollama, websockets, faster-whisper, pydantic, httpx, pyyaml — created with pinned minimum versions
 - [x] `requirements-pi.txt` with: openWakeWord, pyaudio, webrtcvad, resemblyzer, sounddevice, websockets, pydantic, pyyaml — created with pinned minimum versions
 - [x] `shared/models.py` — Pydantic models: `AudioChunk`, `Transcript`, `SpeakerResult`, `AssistantResponse` — created with session_id + sequence/audio_bytes/sample_rate/is_final for AudioChunk; text for Transcript; user+confidence for SpeakerResult; text for AssistantResponse
-- [ ] `shared/config.py` — load `config/settings.yaml` into dataclasses
+- [x] `shared/config.py` — load `config/settings.yaml` into dataclasses — `AppConfig` + per-section dataclasses (`ServerConfig`, `OllamaConfig`, `GoogleConfig`, `SpotifyConfig`, `SpotifyUserConfig`, `CTAConfig`, `WeatherConfig`, `AndroidTVConfig`); `load_config(path)` reads YAML via PyYAML
 - [ ] `config/settings.yaml` — skeleton config file (no real secrets yet)
 - [ ] `server/llm/client.py` — Ollama client wrapper (send prompt, return response string)
 - [ ] `server/llm/prompts.py` — system prompt for the assistant persona
