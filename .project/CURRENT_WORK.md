@@ -31,11 +31,11 @@ Repo structure initialized. All directories (`pi/`, `server/`, `shared/`, `confi
 
 ## Last Completed
 
-- Phase 1 / Pi: `requirements-pi.txt` — created with openwakeword, pyaudio, webrtcvad, resemblyzer, sounddevice, websockets, pydantic, pyyaml (pinned minimum versions)
+- Phase 1 / Shared: `shared/models.py` — Pydantic v2 models: `AudioChunk` (session_id, sequence, audio_bytes, sample_rate, is_final), `Transcript` (session_id, text), `SpeakerResult` (session_id, user, confidence), `AssistantResponse` (session_id, text)
 
 ## Next Task
 
-- Phase 1 / Shared: `shared/models.py` — Pydantic models: `AudioChunk`, `Transcript`, `SpeakerResult`, `AssistantResponse`
+- Phase 1 / Shared: `shared/config.py` — load `config/settings.yaml` into dataclasses
 
 ## Open Questions
 

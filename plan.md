@@ -12,7 +12,7 @@
 - [x] Initialize repo structure (`pi/`, `server/`, `shared/`, `config/`) — created all dirs with `__init__.py`; `config/voice_profiles/` with `.gitkeep`
 - [x] `requirements-server.txt` with: fastapi, uvicorn, ollama, websockets, faster-whisper, pydantic, httpx, pyyaml — created with pinned minimum versions
 - [x] `requirements-pi.txt` with: openWakeWord, pyaudio, webrtcvad, resemblyzer, sounddevice, websockets, pydantic, pyyaml — created with pinned minimum versions
-- [ ] `shared/models.py` — Pydantic models: `AudioChunk`, `Transcript`, `SpeakerResult`, `AssistantResponse`
+- [x] `shared/models.py` — Pydantic models: `AudioChunk`, `Transcript`, `SpeakerResult`, `AssistantResponse` — created with session_id + sequence/audio_bytes/sample_rate/is_final for AudioChunk; text for Transcript; user+confidence for SpeakerResult; text for AssistantResponse
 - [ ] `shared/config.py` — load `config/settings.yaml` into dataclasses
 - [ ] `config/settings.yaml` — skeleton config file (no real secrets yet)
 - [ ] `server/llm/client.py` — Ollama client wrapper (send prompt, return response string)
