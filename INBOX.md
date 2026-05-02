@@ -12,8 +12,8 @@ The agent reads this at the start of every run.
 
 ## Ideas & Improvements
 *New features, changes to existing features, or improvements. Agent will triage these into plan.md and check them off.*
-
-<!-- Please Look at and edit this: - [ ] Make sure that when you are reading this at start up, you are also writing here.
+ - [ ] Make sure that when you are reading this at start up, you are also writing here.
+<!-- Please Look at and edit this:
 
 ## Notes
 *Anything else — reminders, context, thoughts.*
