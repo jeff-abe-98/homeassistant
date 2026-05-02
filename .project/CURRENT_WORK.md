@@ -31,11 +31,11 @@ Repo structure initialized. All directories (`pi/`, `server/`, `shared/`, `confi
 
 ## Last Completed
 
-- Phase 1 / Server: Initialize repo structure — `pi/`, `server/`, `shared/`, `config/voice_profiles/` created with `__init__.py` files
+- Phase 1 / Server: `requirements-server.txt` — created with fastapi, uvicorn, ollama, websockets, faster-whisper, pydantic, httpx, pyyaml (pinned minimum versions)
 
 ## Next Task
 
-- Phase 1 / Server: `requirements-server.txt` with fastapi, uvicorn, ollama, websockets, faster-whisper, pydantic, httpx, pyyaml
+- Phase 1 / Server: `requirements-pi.txt` with openWakeWord, pyaudio, webrtcvad, resemblyzer, sounddevice, websockets, pydantic, pyyaml
 
 ## Open Questions
 

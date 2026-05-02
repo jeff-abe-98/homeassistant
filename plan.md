@@ -10,7 +10,7 @@
 
 ### Server
 - [x] Initialize repo structure (`pi/`, `server/`, `shared/`, `config/`) — created all dirs with `__init__.py`; `config/voice_profiles/` with `.gitkeep`
-- [ ] `requirements-server.txt` with: fastapi, uvicorn, ollama, websockets, faster-whisper, pydantic, httpx, pyyaml
+- [x] `requirements-server.txt` with: fastapi, uvicorn, ollama, websockets, faster-whisper, pydantic, httpx, pyyaml — created with pinned minimum versions
 - [ ] `requirements-pi.txt` with: openWakeWord, pyaudio, webrtcvad, resemblyzer, sounddevice, websockets, pydantic, pyyaml
 - [ ] `shared/models.py` — Pydantic models: `AudioChunk`, `Transcript`, `SpeakerResult`, `AssistantResponse`
 - [ ] `shared/config.py` — load `config/settings.yaml` into dataclasses
