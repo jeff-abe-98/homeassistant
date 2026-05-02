@@ -1,14 +1,13 @@
 # Current Work
 
 **Last updated:** 2026-05-02  
-**Phase:** Technical planning complete — ready for Phase 1 implementation
+**Phase:** Phase 1 — Core Voice Pipeline (in progress)
 
 ---
 
 ## Status
 
-Requirements and technical planning are done. Implementation plan is in `plan.md`.  
-Next step: set up agent cron system, then begin Phase 1.
+Repo structure initialized. All directories (`pi/`, `server/`, `shared/`, `config/`) created with `__init__.py` files. Ready to create requirements files.
 
 ## Documents
 
@@ -29,6 +28,14 @@ Next step: set up agent cron system, then begin Phase 1.
 5. Check it off in `plan.md` with a brief note
 6. Continue until the phase is complete or a blocker is hit
 7. Log blockers in the Blockers Log table at the bottom of `plan.md`
+
+## Last Completed
+
+- Phase 1 / Server: Initialize repo structure — `pi/`, `server/`, `shared/`, `config/voice_profiles/` created with `__init__.py` files
+
+## Next Task
+
+- Phase 1 / Server: `requirements-server.txt` with fastapi, uvicorn, ollama, websockets, faster-whisper, pydantic, httpx, pyyaml
 
 ## Open Questions
 

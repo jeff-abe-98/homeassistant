@@ -9,7 +9,7 @@
 *Goal: Wake word → speech captured → transcript returned → spoken response. No tools, no personalization. Just a working voice loop.*
 
 ### Server
-- [ ] Initialize repo structure (`pi/`, `server/`, `shared/`, `config/`)
+- [x] Initialize repo structure (`pi/`, `server/`, `shared/`, `config/`) — created all dirs with `__init__.py`; `config/voice_profiles/` with `.gitkeep`
 - [ ] `requirements-server.txt` with: fastapi, uvicorn, ollama, websockets, faster-whisper, pydantic, httpx, pyyaml
 - [ ] `requirements-pi.txt` with: openWakeWord, pyaudio, webrtcvad, resemblyzer, sounddevice, websockets, pydantic, pyyaml
 - [ ] `shared/models.py` — Pydantic models: `AudioChunk`, `Transcript`, `SpeakerResult`, `AssistantResponse`
