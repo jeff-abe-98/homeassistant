@@ -31,11 +31,11 @@ Repo structure initialized. All directories (`pi/`, `server/`, `shared/`, `confi
 
 ## Last Completed
 
-- Phase 1 / Server: `requirements-server.txt` — created with fastapi, uvicorn, ollama, websockets, faster-whisper, pydantic, httpx, pyyaml (pinned minimum versions)
+- Phase 1 / Pi: `requirements-pi.txt` — created with openwakeword, pyaudio, webrtcvad, resemblyzer, sounddevice, websockets, pydantic, pyyaml (pinned minimum versions)
 
 ## Next Task
 
-- Phase 1 / Server: `requirements-pi.txt` with openWakeWord, pyaudio, webrtcvad, resemblyzer, sounddevice, websockets, pydantic, pyyaml
+- Phase 1 / Shared: `shared/models.py` — Pydantic models: `AudioChunk`, `Transcript`, `SpeakerResult`, `AssistantResponse`
 
 ## Open Questions
 
