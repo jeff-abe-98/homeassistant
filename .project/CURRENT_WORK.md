@@ -31,11 +31,11 @@ Repo structure initialized. All directories (`pi/`, `server/`, `shared/`, `confi
 
 ## Last Completed
 
-- Phase 1 / Shared: `shared/config.py` — `AppConfig` root dataclass + per-section dataclasses for all config sections; `load_config(path)` reads and maps `config/settings.yaml` via PyYAML
+- Phase 1 / Shared: `shared/config.py` — `AppConfig` dataclass tree (`ServerConfig`, `OllamaConfig`, `GoogleConfig`, `SpotifyConfig`, `CtaConfig`, `WeatherConfig`, `AndroidTvConfig`) with `load()` function; reads `config/settings.yaml`, falls back to defaults if missing, respects `SETTINGS_PATH` env var
 
 ## Next Task
 
-- Phase 1 / Shared: `config/settings.yaml` — skeleton config file with placeholder values (no real secrets)
+- Phase 1 / Shared: `config/settings.yaml` — skeleton config file (no real secrets yet)
 
 ## Open Questions
 
