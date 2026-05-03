@@ -1,13 +1,13 @@
 # Current Work
 
-**Last updated:** 2026-05-03 (session 2)  
+**Last updated:** 2026-05-03 (session 3)  
 **Phase:** Phase 1 — Core Voice Pipeline (in progress)
 
 ---
 
 ## Status
 
-`server/llm/client.py` created — async Ollama wrapper with `chat(messages)` and `complete(system, user)` methods. Ready to implement the system prompt module.
+`server/llm/prompts.py` created — base system prompt constant and `build_system_prompt()` function. Phase 2 will extend this to inject the identified user's name.
 
 ## Documents
 
@@ -31,11 +31,11 @@
 
 ## Last Completed
 
-- `server/llm/client.py` — `OllamaClient` class with async `chat(messages)` and `complete(system_prompt, user_message)` methods, backed by `ollama.AsyncClient`
+- `server/llm/prompts.py` — `_BASE` string constant + `build_system_prompt()` function; plain spoken language, no markdown, concise
 
 ## Next Task
 
-- Phase 1 / Server: `server/llm/prompts.py` — system prompt for the assistant persona
+- Phase 1 / Server: `server/main.py` — FastAPI app with a single `/ws` WebSocket endpoint
 
 ## Open Questions
 

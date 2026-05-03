@@ -16,7 +16,7 @@
 - [x] `shared/config.py` — load `config/settings.yaml` into dataclasses — `AppConfig` dataclass tree with `load()` function; falls back to defaults if file missing; respects `SETTINGS_PATH` env var
 - [x] `config/settings.yaml` — skeleton config file (no real secrets yet) — created with placeholder values for all integrations (Ollama, Whisper, wake word, Google, Spotify x2, CTA, weather, Android TV, users)
 - [x] `server/llm/client.py` — Ollama client wrapper (send prompt, return response string) — `OllamaClient` with async `chat(messages)` and `complete(system, user)` methods using `ollama.AsyncClient`
-- [ ] `server/llm/prompts.py` — system prompt for the assistant persona
+- [x] `server/llm/prompts.py` — system prompt for the assistant persona — `_BASE` constant + `build_system_prompt()` function; plain spoken language, concise, no markdown
 - [ ] `server/main.py` — FastAPI app with a single `/ws` WebSocket endpoint
 - [ ] WebSocket handler: receive `AudioChunk` stream → run STT → return `Transcript`
 - [ ] WebSocket handler: receive `Transcript` → run LLM → return `AssistantResponse`

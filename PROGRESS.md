@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-03 (session 3) UTC]
+**Completed:** Created `server/llm/prompts.py` — base system prompt constant and `build_system_prompt()` function for the assistant persona
+**Files changed:** server/llm/prompts.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
+**Next up:** `server/main.py` — FastAPI app with a single `/ws` WebSocket endpoint
+**Blockers:** None
+---
+
 ## [2026-05-03 (session 2) UTC]
 **Completed:** Created `server/llm/client.py` — async Ollama client wrapper with `chat()` and `complete()` methods
 **Files changed:** server/llm/client.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
