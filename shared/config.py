@@ -20,6 +20,13 @@ class OllamaConfig:
 
 
 @dataclass
+class WhisperConfig:
+    model: str = "large-v3"
+    device: str = "auto"
+    compute_type: str = "auto"
+
+
+@dataclass
 class GoogleConfig:
     credentials_file: str = "config/google_credentials.json"
 
@@ -57,6 +64,7 @@ class AndroidTvConfig:
 class AppConfig:
     server: ServerConfig = field(default_factory=ServerConfig)
     ollama: OllamaConfig = field(default_factory=OllamaConfig)
+    whisper: WhisperConfig = field(default_factory=WhisperConfig)
     google: GoogleConfig = field(default_factory=GoogleConfig)
     spotify: SpotifyConfig = field(default_factory=SpotifyConfig)
     cta: CtaConfig = field(default_factory=CtaConfig)
@@ -86,6 +94,7 @@ def load(path: str | None = None) -> AppConfig:
 
     srv = raw.get("server", {})
     oll = raw.get("ollama", {})
+    whi = raw.get("whisper", {})
     goo = raw.get("google", {})
     spo = raw.get("spotify", {})
     cta = raw.get("cta", {})
@@ -100,6 +109,11 @@ def load(path: str | None = None) -> AppConfig:
         ollama=OllamaConfig(
             host=oll.get("host", "http://localhost:11434"),
             model=oll.get("model", "llama3.1:8b-instruct-q4_K_M"),
+        ),
+        whisper=WhisperConfig(
+            model=whi.get("model", "large-v3"),
+            device=whi.get("device", "auto"),
+            compute_type=whi.get("compute_type", "auto"),
         ),
         google=GoogleConfig(
             credentials_file=goo.get("credentials_file", "config/google_credentials.json"),

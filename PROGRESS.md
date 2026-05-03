@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-03 (session 5) UTC]
+**Completed:** Implemented STT WebSocket handler — `server/stt/transcriber.py` (WhisperTranscriber wrapping faster-whisper); buffers AudioChunk stream per session_id; transcribes on is_final via run_in_executor; WhisperConfig added to shared/config.py
+**Files changed:** server/stt/__init__.py, server/stt/transcriber.py, server/main.py, shared/config.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** WebSocket handler: receive `Transcript` → run LLM → return `AssistantResponse`
+**Blockers:** None
+---
+
 ## [2026-05-03 (session 4) UTC]
 **Completed:** Created `server/main.py` — FastAPI app with lifespan, OllamaClient init, and `/ws` WebSocket endpoint dispatching AudioChunk/Transcript messages
 **Files changed:** server/main.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md

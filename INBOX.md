@@ -24,6 +24,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-03 (session 5)
+**Status:** Phase 1 in progress. Implemented STT handler — `server/stt/transcriber.py` (WhisperTranscriber) + `_handle_audio_chunk` in main.py buffers AudioChunk stream and transcribes on is_final.  
+**Next task:** WebSocket handler: receive `Transcript` → run LLM → return `AssistantResponse`.  
+**Blockers:** None.
+
 ### 2026-05-03 (session 2)
 **Status:** Phase 1 in progress. Created `server/llm/client.py` — async Ollama client wrapper.  
 **Next task:** `server/llm/prompts.py` — system prompt for the assistant persona.  

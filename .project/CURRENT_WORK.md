@@ -1,13 +1,13 @@
 # Current Work
 
-**Last updated:** 2026-05-03 (session 4)  
+**Last updated:** 2026-05-03 (session 5)  
 **Phase:** Phase 1 — Core Voice Pipeline (in progress)
 
 ---
 
 ## Status
 
-`server/main.py` created — FastAPI app with lifespan (loads config, initializes OllamaClient); `/ws` WebSocket endpoint dispatches `AudioChunk` messages to `_handle_audio_chunk` and `Transcript` messages to `_handle_transcript` (both stubs for next tasks).
+STT handler implemented. `server/stt/transcriber.py` wraps `faster-whisper` with `WhisperTranscriber`; `server/main.py` buffers `AudioChunk` messages per session and runs transcription on `is_final=True` via thread executor. `WhisperConfig` added to `shared/config.py` (reads `whisper:` section from settings.yaml).
 
 ## Documents
 
@@ -31,11 +31,12 @@
 
 ## Last Completed
 
-- `server/main.py` — FastAPI app with lifespan; `/ws` WebSocket endpoint with AudioChunk and Transcript dispatch; stubs for STT and LLM handlers
+- `server/stt/transcriber.py` — WhisperTranscriber wrapping faster-whisper; buffers AudioChunk stream per session_id; transcribes on is_final via run_in_executor
+- `shared/config.py` — added WhisperConfig dataclass and wired into AppConfig/load()
 
 ## Next Task
 
-- Phase 1 / Server: WebSocket handler: receive `AudioChunk` stream → run STT → return `Transcript`
+- Phase 1 / Server: WebSocket handler: receive `Transcript` → run LLM → return `AssistantResponse`
 
 ## Open Questions
 
