@@ -1,0 +1,74 @@
+# Home Assistant Configuration
+# All secrets stay in this file — never commit real values.
+# Replace every placeholder (CHANGE_ME / x.x.x.x) before first run.
+
+server:
+  host: 0.0.0.0
+  port: 8000
+
+ollama:
+  host: http://localhost:11434
+  # Pre-GPU: llama3.1:8b-instruct-q4_K_M
+  # Post-GPU (RTX 4060 Ti 16GB): llama3.1:13b-instruct-q4_K_M
+  model: llama3.1:8b-instruct-q4_K_M
+
+whisper:
+  # Model used for STT on the server; "large-v3" recommended for accuracy
+  model: large-v3
+  device: cpu          # set to "cuda" after GPU upgrade
+  compute_type: int8   # use "float16" on GPU
+
+wake_word:
+  # openWakeWord model name; custom models saved to pi/wake_word/models/
+  model: hey_jarvis
+  threshold: 0.5       # 0.0–1.0; higher = fewer false positives
+
+google:
+  credentials_file: config/google_credentials.json
+  token_file: config/google_token.json
+  # OAuth2 scopes (requested together during first-run auth flow)
+  scopes:
+    - https://www.googleapis.com/auth/calendar
+    - https://www.googleapis.com/auth/tasks
+
+spotify:
+  # Both users must have Spotify Premium for Connect API to work
+  owner:
+    client_id: CHANGE_ME
+    client_secret: CHANGE_ME
+    redirect_uri: http://localhost:8888/callback
+  emily:
+    client_id: CHANGE_ME
+    client_secret: CHANGE_ME
+    redirect_uri: http://localhost:8889/callback
+
+cta:
+  api_key: CHANGE_ME
+  # Blue Line stop IDs for Western & Milwaukee (O'Hare direction and Forest Park direction)
+  stop_id_ohare: 30238
+  stop_id_forest_park: 30239
+
+weather:
+  api_key: CHANGE_ME
+  location: "Chicago, IL"
+  units: imperial   # imperial = °F, metric = °C
+
+androidtv:
+  host: 192.168.x.x   # Replace with TV's local IP address
+  port: 6466           # Android TV Remote Service protocol (no ADB needed)
+  # Supported apps (package names)
+  apps:
+    spotify: com.spotify.tv.android
+    netflix: com.netflix.ninja
+    youtube: com.google.android.youtube.tv
+
+users:
+  owner:
+    name: Owner          # Replace with actual first name
+    spotify_token_file: config/spotify_token_owner.json
+  emily:
+    name: Emily
+    spotify_token_file: config/spotify_token_emily.json
+
+voice_profiles:
+  directory: config/voice_profiles/

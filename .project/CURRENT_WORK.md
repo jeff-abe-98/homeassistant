@@ -1,13 +1,13 @@
 # Current Work
 
-**Last updated:** 2026-05-02  
-**Phase:** Phase 1 — Core Voice Pipeline (in progress) | Inbox processed
+**Last updated:** 2026-05-03  
+**Phase:** Phase 1 — Core Voice Pipeline (in progress)
 
 ---
 
 ## Status
 
-Repo structure initialized. All directories (`pi/`, `server/`, `shared/`, `config/`) created with `__init__.py` files. Ready to create requirements files.
+`config/settings.yaml` skeleton created with placeholder values for all integrations. Ready to implement server LLM layer.
 
 ## Documents
 
@@ -31,11 +31,11 @@ Repo structure initialized. All directories (`pi/`, `server/`, `shared/`, `confi
 
 ## Last Completed
 
-- Inbox processing: checked off "agent writes to INBOX.md at startup" — added Agent Startup Log section to INBOX.md, added task to plan.md Phase 6, wrote first startup entry
+- `config/settings.yaml` — skeleton config with placeholder values for Ollama, Whisper, wake word, Google OAuth, Spotify (owner + Emily), CTA, weather, Android TV, and user profiles
 
 ## Next Task
 
-- Phase 1 / Server: `config/settings.yaml` — skeleton config file (no real secrets yet)
+- Phase 1 / Server: `server/llm/client.py` — Ollama client wrapper (send prompt, return response string)
 
 ## Open Questions
 

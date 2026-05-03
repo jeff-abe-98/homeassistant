@@ -14,7 +14,7 @@
 - [x] `requirements-pi.txt` with: openWakeWord, pyaudio, webrtcvad, resemblyzer, sounddevice, websockets, pydantic, pyyaml — created with pinned minimum versions
 - [x] `shared/models.py` — Pydantic models: `AudioChunk`, `Transcript`, `SpeakerResult`, `AssistantResponse` — created with session_id + sequence/audio_bytes/sample_rate/is_final for AudioChunk; text for Transcript; user+confidence for SpeakerResult; text for AssistantResponse
 - [x] `shared/config.py` — load `config/settings.yaml` into dataclasses — `AppConfig` dataclass tree with `load()` function; falls back to defaults if file missing; respects `SETTINGS_PATH` env var
-- [ ] `config/settings.yaml` — skeleton config file (no real secrets yet)
+- [x] `config/settings.yaml` — skeleton config file (no real secrets yet) — created with placeholder values for all integrations (Ollama, Whisper, wake word, Google, Spotify x2, CTA, weather, Android TV, users)
 - [ ] `server/llm/client.py` — Ollama client wrapper (send prompt, return response string)
 - [ ] `server/llm/prompts.py` — system prompt for the assistant persona
 - [ ] `server/main.py` — FastAPI app with a single `/ws` WebSocket endpoint
