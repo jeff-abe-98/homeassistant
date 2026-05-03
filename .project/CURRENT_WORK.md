@@ -1,13 +1,13 @@
 # Current Work
 
-**Last updated:** 2026-05-03  
+**Last updated:** 2026-05-03 (session 2)  
 **Phase:** Phase 1 — Core Voice Pipeline (in progress)
 
 ---
 
 ## Status
 
-`config/settings.yaml` skeleton created with placeholder values for all integrations. Ready to implement server LLM layer.
+`server/llm/client.py` created — async Ollama wrapper with `chat(messages)` and `complete(system, user)` methods. Ready to implement the system prompt module.
 
 ## Documents
 
@@ -31,11 +31,11 @@
 
 ## Last Completed
 
-- `config/settings.yaml` — skeleton config with placeholder values for Ollama, Whisper, wake word, Google OAuth, Spotify (owner + Emily), CTA, weather, Android TV, and user profiles
+- `server/llm/client.py` — `OllamaClient` class with async `chat(messages)` and `complete(system_prompt, user_message)` methods, backed by `ollama.AsyncClient`
 
 ## Next Task
 
-- Phase 1 / Server: `server/llm/client.py` — Ollama client wrapper (send prompt, return response string)
+- Phase 1 / Server: `server/llm/prompts.py` — system prompt for the assistant persona
 
 ## Open Questions
 

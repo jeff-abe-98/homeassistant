@@ -24,6 +24,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-03 (session 2)
+**Status:** Phase 1 in progress. Created `server/llm/client.py` — async Ollama client wrapper.  
+**Next task:** `server/llm/prompts.py` — system prompt for the assistant persona.  
+**Blockers:** None.
+
 ### 2026-05-03
 **Status:** Phase 1 in progress. Created `config/settings.yaml` skeleton with placeholder values for all integrations.  
 **Next task:** `server/llm/client.py` — Ollama client wrapper.  

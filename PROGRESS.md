@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-03 (session 2) UTC]
+**Completed:** Created `server/llm/client.py` — async Ollama client wrapper with `chat()` and `complete()` methods
+**Files changed:** server/llm/client.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** `server/llm/prompts.py` — system prompt for the assistant persona
+**Blockers:** None
+---
+
 ## [2026-05-03 00:00 UTC]
 **Completed:** Created `config/settings.yaml` skeleton with placeholder values for all integrations
 **Files changed:** config/settings.yaml, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
