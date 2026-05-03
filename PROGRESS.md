@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-03 (session 4) UTC]
+**Completed:** Created `server/main.py` — FastAPI app with lifespan, OllamaClient init, and `/ws` WebSocket endpoint dispatching AudioChunk/Transcript messages
+**Files changed:** server/main.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
+**Next up:** WebSocket handler: receive `AudioChunk` stream → run STT → return `Transcript`
+**Blockers:** None
+---
+
 ## [2026-05-03 (session 3) UTC]
 **Completed:** Created `server/llm/prompts.py` — base system prompt constant and `build_system_prompt()` function for the assistant persona
 **Files changed:** server/llm/prompts.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md

@@ -1,13 +1,13 @@
 # Current Work
 
-**Last updated:** 2026-05-03 (session 3)  
+**Last updated:** 2026-05-03 (session 4)  
 **Phase:** Phase 1 — Core Voice Pipeline (in progress)
 
 ---
 
 ## Status
 
-`server/llm/prompts.py` created — base system prompt constant and `build_system_prompt()` function. Phase 2 will extend this to inject the identified user's name.
+`server/main.py` created — FastAPI app with lifespan (loads config, initializes OllamaClient); `/ws` WebSocket endpoint dispatches `AudioChunk` messages to `_handle_audio_chunk` and `Transcript` messages to `_handle_transcript` (both stubs for next tasks).
 
 ## Documents
 
@@ -31,11 +31,11 @@
 
 ## Last Completed
 
-- `server/llm/prompts.py` — `_BASE` string constant + `build_system_prompt()` function; plain spoken language, no markdown, concise
+- `server/main.py` — FastAPI app with lifespan; `/ws` WebSocket endpoint with AudioChunk and Transcript dispatch; stubs for STT and LLM handlers
 
 ## Next Task
 
-- Phase 1 / Server: `server/main.py` — FastAPI app with a single `/ws` WebSocket endpoint
+- Phase 1 / Server: WebSocket handler: receive `AudioChunk` stream → run STT → return `Transcript`
 
 ## Open Questions
 
