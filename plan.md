@@ -127,6 +127,7 @@
 ## Phase 6 — Hardening & Quality
 *Goal: Reliable, always-on operation.*
 
+- [ ] `docs/parts-list.md` — hardware parts list split into Pi section and server section (components, links, estimated prices)
 - [ ] Systemd service for server (auto-start, auto-restart)
 - [ ] Systemd service for Pi client (auto-start on boot)
 - [ ] Error handling: graceful recovery from LLM timeout, API failures, network drop

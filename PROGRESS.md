@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-04 UTC (session 9)]
+**Completed:** Processed inbox — triaged "Add a parts list (Pi + server)" into plan.md Phase 6 as `docs/parts-list.md` task
+**Files changed:** plan.md, INBOX.md, .project/CURRENT_WORK.md, PROGRESS.md
+**Next up:** `pi/tts/piper.py` — wrap Piper TTS (text in → audio bytes out)
+**Blockers:** None
+---
+
 ## [2026-05-04 UTC (session 8)]
 **Completed:** Implemented `pi/audio/playback.py` — `AudioPlayer` wrapping sounddevice; 22050 Hz mono int16 defaults (Piper TTS format); `play()` blocks until done; `stop()` interrupts
 **Files changed:** pi/audio/playback.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md

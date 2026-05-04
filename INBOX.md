@@ -13,7 +13,7 @@ The agent reads this at the start of every run.
 ## Ideas & Improvements
 *New features, changes to existing features, or improvements. Agent will triage these into plan.md and check them off.*
  - [x] Make sure that when you are reading this at start up, you are also writing here. *(added to plan.md Phase 6)*
- - [ ] Add a parts list. this should be split into parts for the Pi, and parts for the server.
+ - [x] Add a parts list. this should be split into parts for the Pi, and parts for the server. *(added to plan.md Phase 6)*
 
 ## Notes
 *Anything else — reminders, context, thoughts.*
@@ -24,6 +24,11 @@ The agent reads this at the start of every run.
 
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
+
+### 2026-05-04 (session 9)
+**Status:** Phase 1 Pi in progress. Processed inbox: parts list triaged into plan.md Phase 6.  
+**Next task:** `pi/tts/piper.py` — wrap Piper TTS (text in → audio bytes out).  
+**Blockers:** None.
 
 ### 2026-05-04 (session 7)
 **Status:** Phase 1 Pi in progress. Implemented `pi/audio/capture.py` — `VoiceCapture` with PyAudio + webrtcvad; 30ms/16kHz frames; 300ms pre-speech ring; 900ms silence ring; yields `AudioChunk` per frame, final chunk is_final=True.  

@@ -1,6 +1,6 @@
 # Current Work
 
-**Last updated:** 2026-05-04 (session 8)  
+**Last updated:** 2026-05-04 (session 9)  
 **Phase:** Phase 1 — Core Voice Pipeline (Pi in progress)
 
 ---
@@ -31,7 +31,7 @@ Pi audio playback complete. `pi/audio/playback.py` implements `AudioPlayer` usin
 
 ## Last Completed
 
-- `pi/audio/playback.py` — `AudioPlayer` wrapping sounddevice; 22050 Hz mono int16 default (Piper TTS format); `play()` blocks; `stop()` for interruption
+- Inbox processed (session 9): "Add a parts list" triaged → added to plan.md Phase 6 as `docs/parts-list.md` task
 
 ## Next Task
 
