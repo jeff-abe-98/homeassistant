@@ -1,13 +1,13 @@
 # Current Work
 
-**Last updated:** 2026-05-04 (session 7)  
+**Last updated:** 2026-05-04 (session 8)  
 **Phase:** Phase 1 — Core Voice Pipeline (Pi in progress)
 
 ---
 
 ## Status
 
-Pi audio capture complete. `pi/audio/capture.py` implements `VoiceCapture` using PyAudio + webrtcvad: 30ms frames at 16kHz, pre-speech ring buffer (300ms), silence ring (900ms), yields `AudioChunk` per frame with a fresh UUID session_id per utterance.
+Pi audio playback complete. `pi/audio/playback.py` implements `AudioPlayer` using sounddevice: configurable sample_rate/channels/device; `play()` blocks until done; `stop()` interrupts playback.
 
 ## Documents
 
@@ -31,11 +31,11 @@ Pi audio capture complete. `pi/audio/capture.py` implements `VoiceCapture` using
 
 ## Last Completed
 
-- `pi/audio/capture.py` — `VoiceCapture` with PyAudio + webrtcvad; 30ms frames; pre-speech + silence ring buffers; yields `AudioChunk` stream per utterance
+- `pi/audio/playback.py` — `AudioPlayer` wrapping sounddevice; 22050 Hz mono int16 default (Piper TTS format); `play()` blocks; `stop()` for interruption
 
 ## Next Task
 
-- Phase 1 / Pi: `pi/audio/playback.py` — play audio bytes through HDMI output
+- Phase 1 / Pi: `pi/tts/piper.py` — wrap Piper TTS (text in → audio bytes out)
 
 ## Open Questions
 

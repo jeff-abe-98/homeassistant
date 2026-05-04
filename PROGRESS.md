@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-04 UTC (session 8)]
+**Completed:** Implemented `pi/audio/playback.py` — `AudioPlayer` wrapping sounddevice; 22050 Hz mono int16 defaults (Piper TTS format); `play()` blocks until done; `stop()` interrupts
+**Files changed:** pi/audio/playback.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
+**Next up:** `pi/tts/piper.py` — wrap Piper TTS (text in → audio bytes out)
+**Blockers:** None
+---
+
 ## [2026-05-04 UTC (session 7)]
 **Completed:** Implemented `pi/audio/capture.py` — `VoiceCapture` class with PyAudio mic input, WebRTC VAD gating; 30ms frames at 16kHz; 300ms pre-speech ring buffer + 900ms silence ring; new UUID session_id per utterance; yields `AudioChunk` stream with is_final=True on silence
 **Files changed:** pi/audio/capture.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
