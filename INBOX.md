@@ -13,6 +13,7 @@ The agent reads this at the start of every run.
 ## Ideas & Improvements
 *New features, changes to existing features, or improvements. Agent will triage these into plan.md and check them off.*
  - [x] Make sure that when you are reading this at start up, you are also writing here. *(added to plan.md Phase 6)*
+ - [ ] Add a parts list. this should be split into parts for the Pi, and parts for the server.
 
 ## Notes
 *Anything else — reminders, context, thoughts.*
