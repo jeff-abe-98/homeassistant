@@ -24,6 +24,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-04 (session 7)
+**Status:** Phase 1 Pi in progress. Implemented `pi/audio/capture.py` — `VoiceCapture` with PyAudio + webrtcvad; 30ms/16kHz frames; 300ms pre-speech ring; 900ms silence ring; yields `AudioChunk` per frame, final chunk is_final=True.  
+**Next task:** `pi/audio/playback.py` — play audio bytes through HDMI output (sounddevice).  
+**Blockers:** None.
+
 ### 2026-05-04 (session 6)
 **Status:** Phase 1 server-side complete. Implemented `_handle_transcript` — Transcript feeds into `_llm.complete(build_system_prompt(), text)` and returns `AssistantResponse`. Full server pipeline is live.  
 **Next task:** `pi/audio/capture.py` — mic input with WebRTC VAD.  

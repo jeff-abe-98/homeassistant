@@ -22,7 +22,7 @@
 - [x] WebSocket handler: receive `Transcript` → run LLM → return `AssistantResponse` — `_handle_transcript` calls `_llm.complete(build_system_prompt(), transcript.text)` and returns `AssistantResponse`
 
 ### Pi
-- [ ] `pi/audio/capture.py` — mic input with WebRTC VAD (start/stop on voice activity)
+- [x] `pi/audio/capture.py` — mic input with WebRTC VAD (start/stop on voice activity) — `VoiceCapture` class; pre-speech ring buffer (300ms), silence ring (900ms); yields `AudioChunk` per 30ms frame; new UUID session_id per utterance; final chunk is_final=True with empty bytes
 - [ ] `pi/audio/playback.py` — play audio bytes through HDMI output
 - [ ] `pi/tts/piper.py` — wrap Piper TTS (text in → audio bytes out)
 - [ ] `pi/wake_word/detector.py` — openWakeWord listener, fires callback on detection

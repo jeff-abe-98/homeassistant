@@ -1,13 +1,13 @@
 # Current Work
 
-**Last updated:** 2026-05-04 (session 6)  
-**Phase:** Phase 1 — Core Voice Pipeline (server complete, Pi next)
+**Last updated:** 2026-05-04 (session 7)  
+**Phase:** Phase 1 — Core Voice Pipeline (Pi in progress)
 
 ---
 
 ## Status
 
-Server-side voice pipeline complete. `_handle_transcript` in `server/main.py` now calls `_llm.complete(build_system_prompt(), transcript.text)` and returns `AssistantResponse`. Full server flow: AudioChunk → STT → Transcript → LLM → AssistantResponse.
+Pi audio capture complete. `pi/audio/capture.py` implements `VoiceCapture` using PyAudio + webrtcvad: 30ms frames at 16kHz, pre-speech ring buffer (300ms), silence ring (900ms), yields `AudioChunk` per frame with a fresh UUID session_id per utterance.
 
 ## Documents
 
@@ -31,11 +31,11 @@ Server-side voice pipeline complete. `_handle_transcript` in `server/main.py` no
 
 ## Last Completed
 
-- `server/main.py` — `_handle_transcript` wired to LLM: calls `build_system_prompt()` + `_llm.complete()`, returns `AssistantResponse`
+- `pi/audio/capture.py` — `VoiceCapture` with PyAudio + webrtcvad; 30ms frames; pre-speech + silence ring buffers; yields `AudioChunk` stream per utterance
 
 ## Next Task
 
-- Phase 1 / Pi: `pi/audio/capture.py` — mic input with WebRTC VAD (start/stop on voice activity)
+- Phase 1 / Pi: `pi/audio/playback.py` — play audio bytes through HDMI output
 
 ## Open Questions
 

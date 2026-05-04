@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-04 UTC (session 7)]
+**Completed:** Implemented `pi/audio/capture.py` — `VoiceCapture` class with PyAudio mic input, WebRTC VAD gating; 30ms frames at 16kHz; 300ms pre-speech ring buffer + 900ms silence ring; new UUID session_id per utterance; yields `AudioChunk` stream with is_final=True on silence
+**Files changed:** pi/audio/capture.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** `pi/audio/playback.py` — play audio bytes through HDMI output
+**Blockers:** None
+---
+
 ## [2026-05-04 UTC]
 **Completed:** Implemented `_handle_transcript` in `server/main.py` — wires Transcript through LLM, returns AssistantResponse; server voice pipeline now fully end-to-end
 **Files changed:** server/main.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
