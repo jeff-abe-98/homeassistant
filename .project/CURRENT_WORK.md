@@ -1,13 +1,13 @@
 # Current Work
 
-**Last updated:** 2026-05-03 (session 5)  
-**Phase:** Phase 1 — Core Voice Pipeline (in progress)
+**Last updated:** 2026-05-04 (session 6)  
+**Phase:** Phase 1 — Core Voice Pipeline (server complete, Pi next)
 
 ---
 
 ## Status
 
-STT handler implemented. `server/stt/transcriber.py` wraps `faster-whisper` with `WhisperTranscriber`; `server/main.py` buffers `AudioChunk` messages per session and runs transcription on `is_final=True` via thread executor. `WhisperConfig` added to `shared/config.py` (reads `whisper:` section from settings.yaml).
+Server-side voice pipeline complete. `_handle_transcript` in `server/main.py` now calls `_llm.complete(build_system_prompt(), transcript.text)` and returns `AssistantResponse`. Full server flow: AudioChunk → STT → Transcript → LLM → AssistantResponse.
 
 ## Documents
 
@@ -31,12 +31,11 @@ STT handler implemented. `server/stt/transcriber.py` wraps `faster-whisper` with
 
 ## Last Completed
 
-- `server/stt/transcriber.py` — WhisperTranscriber wrapping faster-whisper; buffers AudioChunk stream per session_id; transcribes on is_final via run_in_executor
-- `shared/config.py` — added WhisperConfig dataclass and wired into AppConfig/load()
+- `server/main.py` — `_handle_transcript` wired to LLM: calls `build_system_prompt()` + `_llm.complete()`, returns `AssistantResponse`
 
 ## Next Task
 
-- Phase 1 / Server: WebSocket handler: receive `Transcript` → run LLM → return `AssistantResponse`
+- Phase 1 / Pi: `pi/audio/capture.py` — mic input with WebRTC VAD (start/stop on voice activity)
 
 ## Open Questions
 

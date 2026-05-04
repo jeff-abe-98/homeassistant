@@ -11,6 +11,7 @@ import shared.config as cfg_module
 from shared.config import AppConfig
 from shared.models import AssistantResponse, AudioChunk, Transcript
 from server.llm.client import OllamaClient
+from server.llm.prompts import build_system_prompt
 from server.stt.transcriber import WhisperTranscriber
 
 logging.basicConfig(level=logging.INFO)
@@ -78,5 +79,7 @@ async def _handle_audio_chunk(chunk: AudioChunk) -> Transcript | None:
 
 
 async def _handle_transcript(transcript: Transcript) -> AssistantResponse | None:
-    """Receive Transcript, run LLM, return AssistantResponse. Implemented in next task."""
-    return None
+    system_prompt = build_system_prompt()
+    reply = await _llm.complete(system_prompt, transcript.text)
+    logger.info("LLM [%s]: %r", transcript.session_id, reply)
+    return AssistantResponse(session_id=transcript.session_id, text=reply)

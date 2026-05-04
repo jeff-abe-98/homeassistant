@@ -19,7 +19,7 @@
 - [x] `server/llm/prompts.py` — system prompt for the assistant persona — `_BASE` constant + `build_system_prompt()` function; plain spoken language, concise, no markdown
 - [x] `server/main.py` — FastAPI app with a single `/ws` WebSocket endpoint — FastAPI app with lifespan (loads config, initializes OllamaClient); `/ws` dispatches AudioChunk→`_handle_audio_chunk` and Transcript→`_handle_transcript` stubs
 - [x] WebSocket handler: receive `AudioChunk` stream → run STT → return `Transcript` — `server/stt/transcriber.py` (WhisperTranscriber); buffers chunks by session_id, runs on executor on is_final; WhisperConfig added to shared/config.py
-- [ ] WebSocket handler: receive `Transcript` → run LLM → return `AssistantResponse`
+- [x] WebSocket handler: receive `Transcript` → run LLM → return `AssistantResponse` — `_handle_transcript` calls `_llm.complete(build_system_prompt(), transcript.text)` and returns `AssistantResponse`
 
 ### Pi
 - [ ] `pi/audio/capture.py` — mic input with WebRTC VAD (start/stop on voice activity)
