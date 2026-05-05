@@ -61,6 +61,12 @@ class AndroidTvConfig:
 
 
 @dataclass
+class WakeWordConfig:
+    model: str = "hey_jarvis"
+    threshold: float = 0.5
+
+
+@dataclass
 class PiperConfig:
     model_path: str = "pi/tts/models/en_US-lessac-medium.onnx"
     use_cuda: bool = False
@@ -76,6 +82,7 @@ class AppConfig:
     cta: CtaConfig = field(default_factory=CtaConfig)
     weather: WeatherConfig = field(default_factory=WeatherConfig)
     androidtv: AndroidTvConfig = field(default_factory=AndroidTvConfig)
+    wake_word: WakeWordConfig = field(default_factory=WakeWordConfig)
     tts: PiperConfig = field(default_factory=PiperConfig)
 
 
@@ -107,6 +114,7 @@ def load(path: str | None = None) -> AppConfig:
     cta = raw.get("cta", {})
     wea = raw.get("weather", {})
     atv = raw.get("androidtv", {})
+    wkw = raw.get("wake_word", {})
     tts = raw.get("tts", {})
 
     return AppConfig(
@@ -140,6 +148,10 @@ def load(path: str | None = None) -> AppConfig:
         androidtv=AndroidTvConfig(
             host=atv.get("host", ""),
             port=int(atv.get("port", 6466)),
+        ),
+        wake_word=WakeWordConfig(
+            model=wkw.get("model", "hey_jarvis"),
+            threshold=float(wkw.get("threshold", 0.5)),
         ),
         tts=PiperConfig(
             model_path=tts.get("model_path", "pi/tts/models/en_US-lessac-medium.onnx"),

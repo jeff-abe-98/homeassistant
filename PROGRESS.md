@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-05 UTC (session 11)]
+**Completed:** Implemented `pi/wake_word/detector.py` — `WakeWordDetector` class; background thread reads 80ms PyAudio frames at 16kHz; openWakeWord `Model.predict()` checked against threshold; fires `on_detection()` callback then stops; `WakeWordConfig` added to `shared/config.py`
+**Files changed:** pi/wake_word/detector.py, shared/config.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** `pi/client.py` — WebSocket client connecting to server `/ws`
+**Blockers:** None
+---
+
 ## [2026-05-05 UTC (session 10)]
 **Completed:** Implemented `pi/tts/piper.py` — `PiperTTS` class wrapping Piper TTS; `synthesize(text) -> bytes` returns raw int16 PCM; `sample_rate` from model config; deferred `PiperVoice` import; `PiperConfig` added to `shared/config.py` and `config/settings.yaml`; `piper-tts>=2.0.0` added to `requirements-pi.txt`
 **Files changed:** pi/tts/piper.py, shared/config.py, config/settings.yaml, requirements-pi.txt, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
@@ -64,13 +71,6 @@ Most recent run at top.
 **Completed:** Created `server/llm/client.py` — async Ollama client wrapper with `chat()` and `complete()` methods
 **Files changed:** server/llm/client.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
 **Next up:** `server/llm/prompts.py` — system prompt for the assistant persona
-**Blockers:** None
----
-
-## [2026-05-03 00:00 UTC]
-**Completed:** Created `config/settings.yaml` skeleton with placeholder values for all integrations
-**Files changed:** config/settings.yaml, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
-**Next up:** `server/llm/client.py` — Ollama client wrapper (send prompt, return response string)
 **Blockers:** None
 ---
 

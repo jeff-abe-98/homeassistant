@@ -1,13 +1,13 @@
 # Current Work
 
-**Last updated:** 2026-05-05 (session 10)  
+**Last updated:** 2026-05-05 (session 11)  
 **Phase:** Phase 1 — Core Voice Pipeline (Pi in progress)
 
 ---
 
 ## Status
 
-Piper TTS wrapper complete. `pi/tts/piper.py` implements `PiperTTS`: deferred `PiperVoice` import (server-side safe); `synthesize(text) -> bytes` returns raw int16 PCM; `sample_rate` property reads from model config. `PiperConfig` dataclass added to `shared/config.py`; `tts:` section added to `config/settings.yaml`. `piper-tts>=2.0.0` added to `requirements-pi.txt`.
+Wake word detector complete. `pi/wake_word/detector.py` implements `WakeWordDetector`: background thread reads 80ms PyAudio frames at 16kHz, feeds them to the openWakeWord `Model`, and fires `on_detection()` callback when any model score exceeds the configured threshold. `WakeWordConfig` dataclass added to `shared/config.py`; `wake_word:` section wired into `load()` (settings.yaml already had the section).
 
 ## Documents
 
@@ -31,11 +31,11 @@ Piper TTS wrapper complete. `pi/tts/piper.py` implements `PiperTTS`: deferred `P
 
 ## Last Completed
 
-- `pi/tts/piper.py` — `PiperTTS` wrapper with `synthesize()` and `sample_rate`; `PiperConfig` in shared config
+- `pi/wake_word/detector.py` — `WakeWordDetector` with background PyAudio thread, openWakeWord scoring, callback on detection; `WakeWordConfig` in shared config
 
 ## Next Task
 
-- Phase 1 / Pi: `pi/wake_word/detector.py` — openWakeWord listener, fires callback on detection
+- Phase 1 / Pi: `pi/client.py` — WebSocket client connecting to server `/ws`
 
 ## Open Questions
 
