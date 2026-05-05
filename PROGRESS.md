@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-05 UTC (session 13)]
+**Completed:** Implemented `pi/main.py` — async main loop; WakeWordDetector start/stop around each utterance; VoiceCapture.stream() bridged to async via background thread + asyncio.Queue; streams AudioChunk frames to server; awaits receive_transcript → send_transcript → receive_response; TTS synthesis + playback via run_in_executor; exception-safe utterance retry
+**Files changed:** pi/main.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** End-to-end test: say wake word → ask "what is 2 plus 2" → assistant responds via speaker
+**Blockers:** None
+---
+
 ## [2026-05-05 UTC (session 12)]
 **Completed:** Implemented `pi/client.py` — `AssistantClient` WebSocket client; async context manager (`connect`/`disconnect`/`__aenter__`/`__aexit__`); `send_audio_chunk`, `send_transcript`, `receive_transcript`, `receive_response`; background listener routes server messages into per-session `asyncio.Queue`; optional async `on_transcript`/`on_response` callbacks
 **Files changed:** pi/client.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

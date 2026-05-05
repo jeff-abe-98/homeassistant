@@ -25,6 +25,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-05 (session 13)
+**Status:** Phase 1 Pi complete. Implemented `pi/main.py` — async main loop; WakeWordDetector start/stop per utterance; VoiceCapture.stream() bridged to async via background thread + asyncio.Queue; streams AudioChunk to server; receives Transcript, sends for LLM, receives AssistantResponse; TTS + play via run_in_executor.  
+**Next task:** End-to-end test: wake word → "what is 2 plus 2" → spoken response.  
+**Blockers:** None.
+
 ### 2026-05-05 (session 12)
 **Status:** Phase 1 Pi in progress. Implemented `pi/client.py` — `AssistantClient` WebSocket client; sends `AudioChunk`/`Transcript`, receives `Transcript`/`AssistantResponse` via per-session `asyncio.Queue`; background listener task; async context manager.  
 **Next task:** `pi/main.py` — main loop: wake word → capture → send to server → receive response → TTS → play.  

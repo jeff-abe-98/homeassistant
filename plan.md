@@ -27,7 +27,7 @@
 - [x] `pi/tts/piper.py` — wrap Piper TTS (text in → audio bytes out) — `PiperTTS` class; deferred `PiperVoice` import; `synthesize(text) -> bytes` returns raw int16 PCM; `sample_rate` property from model config; `PiperConfig` added to shared/config.py and settings.yaml
 - [x] `pi/wake_word/detector.py` — openWakeWord listener, fires callback on detection — `WakeWordDetector` class; background thread reads 80ms PyAudio frames at 16kHz; calls `on_detection()` when openWakeWord score >= threshold; `WakeWordConfig` added to `shared/config.py` and wired into `load()`
 - [x] `pi/client.py` — WebSocket client connecting to server `/ws` — `AssistantClient` async context manager; `send_audio_chunk`, `send_transcript`, `receive_transcript`, `receive_response`; background listener routes server messages into per-session asyncio queues; optional `on_transcript`/`on_response` callbacks
-- [ ] `pi/main.py` — main loop: wake word → capture → send to server → receive response → TTS → play
+- [x] `pi/main.py` — main loop: wake word → capture → send to server → receive response → TTS → play — async main(); `WakeWordDetector` starts/stops around each utterance; `VoiceCapture.stream()` fed to server via background thread + asyncio.Queue; `receive_transcript` → `send_transcript` → `receive_response`; TTS + playback via `run_in_executor`
 
 ### Testing Phase 1
 - [ ] End-to-end test: say wake word → ask "what is 2 plus 2" → assistant responds via speaker

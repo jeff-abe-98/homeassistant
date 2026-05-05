@@ -1,7 +1,7 @@
 # Current Work
 
-**Last updated:** 2026-05-05 (session 12)  
-**Phase:** Phase 1 — Core Voice Pipeline (Pi in progress)
+**Last updated:** 2026-05-05 (session 13)  
+**Phase:** Phase 1 — Core Voice Pipeline (Pi complete, testing remaining)
 
 ---
 
@@ -31,11 +31,11 @@ WebSocket client complete. `pi/client.py` implements `AssistantClient`: async co
 
 ## Last Completed
 
-- `pi/client.py` — `AssistantClient` async context manager; sends AudioChunk/Transcript, receives Transcript/AssistantResponse via per-session asyncio queues
+- `pi/main.py` — async `main()` with `WakeWordDetector` start/stop per utterance; `VoiceCapture.stream()` bridged to async via background thread + `asyncio.Queue`; streams `AudioChunk` to server; `receive_transcript` → `send_transcript` → `receive_response`; TTS and playback via `run_in_executor`
 
 ## Next Task
 
-- Phase 1 / Pi: `pi/main.py` — main loop: wake word → capture → send to server → receive response → TTS → play
+- Phase 1 / Testing: end-to-end test — say wake word → ask "what is 2 plus 2" → assistant responds via speaker
 
 ## Open Questions
 
