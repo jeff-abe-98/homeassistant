@@ -25,6 +25,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-05 (session 10)
+**Status:** Phase 1 Pi in progress. Implemented `pi/tts/piper.py` — `PiperTTS` wrapping Piper TTS; `synthesize(text) -> bytes` returns raw int16 PCM; `PiperConfig` added to shared config and settings.yaml.  
+**Next task:** `pi/wake_word/detector.py` — openWakeWord listener, fires callback on detection.  
+**Blockers:** None.
+
 ### 2026-05-04 (session 9)
 **Status:** Phase 1 Pi in progress. Processed inbox: parts list triaged into plan.md Phase 6.  
 **Next task:** `pi/tts/piper.py` — wrap Piper TTS (text in → audio bytes out).  

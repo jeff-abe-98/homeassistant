@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-05 UTC (session 10)]
+**Completed:** Implemented `pi/tts/piper.py` — `PiperTTS` class wrapping Piper TTS; `synthesize(text) -> bytes` returns raw int16 PCM; `sample_rate` from model config; deferred `PiperVoice` import; `PiperConfig` added to `shared/config.py` and `config/settings.yaml`; `piper-tts>=2.0.0` added to `requirements-pi.txt`
+**Files changed:** pi/tts/piper.py, shared/config.py, config/settings.yaml, requirements-pi.txt, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** `pi/wake_word/detector.py` — openWakeWord listener, fires callback on detection
+**Blockers:** None
+---
+
 ## [2026-05-04 UTC (session 9)]
 **Completed:** Processed inbox — triaged "Add a parts list (Pi + server)" into plan.md Phase 6 as `docs/parts-list.md` task
 **Files changed:** plan.md, INBOX.md, .project/CURRENT_WORK.md, PROGRESS.md
@@ -67,9 +74,3 @@ Most recent run at top.
 **Blockers:** None
 ---
 
-## [2026-05-02 UTC]
-**Completed:** Processed INBOX.md — triaged "agent writes to INBOX.md at startup" into plan.md Phase 6 and implemented startup write-back now
-**Files changed:** INBOX.md, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
-**Next up:** `config/settings.yaml` — skeleton config file (no real secrets yet)
-**Blockers:** None
----

@@ -1,13 +1,13 @@
 # Current Work
 
-**Last updated:** 2026-05-04 (session 9)  
+**Last updated:** 2026-05-05 (session 10)  
 **Phase:** Phase 1 — Core Voice Pipeline (Pi in progress)
 
 ---
 
 ## Status
 
-Pi audio playback complete. `pi/audio/playback.py` implements `AudioPlayer` using sounddevice: configurable sample_rate/channels/device; `play()` blocks until done; `stop()` interrupts playback.
+Piper TTS wrapper complete. `pi/tts/piper.py` implements `PiperTTS`: deferred `PiperVoice` import (server-side safe); `synthesize(text) -> bytes` returns raw int16 PCM; `sample_rate` property reads from model config. `PiperConfig` dataclass added to `shared/config.py`; `tts:` section added to `config/settings.yaml`. `piper-tts>=2.0.0` added to `requirements-pi.txt`.
 
 ## Documents
 
@@ -31,11 +31,11 @@ Pi audio playback complete. `pi/audio/playback.py` implements `AudioPlayer` usin
 
 ## Last Completed
 
-- Inbox processed (session 9): "Add a parts list" triaged → added to plan.md Phase 6 as `docs/parts-list.md` task
+- `pi/tts/piper.py` — `PiperTTS` wrapper with `synthesize()` and `sample_rate`; `PiperConfig` in shared config
 
 ## Next Task
 
-- Phase 1 / Pi: `pi/tts/piper.py` — wrap Piper TTS (text in → audio bytes out)
+- Phase 1 / Pi: `pi/wake_word/detector.py` — openWakeWord listener, fires callback on detection
 
 ## Open Questions
 

@@ -70,5 +70,11 @@ users:
     name: Emily
     spotify_token_file: config/spotify_token_emily.json
 
+tts:
+  # Download voice models from: https://github.com/rhasspy/piper/blob/master/VOICES.md
+  # Place .onnx + .onnx.json files in pi/tts/models/
+  model_path: pi/tts/models/en_US-lessac-medium.onnx
+  use_cuda: false  # set true only if Pi has a compatible CUDA device (rare)
+
 voice_profiles:
   directory: config/voice_profiles/

@@ -61,6 +61,12 @@ class AndroidTvConfig:
 
 
 @dataclass
+class PiperConfig:
+    model_path: str = "pi/tts/models/en_US-lessac-medium.onnx"
+    use_cuda: bool = False
+
+
+@dataclass
 class AppConfig:
     server: ServerConfig = field(default_factory=ServerConfig)
     ollama: OllamaConfig = field(default_factory=OllamaConfig)
@@ -70,6 +76,7 @@ class AppConfig:
     cta: CtaConfig = field(default_factory=CtaConfig)
     weather: WeatherConfig = field(default_factory=WeatherConfig)
     androidtv: AndroidTvConfig = field(default_factory=AndroidTvConfig)
+    tts: PiperConfig = field(default_factory=PiperConfig)
 
 
 def _spotify_user(d: dict) -> SpotifyUserConfig:
@@ -100,6 +107,7 @@ def load(path: str | None = None) -> AppConfig:
     cta = raw.get("cta", {})
     wea = raw.get("weather", {})
     atv = raw.get("androidtv", {})
+    tts = raw.get("tts", {})
 
     return AppConfig(
         server=ServerConfig(
@@ -132,5 +140,9 @@ def load(path: str | None = None) -> AppConfig:
         androidtv=AndroidTvConfig(
             host=atv.get("host", ""),
             port=int(atv.get("port", 6466)),
+        ),
+        tts=PiperConfig(
+            model_path=tts.get("model_path", "pi/tts/models/en_US-lessac-medium.onnx"),
+            use_cuda=bool(tts.get("use_cuda", False)),
         ),
     )
