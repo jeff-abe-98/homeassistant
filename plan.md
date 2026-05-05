@@ -26,7 +26,7 @@
 - [x] `pi/audio/playback.py` — play audio bytes through HDMI output — `AudioPlayer` class wrapping sounddevice; configurable sample_rate/channels/device/dtype; `play()` blocks until done, `stop()` for interruption; 22050 Hz mono int16 default (Piper TTS output format)
 - [x] `pi/tts/piper.py` — wrap Piper TTS (text in → audio bytes out) — `PiperTTS` class; deferred `PiperVoice` import; `synthesize(text) -> bytes` returns raw int16 PCM; `sample_rate` property from model config; `PiperConfig` added to shared/config.py and settings.yaml
 - [x] `pi/wake_word/detector.py` — openWakeWord listener, fires callback on detection — `WakeWordDetector` class; background thread reads 80ms PyAudio frames at 16kHz; calls `on_detection()` when openWakeWord score >= threshold; `WakeWordConfig` added to `shared/config.py` and wired into `load()`
-- [ ] `pi/client.py` — WebSocket client connecting to server `/ws`
+- [x] `pi/client.py` — WebSocket client connecting to server `/ws` — `AssistantClient` async context manager; `send_audio_chunk`, `send_transcript`, `receive_transcript`, `receive_response`; background listener routes server messages into per-session asyncio queues; optional `on_transcript`/`on_response` callbacks
 - [ ] `pi/main.py` — main loop: wake word → capture → send to server → receive response → TTS → play
 
 ### Testing Phase 1

@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-05 UTC (session 12)]
+**Completed:** Implemented `pi/client.py` — `AssistantClient` WebSocket client; async context manager (`connect`/`disconnect`/`__aenter__`/`__aexit__`); `send_audio_chunk`, `send_transcript`, `receive_transcript`, `receive_response`; background listener routes server messages into per-session `asyncio.Queue`; optional async `on_transcript`/`on_response` callbacks
+**Files changed:** pi/client.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** `pi/main.py` — main loop: wake word → capture → send to server → receive response → TTS → play
+**Blockers:** None
+---
+
 ## [2026-05-05 UTC (session 11)]
 **Completed:** Implemented `pi/wake_word/detector.py` — `WakeWordDetector` class; background thread reads 80ms PyAudio frames at 16kHz; openWakeWord `Model.predict()` checked against threshold; fires `on_detection()` callback then stops; `WakeWordConfig` added to `shared/config.py`
 **Files changed:** pi/wake_word/detector.py, shared/config.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
