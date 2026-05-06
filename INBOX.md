@@ -25,6 +25,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-06 (session 14)
+**Status:** Phase 1 complete. Implemented `tests/test_e2e.py` — end-to-end pipeline test; real uvicorn server + real WebSocket client; STT + LLM mocked; `AudioChunk` → `Transcript` → `AssistantResponse` round-trip verified; 1 passed in 0.48 s.  
+**Next task:** Phase 2 / `pi/speaker_id/embeddings.py` — generate and save voice embeddings using resemblyzer.  
+**Blockers:** None.
+
 ### 2026-05-05 (session 13)
 **Status:** Phase 1 Pi complete. Implemented `pi/main.py` — async main loop; WakeWordDetector start/stop per utterance; VoiceCapture.stream() bridged to async via background thread + asyncio.Queue; streams AudioChunk to server; receives Transcript, sends for LLM, receives AssistantResponse; TTS + play via run_in_executor.  
 **Next task:** End-to-end test: wake word → "what is 2 plus 2" → spoken response.  

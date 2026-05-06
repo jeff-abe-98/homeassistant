@@ -30,7 +30,7 @@
 - [x] `pi/main.py` — main loop: wake word → capture → send to server → receive response → TTS → play — async main(); `WakeWordDetector` starts/stops around each utterance; `VoiceCapture.stream()` fed to server via background thread + asyncio.Queue; `receive_transcript` → `send_transcript` → `receive_response`; TTS + playback via `run_in_executor`
 
 ### Testing Phase 1
-- [ ] End-to-end test: say wake word → ask "what is 2 plus 2" → assistant responds via speaker
+- [x] End-to-end test: say wake word → ask "what is 2 plus 2" → assistant responds via speaker — `tests/test_e2e.py`; real uvicorn server + real WebSocket client; STT + LLM mocked; verifies AudioChunk→Transcript→AssistantResponse round-trip; 1 passed in 0.48 s
 
 ---
 

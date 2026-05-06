@@ -1,7 +1,7 @@
 # Current Work
 
-**Last updated:** 2026-05-05 (session 13)  
-**Phase:** Phase 1 — Core Voice Pipeline (Pi complete, testing remaining)
+**Last updated:** 2026-05-06 (session 14)  
+**Phase:** Phase 1 — Core Voice Pipeline (complete)
 
 ---
 
@@ -31,11 +31,13 @@ WebSocket client complete. `pi/client.py` implements `AssistantClient`: async co
 
 ## Last Completed
 
-- `pi/main.py` — async `main()` with `WakeWordDetector` start/stop per utterance; `VoiceCapture.stream()` bridged to async via background thread + `asyncio.Queue`; streams `AudioChunk` to server; `receive_transcript` → `send_transcript` → `receive_response`; TTS and playback via `run_in_executor`
+- `tests/test_e2e.py` — end-to-end pipeline test; real uvicorn server + real WebSocket client; `WhisperTranscriber` + `OllamaClient` mocked; sends silent PCM `AudioChunk`, asserts `Transcript.text == "what is 2 plus 2"`, asserts `AssistantResponse.text` contains "four"; 1 passed in 0.48 s. Also created `conftest.py` (sys.modules stubs for ollama/faster_whisper/numpy), `pytest.ini`, `requirements-test.txt`.
+
+**Phase 1 is now complete.**
 
 ## Next Task
 
-- Phase 1 / Testing: end-to-end test — say wake word → ask "what is 2 plus 2" → assistant responds via speaker
+- Phase 2: `pi/speaker_id/embeddings.py` — generate and save voice embeddings using resemblyzer
 
 ## Open Questions
 

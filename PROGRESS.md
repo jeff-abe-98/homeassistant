@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-06 UTC (session 14)]
+**Completed:** Implemented end-to-end pipeline test — `tests/test_e2e.py`; real uvicorn server + real WebSocket client; STT + LLM mocked via unittest.mock; AudioChunk → Transcript → AssistantResponse round-trip; 1 passed in 0.48 s. Phase 1 is now complete.
+**Files changed:** tests/__init__.py, tests/test_e2e.py, conftest.py, pytest.ini, requirements-test.txt, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 2 / `pi/speaker_id/embeddings.py` — generate and save voice embeddings using resemblyzer
+**Blockers:** None
+---
+
 ## [2026-05-05 UTC (session 13)]
 **Completed:** Implemented `pi/main.py` — async main loop; WakeWordDetector start/stop around each utterance; VoiceCapture.stream() bridged to async via background thread + asyncio.Queue; streams AudioChunk frames to server; awaits receive_transcript → send_transcript → receive_response; TTS synthesis + playback via run_in_executor; exception-safe utterance retry
 **Files changed:** pi/main.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
