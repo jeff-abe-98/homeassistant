@@ -13,6 +13,7 @@ class AudioChunk(BaseModel):
 class Transcript(BaseModel):
     session_id: str
     text: str
+    user: str = "unknown"
 
 
 class SpeakerResult(BaseModel):

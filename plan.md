@@ -40,8 +40,8 @@
 - [x] `pi/speaker_id/embeddings.py` — generate and save voice embeddings using resemblyzer — `embed_audio(pcm_bytes, sample_rate)` → 256-d numpy array via `VoiceEncoder.embed_utterance`; `save_embedding`/`load_embedding`/`list_profiles` manage `config/voice_profiles/*.npy`
 - [x] `pi/speaker_id/enroll.py` — enrollment script: record 30s of speech, save embedding to `config/voice_profiles/` — CLI script (`enroll <name> [--device INDEX]`); records 30s of raw PCM at 16kHz; prints countdown; calls `embed_audio` + `save_embedding`; run as `python -m pi.speaker_id.enroll owner`
 - [x] `pi/speaker_id/identify.py` — compare incoming audio embedding against enrolled profiles, return user name or "unknown" — `identify(pcm_bytes, sample_rate)` + `identify_embedding(embedding)`; cosine similarity (dot product of unit vectors) against all `config/voice_profiles/*.npy`; returns best match name or "unknown" if below threshold (0.75)
-- [ ] Integrate speaker ID into `pi/main.py` — identify before sending transcript to server
-- [ ] Update `shared/models.py` — add `user: str` field to `Transcript`
+- [x] Integrate speaker ID into `pi/main.py` — identify before sending transcript to server — buffers PCM, runs `identify()` in executor concurrently with `receive_transcript()`, attaches result via `model_copy(update={"user": user})` before sending to server
+- [x] Update `shared/models.py` — add `user: str` field to `Transcript` — added `user: str = "unknown"` (default "unknown"; Pi overwrites after speaker ID)
 - [ ] Update `server/llm/prompts.py` — inject user name into system prompt for personalization
 - [ ] Enrollment: run enrollment script for Owner
 - [ ] Enrollment: run enrollment script for Emily

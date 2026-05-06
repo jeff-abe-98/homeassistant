@@ -7,9 +7,9 @@
 
 ## Status
 
-`pi/speaker_id/identify.py` complete. `identify(pcm_bytes, sample_rate)` and `identify_embedding(embedding)` — cosine similarity (dot product of unit vectors) vs all enrolled profiles; returns best-match name or "unknown" when below 0.75 threshold.
+Speaker ID integrated into `pi/main.py`. PCM bytes buffered during audio capture; `identify()` runs in executor concurrently with server STT (`receive_transcript`) to hide latency; result attached to Transcript via `model_copy(update={"user": user})` before sending to server. `Transcript` model updated with `user: str = "unknown"`.
 
-Next task: Integrate speaker ID into `pi/main.py` — identify before sending transcript to server.
+Next task: Update `server/llm/prompts.py` — inject user name into system prompt for personalization.
 
 ## Documents
 

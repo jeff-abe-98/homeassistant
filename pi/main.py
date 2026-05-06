@@ -8,6 +8,7 @@ import threading
 from pi.audio.capture import VoiceCapture
 from pi.audio.playback import AudioPlayer
 from pi.client import AssistantClient
+from pi.speaker_id.identify import identify
 from pi.tts.piper import PiperTTS
 from pi.wake_word.detector import WakeWordDetector
 from shared.config import AppConfig
@@ -42,19 +43,31 @@ async def _run_utterance(
     feed_thread.start()
 
     session_id: str | None = None
+    sample_rate: int = 16000
+    pcm_chunks: list[bytes] = []
+
     while True:
         chunk = await chunk_queue.get()
         if session_id is None:
             session_id = chunk.session_id
+            sample_rate = chunk.sample_rate
+        if chunk.audio_bytes:
+            pcm_chunks.append(chunk.audio_bytes)
         await client.send_audio_chunk(chunk)
         if chunk.is_final:
             break
 
     assert session_id is not None
 
-    transcript = await client.receive_transcript(session_id)
-    logger.info("Transcript: %s", transcript.text)
+    # Run speaker ID in a thread concurrently with server STT to hide latency.
+    pcm_bytes = b"".join(pcm_chunks)
+    user, transcript = await asyncio.gather(
+        loop.run_in_executor(None, identify, pcm_bytes, sample_rate),
+        client.receive_transcript(session_id),
+    )
+    logger.info("Speaker: %s  Transcript: %s", user, transcript.text)
 
+    transcript = transcript.model_copy(update={"user": user})
     await client.send_transcript(transcript)
     response = await client.receive_response(session_id)
     logger.info("Response: %s", response.text)

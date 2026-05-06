@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-06 11:00 UTC]
+**Completed:** Integrated speaker ID into `pi/main.py` — buffers PCM bytes during audio capture, runs `identify()` in executor concurrently with `receive_transcript()` to hide latency, attaches speaker name via `model_copy(update={"user": user})` before sending Transcript to server; also added `user: str = "unknown"` to `Transcript` in `shared/models.py`
+**Files changed:** pi/main.py, shared/models.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Update `server/llm/prompts.py` — inject user name into system prompt for personalization
+**Blockers:** None
+---
+
 ## [2026-05-06 10:00 UTC]
 **Completed:** Implemented `pi/speaker_id/identify.py` — `identify(pcm_bytes, sample_rate)` and `identify_embedding(embedding)`; cosine similarity (dot product of unit vectors) vs all enrolled `config/voice_profiles/*.npy`; returns best-match name or "unknown" if below 0.75 threshold
 **Files changed:** pi/speaker_id/identify.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

@@ -25,6 +25,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-06 (session 16)
+**Status:** Phase 2 in progress. Integrated speaker ID into `pi/main.py` — PCM buffered during capture, `identify()` runs in executor concurrent with server STT, result attached to Transcript via `model_copy` before sending. Also added `user: str = "unknown"` to `Transcript` in `shared/models.py`.  
+**Next task:** Update `server/llm/prompts.py` — inject user name into system prompt for personalization.  
+**Blockers:** None.
+
 ### 2026-05-06 (session 15)
 **Status:** Phase 2 in progress. Implemented `pi/speaker_id/identify.py` — `identify(pcm_bytes, sample_rate)` + `identify_embedding(embedding)`; cosine similarity vs all enrolled profiles; returns best-match name or "unknown" below 0.75 threshold.  
 **Next task:** Integrate speaker ID into `pi/main.py` — identify speaker before sending transcript to server.  
