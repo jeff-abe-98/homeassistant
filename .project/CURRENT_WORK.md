@@ -7,9 +7,9 @@
 
 ## Status
 
-`pi/speaker_id/embeddings.py` complete. `embed_audio(pcm_bytes, sample_rate)` converts raw int16 PCM bytes to a 256-d numpy embedding using resemblyzer `VoiceEncoder.embed_utterance` (with `preprocess_wav` for resampling/normalization). `save_embedding`, `load_embedding`, `list_profiles` manage `config/voice_profiles/*.npy`.
+`pi/speaker_id/enroll.py` complete. CLI script (`python -m pi.speaker_id.enroll <name> [--device INDEX]`) that records 30s of raw PCM at 16kHz via PyAudio, calls `embed_audio` + `save_embedding` from `embeddings.py`, and saves the profile to `config/voice_profiles/{name}.npy`.
 
-Next task: `pi/speaker_id/enroll.py` — enrollment script: record 30s of speech, save embedding to `config/voice_profiles/`.
+Next task: `pi/speaker_id/identify.py` — compare incoming audio embedding against enrolled profiles, return user name or "unknown".
 
 ## Documents
 
@@ -35,7 +35,7 @@ Next task: `pi/speaker_id/enroll.py` — enrollment script: record 30s of speech
 
 1. **Wake word name** — TBD, not blocking Phase 1
 2. **Tool sandboxing** — design decision for Phase 5, not blocking now
-3. **Voice enrollment UX** — needed for Phase 2
+3. **Voice enrollment UX** — enrollment scripts exist; physical enrollment deferred until Pi hardware is set up
 
 ## Hardware Notes
 

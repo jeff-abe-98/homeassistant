@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-06 08:20 UTC]
+**Completed:** Implemented `pi/speaker_id/enroll.py` — CLI enrollment script; records 30s of raw int16 PCM at 16kHz via PyAudio; prints live countdown; calls `embed_audio` + `save_embedding`; run as `python -m pi.speaker_id.enroll <name> [--device INDEX]`
+**Files changed:** pi/speaker_id/enroll.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
+**Next up:** `pi/speaker_id/identify.py` — compare incoming audio embedding against enrolled profiles, return user name or "unknown"
+**Blockers:** None
+---
+
 ## [2026-05-06 05:00 UTC]
 **Completed:** Implemented `pi/speaker_id/embeddings.py` — `embed_audio(pcm_bytes, sample_rate)` converts raw int16 PCM to 256-d numpy embedding via resemblyzer `VoiceEncoder.embed_utterance`; `save_embedding`/`load_embedding`/`list_profiles` manage `config/voice_profiles/*.npy` files
 **Files changed:** pi/speaker_id/embeddings.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
