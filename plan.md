@@ -37,7 +37,7 @@
 ## Phase 2 — Speaker Identification
 *Goal: Assistant knows who is talking and personalizes responses. Voice enrollment for Owner and Emily.*
 
-- [ ] `pi/speaker_id/embeddings.py` — generate and save voice embeddings using resemblyzer
+- [x] `pi/speaker_id/embeddings.py` — generate and save voice embeddings using resemblyzer — `embed_audio(pcm_bytes, sample_rate)` → 256-d numpy array via `VoiceEncoder.embed_utterance`; `save_embedding`/`load_embedding`/`list_profiles` manage `config/voice_profiles/*.npy`
 - [ ] `pi/speaker_id/enroll.py` — enrollment script: record 30s of speech, save embedding to `config/voice_profiles/`
 - [ ] `pi/speaker_id/identify.py` — compare incoming audio embedding against enrolled profiles, return user name or "unknown"
 - [ ] Integrate speaker ID into `pi/main.py` — identify before sending transcript to server

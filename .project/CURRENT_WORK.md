@@ -1,13 +1,15 @@
 # Current Work
 
-**Last updated:** 2026-05-06 (session 14)  
-**Phase:** Phase 1 — Core Voice Pipeline (complete)
+**Last updated:** 2026-05-06  
+**Phase:** Phase 2 — Speaker Identification (in progress)
 
 ---
 
 ## Status
 
-WebSocket client complete. `pi/client.py` implements `AssistantClient`: async context manager connecting to `ws://{host}:{port}/ws`. Exposes `send_audio_chunk()`, `send_transcript()`, `receive_transcript(session_id)`, and `receive_response(session_id)`. A background asyncio task listens for server messages and routes them into per-session `asyncio.Queue` objects. Optional `on_transcript` and `on_response` async callbacks supported.
+`pi/speaker_id/embeddings.py` complete. `embed_audio(pcm_bytes, sample_rate)` converts raw int16 PCM bytes to a 256-d numpy embedding using resemblyzer `VoiceEncoder.embed_utterance` (with `preprocess_wav` for resampling/normalization). `save_embedding`, `load_embedding`, `list_profiles` manage `config/voice_profiles/*.npy`.
+
+Next task: `pi/speaker_id/enroll.py` — enrollment script: record 30s of speech, save embedding to `config/voice_profiles/`.
 
 ## Documents
 
@@ -28,16 +30,6 @@ WebSocket client complete. `pi/client.py` implements `AssistantClient`: async co
 5. Check it off in `plan.md` with a brief note
 6. Continue until the phase is complete or a blocker is hit
 7. Log blockers in the Blockers Log table at the bottom of `plan.md`
-
-## Last Completed
-
-- `tests/test_e2e.py` — end-to-end pipeline test; real uvicorn server + real WebSocket client; `WhisperTranscriber` + `OllamaClient` mocked; sends silent PCM `AudioChunk`, asserts `Transcript.text == "what is 2 plus 2"`, asserts `AssistantResponse.text` contains "four"; 1 passed in 0.48 s. Also created `conftest.py` (sys.modules stubs for ollama/faster_whisper/numpy), `pytest.ini`, `requirements-test.txt`.
-
-**Phase 1 is now complete.**
-
-## Next Task
-
-- Phase 2: `pi/speaker_id/embeddings.py` — generate and save voice embeddings using resemblyzer
 
 ## Open Questions
 

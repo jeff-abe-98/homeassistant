@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-06 05:00 UTC]
+**Completed:** Implemented `pi/speaker_id/embeddings.py` — `embed_audio(pcm_bytes, sample_rate)` converts raw int16 PCM to 256-d numpy embedding via resemblyzer `VoiceEncoder.embed_utterance`; `save_embedding`/`load_embedding`/`list_profiles` manage `config/voice_profiles/*.npy` files
+**Files changed:** pi/speaker_id/embeddings.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
+**Next up:** `pi/speaker_id/enroll.py` — enrollment script: record 30s of speech, save embedding to `config/voice_profiles/`
+**Blockers:** None
+---
+
 ## [2026-05-06 UTC (session 14)]
 **Completed:** Implemented end-to-end pipeline test — `tests/test_e2e.py`; real uvicorn server + real WebSocket client; STT + LLM mocked via unittest.mock; AudioChunk → Transcript → AssistantResponse round-trip; 1 passed in 0.48 s. Phase 1 is now complete.
 **Files changed:** tests/__init__.py, tests/test_e2e.py, conftest.py, pytest.ini, requirements-test.txt, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
