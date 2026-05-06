@@ -7,9 +7,9 @@
 
 ## Status
 
-`pi/speaker_id/enroll.py` complete. CLI script (`python -m pi.speaker_id.enroll <name> [--device INDEX]`) that records 30s of raw PCM at 16kHz via PyAudio, calls `embed_audio` + `save_embedding` from `embeddings.py`, and saves the profile to `config/voice_profiles/{name}.npy`.
+`pi/speaker_id/identify.py` complete. `identify(pcm_bytes, sample_rate)` and `identify_embedding(embedding)` — cosine similarity (dot product of unit vectors) vs all enrolled profiles; returns best-match name or "unknown" when below 0.75 threshold.
 
-Next task: `pi/speaker_id/identify.py` — compare incoming audio embedding against enrolled profiles, return user name or "unknown".
+Next task: Integrate speaker ID into `pi/main.py` — identify before sending transcript to server.
 
 ## Documents
 

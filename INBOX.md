@@ -25,6 +25,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-06 (session 15)
+**Status:** Phase 2 in progress. Implemented `pi/speaker_id/identify.py` — `identify(pcm_bytes, sample_rate)` + `identify_embedding(embedding)`; cosine similarity vs all enrolled profiles; returns best-match name or "unknown" below 0.75 threshold.  
+**Next task:** Integrate speaker ID into `pi/main.py` — identify speaker before sending transcript to server.  
+**Blockers:** None.
+
 ### 2026-05-06 (session 14)
 **Status:** Phase 1 complete. Implemented `tests/test_e2e.py` — end-to-end pipeline test; real uvicorn server + real WebSocket client; STT + LLM mocked; `AudioChunk` → `Transcript` → `AssistantResponse` round-trip verified; 1 passed in 0.48 s.  
 **Next task:** Phase 2 / `pi/speaker_id/embeddings.py` — generate and save voice embeddings using resemblyzer.  
