@@ -25,6 +25,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-07 (session 19)
+**Status:** Phase 3 in progress. Implemented `server/tools/base.py` — `BaseTool` ABC + `ToolRegistry` with auto-discovery via `pkgutil.iter_modules` and hot-reload support.  
+**Next task:** Phase 3 — `server/llm/router.py` — LLM function calling: given transcript + user, select tool + extract params.  
+**Blockers:** Phase 2 enrollment/tests still need physical Pi hardware.
+
 ### 2026-05-07 (session 18)
 **Status:** Phase 2 hardware-blocked. All Phase 2 code is complete; remaining tasks (enroll Owner, enroll Emily, two hardware tests) require physical Pi + microphone and cannot run here. Logged all four in Blockers Log.  
 **Next task:** Phase 3 — `server/tools/base.py` (`BaseTool` abstract class + `ToolRegistry`).  

@@ -1,15 +1,15 @@
 # Current Work
 
 **Last updated:** 2026-05-07  
-**Phase:** Phase 2 blocked → Phase 3 next
+**Phase:** Phase 3 — Core Tool Integrations (in progress)
 
 ---
 
 ## Status
 
-All Phase 2 code is complete. The four remaining Phase 2 checklist items (enroll Owner, enroll Emily, two hardware tests) require a physical Raspberry Pi with a microphone and cannot run in this environment. They are logged in the Blockers Log.
+Implemented `server/tools/base.py` — `BaseTool` ABC and `ToolRegistry`.
 
-Next task: Phase 3 — Tool System Foundation → `server/tools/base.py` (`BaseTool` abstract class + `ToolRegistry`).
+Next task: Phase 3 — `server/llm/router.py` — LLM function calling: given transcript + user, select tool + extract params.
 
 ## Documents
 

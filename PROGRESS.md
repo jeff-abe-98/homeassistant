@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-07 02:00 UTC]
+**Completed:** Implemented `server/tools/base.py` — `BaseTool` ABC (`name`, `description`, `parameters`, abstract `run`); `ToolRegistry.load()` auto-discovers concrete subclasses in `server.tools` + `server.tools.generated` via `pkgutil.iter_modules`, supports hot-reload; `function_schemas()` for Ollama function calling; `register()` for installer
+**Files changed:** server/tools/base.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — `server/llm/router.py` — LLM function calling: given transcript + user, select tool + extract params
+**Blockers:** None
+---
+
 ## [2026-05-07 01:00 UTC]
 **Completed:** Logged Phase 2 hardware blockers — enrollment + hardware tests for Owner/Emily require physical Pi + mic; all four items added to Blockers Log; Phase 3 is next actionable work
 **Files changed:** plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

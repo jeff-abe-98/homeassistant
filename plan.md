@@ -54,7 +54,7 @@
 *Goal: Weather, CTA, Google Calendar, Google Tasks all working.*
 
 ### Tool System Foundation
-- [ ] `server/tools/base.py` — `BaseTool` abstract class and `ToolRegistry` (auto-discovers tools in `tools/`)
+- [x] `server/tools/base.py` — `BaseTool` abstract class and `ToolRegistry` (auto-discovers tools in `tools/`) — `BaseTool` ABC with `name`/`description`/`parameters`/`run`; `ToolRegistry.load()` scans `server.tools` + `server.tools.generated` via `pkgutil.iter_modules`, reloads on hot-reload; `function_schemas()` returns Ollama-compatible dicts; `register()` for installer use
 - [ ] `server/llm/router.py` — LLM function calling: given transcript + user, select tool + extract params
 - [ ] Update WebSocket handler to run tool router and return tool result
 
