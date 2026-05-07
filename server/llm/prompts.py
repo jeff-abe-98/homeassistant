@@ -17,7 +17,18 @@ You can help with:
 If you cannot do something or don't know the answer, say so briefly and naturally.
 """
 
+_KNOWN_USER = "You are speaking with {name}. Address them by name naturally."
 
-def build_system_prompt() -> str:
-    """Return the base assistant system prompt."""
-    return _BASE
+_UNKNOWN_USER = (
+    "You do not recognize the speaker's voice. "
+    "If they ask for something personal, politely ask who they are."
+)
+
+
+def build_system_prompt(user: str = "unknown") -> str:
+    """Return the system prompt, personalized when the speaker is identified."""
+    if user and user != "unknown":
+        suffix = _KNOWN_USER.format(name=user.capitalize())
+    else:
+        suffix = _UNKNOWN_USER
+    return f"{_BASE}\n{suffix}"

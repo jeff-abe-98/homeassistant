@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-07 00:00 UTC]
+**Completed:** Updated `server/llm/prompts.py` — `build_system_prompt(user)` appends a personalized suffix: known speaker gets "address them by name naturally", unknown speaker gets "ask who they are if they request something personal"; `server/main.py` passes `transcript.user`
+**Files changed:** server/llm/prompts.py, server/main.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Enrollment — run enrollment script for Owner (requires Pi hardware)
+**Blockers:** None
+---
+
 ## [2026-05-06 11:00 UTC]
 **Completed:** Integrated speaker ID into `pi/main.py` — buffers PCM bytes during audio capture, runs `identify()` in executor concurrently with `receive_transcript()` to hide latency, attaches speaker name via `model_copy(update={"user": user})` before sending Transcript to server; also added `user: str = "unknown"` to `Transcript` in `shared/models.py`
 **Files changed:** pi/main.py, shared/models.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
@@ -74,10 +81,4 @@ Most recent run at top.
 **Blockers:** None
 ---
 
-## [2026-05-04 UTC (session 8)]
-**Completed:** Implemented `pi/audio/playback.py` — `AudioPlayer` wrapping sounddevice; 22050 Hz mono int16 defaults (Piper TTS format); `play()` blocks until done; `stop()` interrupts
-**Files changed:** pi/audio/playback.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
-**Next up:** `pi/tts/piper.py` — wrap Piper TTS (text in → audio bytes out)
-**Blockers:** None
----
 

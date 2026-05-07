@@ -25,6 +25,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-07 (session 17)
+**Status:** Phase 2 in progress. Updated `server/llm/prompts.py` — `build_system_prompt(user)` injects speaker name when identified (LLM addresses them by name) or unknown-user suffix (ask who they are if personal request). `server/main.py` passes `transcript.user`.  
+**Next task:** Enrollment — run enrollment script for Owner (requires Pi hardware; will log as blocker if hardware not available).  
+**Blockers:** None.
+
 ### 2026-05-06 (session 16)
 **Status:** Phase 2 in progress. Integrated speaker ID into `pi/main.py` — PCM buffered during capture, `identify()` runs in executor concurrent with server STT, result attached to Transcript via `model_copy` before sending. Also added `user: str = "unknown"` to `Transcript` in `shared/models.py`.  
 **Next task:** Update `server/llm/prompts.py` — inject user name into system prompt for personalization.  

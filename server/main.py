@@ -79,7 +79,7 @@ async def _handle_audio_chunk(chunk: AudioChunk) -> Transcript | None:
 
 
 async def _handle_transcript(transcript: Transcript) -> AssistantResponse | None:
-    system_prompt = build_system_prompt()
+    system_prompt = build_system_prompt(transcript.user)
     reply = await _llm.complete(system_prompt, transcript.text)
     logger.info("LLM [%s]: %r", transcript.session_id, reply)
     return AssistantResponse(session_id=transcript.session_id, text=reply)

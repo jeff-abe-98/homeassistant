@@ -42,7 +42,7 @@
 - [x] `pi/speaker_id/identify.py` — compare incoming audio embedding against enrolled profiles, return user name or "unknown" — `identify(pcm_bytes, sample_rate)` + `identify_embedding(embedding)`; cosine similarity (dot product of unit vectors) against all `config/voice_profiles/*.npy`; returns best match name or "unknown" if below threshold (0.75)
 - [x] Integrate speaker ID into `pi/main.py` — identify before sending transcript to server — buffers PCM, runs `identify()` in executor concurrently with `receive_transcript()`, attaches result via `model_copy(update={"user": user})` before sending to server
 - [x] Update `shared/models.py` — add `user: str` field to `Transcript` — added `user: str = "unknown"` (default "unknown"; Pi overwrites after speaker ID)
-- [ ] Update `server/llm/prompts.py` — inject user name into system prompt for personalization
+- [x] Update `server/llm/prompts.py` — inject user name into system prompt for personalization — `build_system_prompt(user)` appends a known-user line (address by name) or unknown-user line (ask who they are); `server/main.py` passes `transcript.user`
 - [ ] Enrollment: run enrollment script for Owner
 - [ ] Enrollment: run enrollment script for Emily
 - [ ] Test: Owner speaks → response addresses Owner; Emily speaks → response addresses Emily

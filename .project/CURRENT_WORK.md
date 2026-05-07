@@ -1,15 +1,15 @@
 # Current Work
 
-**Last updated:** 2026-05-06  
+**Last updated:** 2026-05-07  
 **Phase:** Phase 2 — Speaker Identification (in progress)
 
 ---
 
 ## Status
 
-Speaker ID integrated into `pi/main.py`. PCM bytes buffered during audio capture; `identify()` runs in executor concurrently with server STT (`receive_transcript`) to hide latency; result attached to Transcript via `model_copy(update={"user": user})` before sending to server. `Transcript` model updated with `user: str = "unknown"`.
+Updated `server/llm/prompts.py` — `build_system_prompt(user)` now accepts a speaker name. When the user is known, the prompt instructs the LLM to address them by name. When unknown, it instructs the LLM to ask who they are if asked something personal. `server/main.py` updated to pass `transcript.user` to `build_system_prompt`.
 
-Next task: Update `server/llm/prompts.py` — inject user name into system prompt for personalization.
+Next task: Enrollment — run enrollment script for Owner (physical action, requires Pi hardware).
 
 ## Documents
 
