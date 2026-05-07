@@ -7,9 +7,9 @@
 
 ## Status
 
-Implemented `server/tools/base.py` — `BaseTool` ABC and `ToolRegistry`.
+Implemented `server/llm/router.py` — `ToolCall` dataclass and `ToolRouter` class. Also added `chat_with_tools` to `OllamaClient`.
 
-Next task: Phase 3 — `server/llm/router.py` — LLM function calling: given transcript + user, select tool + extract params.
+Next task: Phase 3 — Update WebSocket handler to run tool router and return tool result.
 
 ## Documents
 

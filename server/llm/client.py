@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ollama import AsyncClient
+from ollama import AsyncClient, Message
 
 from shared.config import OllamaConfig
 
@@ -25,3 +25,16 @@ class OllamaClient:
             {"role": "user", "content": user_message},
         ]
         return await self.chat(messages)
+
+    async def chat_with_tools(
+        self,
+        messages: list[dict],
+        tools: list[dict],
+    ) -> Message:
+        """Chat with function-calling schemas; returns the raw Message (may have .tool_calls)."""
+        response = await self._client.chat(
+            model=self._model,
+            messages=messages,
+            tools=tools,
+        )
+        return response.message

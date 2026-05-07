@@ -25,6 +25,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-07 (session 20)
+**Status:** Phase 3 in progress. Implemented `server/llm/router.py` — `ToolCall` dataclass + `ToolRouter.route()` uses Ollama function calling to select a tool and extract params; added `chat_with_tools` to `OllamaClient`.  
+**Next task:** Phase 3 — Update WebSocket handler to run tool router and return tool result.  
+**Blockers:** Phase 2 enrollment/tests need physical Pi hardware.
+
 ### 2026-05-07 (session 19)
 **Status:** Phase 3 in progress. Implemented `server/tools/base.py` — `BaseTool` ABC + `ToolRegistry` with auto-discovery via `pkgutil.iter_modules` and hot-reload support.  
 **Next task:** Phase 3 — `server/llm/router.py` — LLM function calling: given transcript + user, select tool + extract params.  

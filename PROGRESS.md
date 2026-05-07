@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-07 03:00 UTC]
+**Completed:** Implemented `server/llm/router.py` — `ToolCall` dataclass (tool_name + params dict); `ToolRouter.route(transcript)` builds system-prompted messages, calls Ollama with all registered function schemas via new `chat_with_tools`, returns `ToolCall` if LLM picks a tool or `None` for conversational fallback; added `chat_with_tools(messages, tools) -> Message` to `OllamaClient`
+**Files changed:** server/llm/router.py, server/llm/client.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Update WebSocket handler to run tool router and return tool result
+**Blockers:** None
+---
+
 ## [2026-05-07 02:00 UTC]
 **Completed:** Implemented `server/tools/base.py` — `BaseTool` ABC (`name`, `description`, `parameters`, abstract `run`); `ToolRegistry.load()` auto-discovers concrete subclasses in `server.tools` + `server.tools.generated` via `pkgutil.iter_modules`, supports hot-reload; `function_schemas()` for Ollama function calling; `register()` for installer
 **Files changed:** server/tools/base.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
