@@ -154,4 +154,4 @@
 
 | Date | Phase | Blocker | Status |
 |------|-------|---------|--------|
-| — | — | — | — |
+| 2026-05-07 | Phase 2 | Enrollment (Owner + Emily) and speaker-ID hardware tests require physical Pi + microphone — cannot run in dev environment | Blocked; proceed to Phase 3 |

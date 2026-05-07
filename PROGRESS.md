@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-07 01:00 UTC]
+**Completed:** Logged Phase 2 hardware blockers — enrollment + hardware tests for Owner/Emily require physical Pi + mic; all four items added to Blockers Log; Phase 3 is next actionable work
+**Files changed:** plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — `server/tools/base.py` (`BaseTool` abstract class + `ToolRegistry`)
+**Blockers:** Phase 2 enrollment/tests require physical Pi hardware (logged)
+---
+
 ## [2026-05-07 00:00 UTC]
 **Completed:** Updated `server/llm/prompts.py` — `build_system_prompt(user)` appends a personalized suffix: known speaker gets "address them by name naturally", unknown speaker gets "ask who they are if they request something personal"; `server/main.py` passes `transcript.user`
 **Files changed:** server/llm/prompts.py, server/main.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

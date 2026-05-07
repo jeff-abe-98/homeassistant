@@ -25,6 +25,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-07 (session 18)
+**Status:** Phase 2 hardware-blocked. All Phase 2 code is complete; remaining tasks (enroll Owner, enroll Emily, two hardware tests) require physical Pi + microphone and cannot run here. Logged all four in Blockers Log.  
+**Next task:** Phase 3 — `server/tools/base.py` (`BaseTool` abstract class + `ToolRegistry`).  
+**Blockers:** Phase 2 enrollment/tests need physical Pi hardware.
+
 ### 2026-05-07 (session 17)
 **Status:** Phase 2 in progress. Updated `server/llm/prompts.py` — `build_system_prompt(user)` injects speaker name when identified (LLM addresses them by name) or unknown-user suffix (ask who they are if personal request). `server/main.py` passes `transcript.user`.  
 **Next task:** Enrollment — run enrollment script for Owner (requires Pi hardware; will log as blocker if hardware not available).  

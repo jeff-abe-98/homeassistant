@@ -1,15 +1,15 @@
 # Current Work
 
 **Last updated:** 2026-05-07  
-**Phase:** Phase 2 — Speaker Identification (in progress)
+**Phase:** Phase 2 blocked → Phase 3 next
 
 ---
 
 ## Status
 
-Updated `server/llm/prompts.py` — `build_system_prompt(user)` now accepts a speaker name. When the user is known, the prompt instructs the LLM to address them by name. When unknown, it instructs the LLM to ask who they are if asked something personal. `server/main.py` updated to pass `transcript.user` to `build_system_prompt`.
+All Phase 2 code is complete. The four remaining Phase 2 checklist items (enroll Owner, enroll Emily, two hardware tests) require a physical Raspberry Pi with a microphone and cannot run in this environment. They are logged in the Blockers Log.
 
-Next task: Enrollment — run enrollment script for Owner (physical action, requires Pi hardware).
+Next task: Phase 3 — Tool System Foundation → `server/tools/base.py` (`BaseTool` abstract class + `ToolRegistry`).
 
 ## Documents
 
