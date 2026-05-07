@@ -56,7 +56,7 @@
 ### Tool System Foundation
 - [x] `server/tools/base.py` — `BaseTool` abstract class and `ToolRegistry` (auto-discovers tools in `tools/`) — `BaseTool` ABC with `name`/`description`/`parameters`/`run`; `ToolRegistry.load()` scans `server.tools` + `server.tools.generated` via `pkgutil.iter_modules`, reloads on hot-reload; `function_schemas()` returns Ollama-compatible dicts; `register()` for installer use
 - [x] `server/llm/router.py` — LLM function calling: given transcript + user, select tool + extract params — `ToolCall` dataclass (tool_name + params); `ToolRouter.route(transcript)` builds messages + calls `chat_with_tools` with all registered schemas; returns `ToolCall` if LLM picks a tool, `None` for plain chat fallback; added `chat_with_tools` to `OllamaClient`
-- [ ] Update WebSocket handler to run tool router and return tool result
+- [x] Update WebSocket handler to run tool router and return tool result — `server/main.py`: `ToolRegistry.load()` + `ToolRouter` initialized in lifespan; `_handle_transcript` tries `_router.route()` first, runs matched `tool.run(params, user)`, falls back to plain LLM on no-tool path
 
 ### Weather
 - [ ] `server/tools/weather.py` — fetch OpenWeatherMap data, pass raw JSON to LLM for natural narration

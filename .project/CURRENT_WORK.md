@@ -7,9 +7,9 @@
 
 ## Status
 
-Implemented `server/llm/router.py` — `ToolCall` dataclass and `ToolRouter` class. Also added `chat_with_tools` to `OllamaClient`.
+Updated `server/main.py` — WebSocket handler now wires `ToolRegistry` and `ToolRouter`. `_handle_transcript` tries `_router.route()` first; if a tool is selected, runs `tool.run(params, user)` and returns the result; otherwise falls back to plain LLM completion.
 
-Next task: Phase 3 — Update WebSocket handler to run tool router and return tool result.
+Next task: Phase 3 — `server/tools/weather.py` — fetch OpenWeatherMap data, pass raw JSON to LLM for natural narration.
 
 ## Documents
 
