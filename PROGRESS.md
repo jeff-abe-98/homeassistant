@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-08 00:00 UTC]
+**Completed:** Implemented `server/tools/weather.py` — `WeatherTool` fetches current conditions (`/data/2.5/weather`) and 5-day/3-hour forecast (`/data/2.5/forecast`) in parallel via httpx; passes both JSON payloads to OllamaClient for natural narration; lazy-loads its own OllamaClient; returns error string if API key missing; auto-discovered by ToolRegistry
+**Files changed:** server/tools/weather.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Register OpenWeatherMap API key in config
+**Blockers:** None
+---
+
 ## [2026-05-07 04:00 UTC]
 **Completed:** Updated `server/main.py` — WebSocket handler wires `ToolRegistry` + `ToolRouter`; `_handle_transcript` tries `_router.route()` first, executes matched `tool.run(params, user)`, falls back to plain LLM completion when no tool is selected or found
 **Files changed:** server/main.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

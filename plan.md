@@ -59,7 +59,7 @@
 - [x] Update WebSocket handler to run tool router and return tool result — `server/main.py`: `ToolRegistry.load()` + `ToolRouter` initialized in lifespan; `_handle_transcript` tries `_router.route()` first, runs matched `tool.run(params, user)`, falls back to plain LLM on no-tool path
 
 ### Weather
-- [ ] `server/tools/weather.py` — fetch OpenWeatherMap data, pass raw JSON to LLM for natural narration
+- [x] `server/tools/weather.py` — fetch OpenWeatherMap data, pass raw JSON to LLM for natural narration — `WeatherTool` fetches `/data/2.5/weather` + `/data/2.5/forecast` in parallel via httpx; both payloads passed to OllamaClient for natural narration; returns error string if API key missing
 - [ ] Register OpenWeatherMap API key in config
 - [ ] Test: "What's the weather today?" → natural spoken forecast
 

@@ -1,15 +1,15 @@
 # Current Work
 
-**Last updated:** 2026-05-07  
+**Last updated:** 2026-05-08  
 **Phase:** Phase 3 — Core Tool Integrations (in progress)
 
 ---
 
 ## Status
 
-Updated `server/main.py` — WebSocket handler now wires `ToolRegistry` and `ToolRouter`. `_handle_transcript` tries `_router.route()` first; if a tool is selected, runs `tool.run(params, user)` and returns the result; otherwise falls back to plain LLM completion.
+Implemented `server/tools/weather.py` — `WeatherTool` subclasses `BaseTool`; fetches current conditions and 5-day/3-hour forecast from OpenWeatherMap in parallel; passes both JSON payloads to `OllamaClient` for natural narration; lazy-loads its own `OllamaClient` using shared config; returns a polite error string if API key is missing.
 
-Next task: Phase 3 — `server/tools/weather.py` — fetch OpenWeatherMap data, pass raw JSON to LLM for natural narration.
+Next task: Phase 3 — Register OpenWeatherMap API key in config (`config/settings.yaml` placeholder already exists; task is to document the key location and add a unit-test stub or confirm config wiring).
 
 ## Documents
 
