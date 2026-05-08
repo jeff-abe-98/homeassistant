@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-08 03:00 UTC]
+**Completed:** Implemented `server/tools/cta.py` — `CtaTool` fetches Blue Line arrivals from CTA Train Tracker API for Western & Milwaukee stop; `direction` param routes to O'Hare stop (30238), Forest Park stop (30239), or both; LLM narrates arrival times naturally; guards CHANGE_ME key. Extended `CtaConfig` with `stop_id_ohare`/`stop_id_forest_park` fields wired from YAML. 8 smoke tests pass.
+**Files changed:** server/tools/cta.py, tests/test_cta.py, shared/config.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Handle directional queries (O'Hare vs Forest Park) — next plan item
+**Blockers:** CTA integration tests need real CTA API key; Phase 2 enrollment needs physical Pi hardware
+---
+
 ## [2026-05-08 02:00 UTC]
 **Completed:** Weather integration test — `tests/test_weather_integration.py` with two async tests: `test_weather_today_real_api` (current conditions query) and `test_weather_forecast_real_api` (rain forecast query); both auto-skip when `weather.api_key` is CHANGE_ME; when real key is set they call live OWM API and verify payload structure passed to LLM; all 5 existing smoke tests still pass
 **Files changed:** tests/test_weather_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

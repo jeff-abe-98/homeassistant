@@ -25,6 +25,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-08 (session 25)
+**Status:** Phase 3 in progress. Implemented `server/tools/cta.py` — `CtaTool` for CTA Blue Line arrivals at Western & Milwaukee; direction param (ohare/forest_park/both); guards CHANGE_ME key; narrates via LLM; 8 smoke tests pass. Also extended `CtaConfig` with `stop_id_ohare`/`stop_id_forest_park` fields.  
+**Next task:** Phase 3 — Handle directional queries (O'Hare vs Forest Park) — the `direction` param is already wired; next plan item is to verify/enhance the directional routing logic.  
+**Blockers:** CTA tests require real CTA API key; Phase 2 enrollment/tests need physical Pi hardware.
+
 ### 2026-05-08 (session 24)
 **Status:** Phase 3 in progress. Wrote `tests/test_weather_integration.py` — two integration tests (`test_weather_today_real_api`, `test_weather_forecast_real_api`) that auto-skip when OWM key is CHANGE_ME and exercise the real OWM HTTP layer (mocked LLM) when a real key is present. Existing 5 smoke tests still pass.  
 **Next task:** Phase 3 — `server/tools/cta.py` — CTA Train Tracker API, Blue Line, Western & Milwaukee stop.  

@@ -64,7 +64,7 @@
 - [x] Test: "What's the weather today?" → natural spoken forecast — `tests/test_weather_integration.py`; two tests (current + forecast query) skip automatically when key is CHANGE_ME; exercise real OWM HTTP + mocked LLM when real key is set
 
 ### CTA L Train
-- [ ] `server/tools/cta.py` — CTA Train Tracker API, Blue Line, Western & Milwaukee stop
+- [x] `server/tools/cta.py` — CTA Train Tracker API, Blue Line, Western & Milwaukee stop — `CtaTool` fetches arrivals from CTA Train Tracker API for Western & Milwaukee stop; direction param (ohare/forest_park/both); parses eta list; narrates via LLM; guards CHANGE_ME key; 8 smoke tests pass
 - [ ] Handle directional queries (O'Hare vs Forest Park)
 - [ ] Register CTA API key in config
 - [ ] Test: "When's the next Blue Line?" → arrival times

@@ -46,6 +46,8 @@ class SpotifyConfig:
 @dataclass
 class CtaConfig:
     api_key: str = ""
+    stop_id_ohare: int = 30238
+    stop_id_forest_park: int = 30239
 
 
 @dataclass
@@ -141,6 +143,8 @@ def load(path: str | None = None) -> AppConfig:
         ),
         cta=CtaConfig(
             api_key=cta.get("api_key", ""),
+            stop_id_ohare=int(cta.get("stop_id_ohare", 30238)),
+            stop_id_forest_park=int(cta.get("stop_id_forest_park", 30239)),
         ),
         weather=WeatherConfig(
             api_key=wea.get("api_key", ""),
