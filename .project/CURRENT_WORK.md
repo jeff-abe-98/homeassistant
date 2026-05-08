@@ -7,9 +7,9 @@
 
 ## Status
 
-Implemented `server/tools/weather.py` — `WeatherTool` subclasses `BaseTool`; fetches current conditions and 5-day/3-hour forecast from OpenWeatherMap in parallel; passes both JSON payloads to `OllamaClient` for natural narration; lazy-loads its own `OllamaClient` using shared config; returns a polite error string if API key is missing.
+Completed weather config registration: added `units` field to `WeatherConfig` (wired from `settings.yaml`), updated `WeatherTool.run()` to use `cfg.weather.units` instead of hardcoded "imperial", added `CHANGE_ME` guard to the API key check, and wrote `tests/test_weather.py` (5 smoke tests — config defaults, YAML loading, missing key, placeholder key, happy path with mocked HTTP+LLM).
 
-Next task: Phase 3 — Register OpenWeatherMap API key in config (`config/settings.yaml` placeholder already exists; task is to document the key location and add a unit-test stub or confirm config wiring).
+Next task: Phase 3 — Test: "What's the weather today?" → natural spoken forecast (manual/integration test; requires real OpenWeatherMap API key in `config/settings.yaml`).
 
 ## Documents
 

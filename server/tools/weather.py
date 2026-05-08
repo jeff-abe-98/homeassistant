@@ -47,12 +47,13 @@ class WeatherTool(BaseTool):
         cfg = cfg_module.load()
         api_key = cfg.weather.api_key
         location = cfg.weather.location
+        units = cfg.weather.units
 
-        if not api_key:
+        if not api_key or api_key == "CHANGE_ME":
             return "Weather isn't set up yet — I need an OpenWeatherMap API key."
 
         async with httpx.AsyncClient(timeout=10.0) as client:
-            current_resp, forecast_resp = await _fetch_both(client, location, api_key)
+            current_resp, forecast_resp = await _fetch_both(client, location, api_key, units)
 
         payload = {
             "current": current_resp,
@@ -72,16 +73,18 @@ class WeatherTool(BaseTool):
         return await self._llm_client().complete(system, user_msg)
 
 
-async def _fetch_both(client: httpx.AsyncClient, location: str, api_key: str) -> tuple[dict, dict]:
+async def _fetch_both(
+    client: httpx.AsyncClient, location: str, api_key: str, units: str = "imperial"
+) -> tuple[dict, dict]:
     import asyncio
 
     async def _get_current() -> dict:
-        r = await client.get(_OWM_CURRENT, params={"q": location, "appid": api_key, "units": "imperial"})
+        r = await client.get(_OWM_CURRENT, params={"q": location, "appid": api_key, "units": units})
         r.raise_for_status()
         return r.json()
 
     async def _get_forecast() -> dict:
-        r = await client.get(_OWM_FORECAST, params={"q": location, "appid": api_key, "units": "imperial", "cnt": 16})
+        r = await client.get(_OWM_FORECAST, params={"q": location, "appid": api_key, "units": units, "cnt": 16})
         r.raise_for_status()
         return r.json()
 

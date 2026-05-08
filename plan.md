@@ -60,7 +60,7 @@
 
 ### Weather
 - [x] `server/tools/weather.py` — fetch OpenWeatherMap data, pass raw JSON to LLM for natural narration — `WeatherTool` fetches `/data/2.5/weather` + `/data/2.5/forecast` in parallel via httpx; both payloads passed to OllamaClient for natural narration; returns error string if API key missing
-- [ ] Register OpenWeatherMap API key in config
+- [x] Register OpenWeatherMap API key in config — `WeatherConfig` gains `units` field wired from YAML; `weather.py` uses `cfg.weather.units` (was hardcoded "imperial") and guards against `CHANGE_ME` placeholder; `tests/test_weather.py` smoke tests config loading + error path + happy path (5 passed)
 - [ ] Test: "What's the weather today?" → natural spoken forecast
 
 ### CTA L Train

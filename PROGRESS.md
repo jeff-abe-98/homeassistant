@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-08 01:00 UTC]
+**Completed:** Registered OpenWeatherMap API key in config — added `units` field to `WeatherConfig` and wired from YAML; updated `WeatherTool.run()` to use `cfg.weather.units` (was hardcoded "imperial") and guard against `CHANGE_ME` placeholder; wrote `tests/test_weather.py` (5 smoke tests: config defaults, YAML loading, missing key, placeholder key, happy path — all pass)
+**Files changed:** shared/config.py, server/tools/weather.py, tests/test_weather.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Test: "What's the weather today?" → natural spoken forecast (requires real OWM API key in settings.yaml)
+**Blockers:** None
+---
+
 ## [2026-05-08 00:00 UTC]
 **Completed:** Implemented `server/tools/weather.py` — `WeatherTool` fetches current conditions (`/data/2.5/weather`) and 5-day/3-hour forecast (`/data/2.5/forecast`) in parallel via httpx; passes both JSON payloads to OllamaClient for natural narration; lazy-loads its own OllamaClient; returns error string if API key missing; auto-discovered by ToolRegistry
 **Files changed:** server/tools/weather.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

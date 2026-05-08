@@ -52,6 +52,7 @@ class CtaConfig:
 class WeatherConfig:
     api_key: str = ""
     location: str = "Chicago, IL"
+    units: str = "imperial"
 
 
 @dataclass
@@ -144,6 +145,7 @@ def load(path: str | None = None) -> AppConfig:
         weather=WeatherConfig(
             api_key=wea.get("api_key", ""),
             location=wea.get("location", "Chicago, IL"),
+            units=wea.get("units", "imperial"),
         ),
         androidtv=AndroidTvConfig(
             host=atv.get("host", ""),

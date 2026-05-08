@@ -25,6 +25,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-08 (session 23)
+**Status:** Phase 3 in progress. Completed weather config registration — `WeatherConfig` gains `units` field wired from YAML; `WeatherTool.run()` now uses `cfg.weather.units` and guards `CHANGE_ME` placeholder; `tests/test_weather.py` smoke tests all pass (5/5).  
+**Next task:** Phase 3 — "What's the weather today?" integration test (requires real OWM API key in `config/settings.yaml`).  
+**Blockers:** Phase 2 enrollment/tests need physical Pi hardware.
+
 ### 2026-05-08 (session 22)
 **Status:** Phase 3 in progress. Implemented `server/tools/weather.py` — `WeatherTool` fetches current + forecast JSON from OpenWeatherMap in parallel, passes both to LLM for natural narration; registered automatically by `ToolRegistry`.  
 **Next task:** Phase 3 — Register OpenWeatherMap API key in config (placeholder already in `config/settings.yaml`; next step is confirming the config key path and writing a smoke test).  
