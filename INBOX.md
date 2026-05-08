@@ -12,7 +12,7 @@ The agent reads this at the start of every run.
 
 ## Ideas & Improvements
 *New features, changes to existing features, or improvements. Agent will triage these into plan.md and check them off.*
- - [ ] Seeing as we are blocked by getting the pi setup, we sjould do the parts list as the next step. move it from its current spot in phase 6 to the top of the todo list. 
+ - [ ] Seeing as we are blocked by getting the pi setup, we sjould do the parts list as the next step. move it from its current spot in phase 6 to the top of the todo list. initially i was rhinking a pi 5 and a ReSpeaker 2-Mic Pi HAT
  - [x] Make sure that when you are reading this at start up, you are also writing here. *(added to plan.md Phase 6)*
  - [x] Add a parts list. this should be split into parts for the Pi, and parts for the server. *(added to plan.md Phase 6)*
 
