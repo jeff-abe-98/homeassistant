@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-08 02:00 UTC]
+**Completed:** Weather integration test — `tests/test_weather_integration.py` with two async tests: `test_weather_today_real_api` (current conditions query) and `test_weather_forecast_real_api` (rain forecast query); both auto-skip when `weather.api_key` is CHANGE_ME; when real key is set they call live OWM API and verify payload structure passed to LLM; all 5 existing smoke tests still pass
+**Files changed:** tests/test_weather_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — `server/tools/cta.py` — CTA Train Tracker API, Blue Line, Western & Milwaukee stop
+**Blockers:** Integration tests skip until real OpenWeatherMap API key is set in config/settings.yaml
+---
+
 ## [2026-05-08 01:00 UTC]
 **Completed:** Registered OpenWeatherMap API key in config — added `units` field to `WeatherConfig` and wired from YAML; updated `WeatherTool.run()` to use `cfg.weather.units` (was hardcoded "imperial") and guard against `CHANGE_ME` placeholder; wrote `tests/test_weather.py` (5 smoke tests: config defaults, YAML loading, missing key, placeholder key, happy path — all pass)
 **Files changed:** shared/config.py, server/tools/weather.py, tests/test_weather.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

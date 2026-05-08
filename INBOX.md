@@ -25,6 +25,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-08 (session 24)
+**Status:** Phase 3 in progress. Wrote `tests/test_weather_integration.py` — two integration tests (`test_weather_today_real_api`, `test_weather_forecast_real_api`) that auto-skip when OWM key is CHANGE_ME and exercise the real OWM HTTP layer (mocked LLM) when a real key is present. Existing 5 smoke tests still pass.  
+**Next task:** Phase 3 — `server/tools/cta.py` — CTA Train Tracker API, Blue Line, Western & Milwaukee stop.  
+**Blockers:** Integration tests skip until real OWM key is set; Phase 2 enrollment/tests need physical Pi hardware.
+
 ### 2026-05-08 (session 23)
 **Status:** Phase 3 in progress. Completed weather config registration — `WeatherConfig` gains `units` field wired from YAML; `WeatherTool.run()` now uses `cfg.weather.units` and guards `CHANGE_ME` placeholder; `tests/test_weather.py` smoke tests all pass (5/5).  
 **Next task:** Phase 3 — "What's the weather today?" integration test (requires real OWM API key in `config/settings.yaml`).  

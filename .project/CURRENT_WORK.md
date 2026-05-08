@@ -7,9 +7,9 @@
 
 ## Status
 
-Completed weather config registration: added `units` field to `WeatherConfig` (wired from `settings.yaml`), updated `WeatherTool.run()` to use `cfg.weather.units` instead of hardcoded "imperial", added `CHANGE_ME` guard to the API key check, and wrote `tests/test_weather.py` (5 smoke tests — config defaults, YAML loading, missing key, placeholder key, happy path with mocked HTTP+LLM).
+Completed weather integration test: created `tests/test_weather_integration.py` with two async tests (`test_weather_today_real_api` and `test_weather_forecast_real_api`). Both tests skip automatically when `weather.api_key` is `CHANGE_ME` or empty; when a real key is configured they hit the live OWM API and verify the payload structure passed to the LLM. Smoke tests (5/5) still pass.
 
-Next task: Phase 3 — Test: "What's the weather today?" → natural spoken forecast (manual/integration test; requires real OpenWeatherMap API key in `config/settings.yaml`).
+Next task: Phase 3 — `server/tools/cta.py` — CTA Train Tracker API, Blue Line, Western & Milwaukee stop.
 
 ## Documents
 

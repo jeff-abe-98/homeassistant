@@ -61,7 +61,7 @@
 ### Weather
 - [x] `server/tools/weather.py` — fetch OpenWeatherMap data, pass raw JSON to LLM for natural narration — `WeatherTool` fetches `/data/2.5/weather` + `/data/2.5/forecast` in parallel via httpx; both payloads passed to OllamaClient for natural narration; returns error string if API key missing
 - [x] Register OpenWeatherMap API key in config — `WeatherConfig` gains `units` field wired from YAML; `weather.py` uses `cfg.weather.units` (was hardcoded "imperial") and guards against `CHANGE_ME` placeholder; `tests/test_weather.py` smoke tests config loading + error path + happy path (5 passed)
-- [ ] Test: "What's the weather today?" → natural spoken forecast
+- [x] Test: "What's the weather today?" → natural spoken forecast — `tests/test_weather_integration.py`; two tests (current + forecast query) skip automatically when key is CHANGE_ME; exercise real OWM HTTP + mocked LLM when real key is set
 
 ### CTA L Train
 - [ ] `server/tools/cta.py` — CTA Train Tracker API, Blue Line, Western & Milwaukee stop
@@ -155,3 +155,4 @@
 | Date | Phase | Blocker | Status |
 |------|-------|---------|--------|
 | 2026-05-07 | Phase 2 | Enrollment (Owner + Emily) and speaker-ID hardware tests require physical Pi + microphone — cannot run in dev environment | Blocked; proceed to Phase 3 |
+| 2026-05-08 | Phase 3 | `tests/test_weather_integration.py` integration tests skip until `weather.api_key` in `config/settings.yaml` is set to a real OpenWeatherMap key (currently CHANGE_ME) | Tests written; blocked on real key |
