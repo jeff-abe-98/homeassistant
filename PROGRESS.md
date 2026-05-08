@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-08 04:00 UTC]
+**Completed:** Enhanced CTA directional query handling — `CtaTool.run()` now injects direction-specific context into the LLM system prompt (O'Hare-only, Forest Park-only, or group-both); added 3 new tests (Forest Park happy path, O'Hare system prompt assertion, both-direction system prompt assertion); 11 tests pass
+**Files changed:** server/tools/cta.py, tests/test_cta.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Register CTA API key in config
+**Blockers:** None
+---
+
 ## [2026-05-08 03:00 UTC]
 **Completed:** Implemented `server/tools/cta.py` — `CtaTool` fetches Blue Line arrivals from CTA Train Tracker API for Western & Milwaukee stop; `direction` param routes to O'Hare stop (30238), Forest Park stop (30239), or both; LLM narrates arrival times naturally; guards CHANGE_ME key. Extended `CtaConfig` with `stop_id_ohare`/`stop_id_forest_park` fields wired from YAML. 8 smoke tests pass.
 **Files changed:** server/tools/cta.py, tests/test_cta.py, shared/config.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

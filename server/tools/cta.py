@@ -80,11 +80,18 @@ class CtaTool(BaseTool):
 
         arrivals = _parse_arrivals(data)
 
+        if direction == "ohare":
+            direction_note = "The user asked specifically about trains toward O'Hare. Focus only on O'Hare-bound arrivals."
+        elif direction == "forest_park":
+            direction_note = "The user asked specifically about trains toward Forest Park. Focus only on Forest Park-bound arrivals."
+        else:
+            direction_note = "The user did not specify a direction. Group arrivals by direction (O'Hare and Forest Park)."
+
         system = (
             "You are a home assistant. Narrate the following CTA Blue Line arrival data naturally "
             "in plain spoken English. Be concise — one or two sentences. "
             "State arrival times relative to now (e.g. 'in 3 minutes', 'in 8 minutes'). "
-            "Group by direction if showing both. No markdown, no bullet points."
+            f"{direction_note} No markdown, no bullet points."
         )
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         user_msg = (

@@ -213,6 +213,153 @@ async def test_cta_happy_path_ohare_direction() -> None:
     assert "O'Hare" in result or "minute" in result.lower()
 
 
+@pytest.mark.asyncio
+async def test_cta_happy_path_forest_park_direction() -> None:
+    from server.tools.cta import CtaTool
+
+    tool = CtaTool()
+
+    mock_cfg = MagicMock()
+    mock_cfg.cta.api_key = "real-key"
+    mock_cfg.cta.stop_id_ohare = 30238
+    mock_cfg.cta.stop_id_forest_park = 30239
+    mock_cfg.ollama.host = "http://localhost:11434"
+    mock_cfg.ollama.model = "llama3.1:8b-instruct-q4_K_M"
+
+    forest_park_only_response = {
+        "ctatt": {
+            "tmst": "20260508 12:00:00",
+            "errCd": "0",
+            "errNm": None,
+            "eta": [
+                {
+                    "destNm": "Forest Park",
+                    "stpDe": "Service toward Forest Park",
+                    "arrT": "20260508 12:05:00",
+                    "prdt": "20260508 12:00:30",
+                    "isApp": "0",
+                    "isDly": "0",
+                    "isSch": "0",
+                }
+            ],
+        }
+    }
+
+    mock_resp = MagicMock()
+    mock_resp.raise_for_status = MagicMock()
+    mock_resp.json = MagicMock(return_value=forest_park_only_response)
+
+    mock_http_client = AsyncMock()
+    mock_http_client.get = AsyncMock(return_value=mock_resp)
+    mock_http_ctx = MagicMock()
+    mock_http_ctx.__aenter__ = AsyncMock(return_value=mock_http_client)
+    mock_http_ctx.__aexit__ = AsyncMock(return_value=False)
+
+    mock_llm = AsyncMock()
+    mock_llm.complete = AsyncMock(
+        return_value="The next Blue Line toward Forest Park arrives in 5 minutes."
+    )
+
+    with (
+        patch("server.tools.cta.cfg_module.load", return_value=mock_cfg),
+        patch("server.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
+        patch("server.tools.cta.OllamaClient", return_value=mock_llm),
+    ):
+        result = await tool.run(
+            {"query": "next train toward Forest Park", "direction": "forest_park"},
+            user="owner",
+        )
+
+    # Verify only the Forest Park stop ID was requested
+    get_call = mock_http_client.get.call_args
+    assert get_call[1]["params"]["stpid"] == "30239"
+    assert "Forest Park" in result or "minute" in result.lower()
+
+    # Verify direction note was passed to LLM system prompt
+    complete_call = mock_llm.complete.call_args
+    system_prompt = complete_call[0][0]
+    assert "Forest Park" in system_prompt
+
+
+@pytest.mark.asyncio
+async def test_cta_direction_note_in_system_prompt_ohare() -> None:
+    """Direction-specific context must appear in the system prompt sent to the LLM."""
+    from server.tools.cta import CtaTool
+
+    tool = CtaTool()
+
+    mock_cfg = MagicMock()
+    mock_cfg.cta.api_key = "real-key"
+    mock_cfg.cta.stop_id_ohare = 30238
+    mock_cfg.cta.stop_id_forest_park = 30239
+    mock_cfg.ollama.host = "http://localhost:11434"
+    mock_cfg.ollama.model = "llama3.1:8b-instruct-q4_K_M"
+
+    mock_resp = MagicMock()
+    mock_resp.raise_for_status = MagicMock()
+    mock_resp.json = MagicMock(return_value=_FAKE_ETA_RESPONSE)
+
+    mock_http_client = AsyncMock()
+    mock_http_client.get = AsyncMock(return_value=mock_resp)
+    mock_http_ctx = MagicMock()
+    mock_http_ctx.__aenter__ = AsyncMock(return_value=mock_http_client)
+    mock_http_ctx.__aexit__ = AsyncMock(return_value=False)
+
+    mock_llm = AsyncMock()
+    mock_llm.complete = AsyncMock(return_value="Next O'Hare train in 3 minutes.")
+
+    with (
+        patch("server.tools.cta.cfg_module.load", return_value=mock_cfg),
+        patch("server.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
+        patch("server.tools.cta.OllamaClient", return_value=mock_llm),
+    ):
+        await tool.run({"query": "next O'Hare train", "direction": "ohare"}, user="owner")
+
+    complete_call = mock_llm.complete.call_args
+    system_prompt = complete_call[0][0]
+    assert "O'Hare" in system_prompt
+    assert "Forest Park" not in system_prompt
+
+
+@pytest.mark.asyncio
+async def test_cta_direction_note_in_system_prompt_both() -> None:
+    """When direction is 'both', system prompt should mention grouping by direction."""
+    from server.tools.cta import CtaTool
+
+    tool = CtaTool()
+
+    mock_cfg = MagicMock()
+    mock_cfg.cta.api_key = "real-key"
+    mock_cfg.cta.stop_id_ohare = 30238
+    mock_cfg.cta.stop_id_forest_park = 30239
+    mock_cfg.ollama.host = "http://localhost:11434"
+    mock_cfg.ollama.model = "llama3.1:8b-instruct-q4_K_M"
+
+    mock_resp = MagicMock()
+    mock_resp.raise_for_status = MagicMock()
+    mock_resp.json = MagicMock(return_value=_FAKE_ETA_RESPONSE)
+
+    mock_http_client = AsyncMock()
+    mock_http_client.get = AsyncMock(return_value=mock_resp)
+    mock_http_ctx = MagicMock()
+    mock_http_ctx.__aenter__ = AsyncMock(return_value=mock_http_client)
+    mock_http_ctx.__aexit__ = AsyncMock(return_value=False)
+
+    mock_llm = AsyncMock()
+    mock_llm.complete = AsyncMock(return_value="O'Hare in 3 min, Forest Park in 6 min.")
+
+    with (
+        patch("server.tools.cta.cfg_module.load", return_value=mock_cfg),
+        patch("server.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
+        patch("server.tools.cta.OllamaClient", return_value=mock_llm),
+    ):
+        await tool.run({"query": "next Blue Line train"}, user="owner")
+
+    complete_call = mock_llm.complete.call_args
+    system_prompt = complete_call[0][0]
+    assert "direction" in system_prompt.lower() or "group" in system_prompt.lower()
+
+
 # ---------------------------------------------------------------------------
 # _parse_arrivals helper
 # ---------------------------------------------------------------------------
