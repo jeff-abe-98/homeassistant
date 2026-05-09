@@ -7,9 +7,9 @@
 
 ## Status
 
-Created `docs/parts-list.md` — hardware parts list moved up from Phase 6 per user request. Pi section: Raspberry Pi 5 (8 GB), ReSpeaker 2-Mic Pi HAT, official PSU, 64 GB A2 MicroSD, HAT-compatible case (~$130–140 total). Server section: RTX 4060 Ti 16 GB + 650 W PSU GPU upgrade (~$500–550). Includes ReSpeaker driver install notes for Pi 5 and post-GPU config change.
+Confirmed CTA config registration complete. `CtaConfig` has `api_key`, `stop_id_ohare`, and `stop_id_forest_park` all wired from `config/settings.yaml`. Added API registration URL comment to `settings.yaml` (transitchicago.com/developers/traintrackerapply). All 11 CTA smoke tests pass.
 
-Next task: Phase 3 — Register CTA API key in config.
+Next task: Phase 3 — "When's the next Blue Line?" integration test (`tests/test_cta_integration.py`).
 
 ## Documents
 

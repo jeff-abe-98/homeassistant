@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-09 01:00 UTC]
+**Completed:** Registered CTA API key in config — confirmed `CtaConfig` (api_key + stop_id_ohare/forest_park) fully wired in `shared/config.py` and `config/settings.yaml`; added API registration URL comment to `settings.yaml` (transitchicago.com/developers/traintrackerapply); all 11 CTA smoke tests pass
+**Files changed:** config/settings.yaml, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
+**Next up:** Phase 3 — Test: "When's the next Blue Line?" → arrival times (tests/test_cta_integration.py)
+**Blockers:** CTA integration test will skip until real CTA API key is set in config/settings.yaml
+---
+
 ## [2026-05-09 00:00 UTC]
 **Completed:** Created `docs/parts-list.md` — Pi section (Pi 5 8 GB + ReSpeaker 2-Mic Pi HAT + PSU + MicroSD + case, ~$130–140) and server section (RTX 4060 Ti 16 GB + 650 W PSU upgrade, ~$500–550); includes ReSpeaker Pi 5 driver install notes. Item moved from Phase 6 to top of plan and completed.
 **Files changed:** docs/parts-list.md, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

@@ -69,7 +69,7 @@
 ### CTA L Train
 - [x] `server/tools/cta.py` — CTA Train Tracker API, Blue Line, Western & Milwaukee stop — `CtaTool` fetches arrivals from CTA Train Tracker API for Western & Milwaukee stop; direction param (ohare/forest_park/both); parses eta list; narrates via LLM; guards CHANGE_ME key; 8 smoke tests pass
 - [x] Handle directional queries (O'Hare vs Forest Park) — `run()` injects direction-specific context into LLM system prompt (ohare focuses on O'Hare, forest_park focuses on Forest Park, both groups by direction); 3 new tests cover Forest Park path + system prompt content; 11 tests pass
-- [ ] Register CTA API key in config
+- [x] Register CTA API key in config — `CtaConfig` (api_key + stop_id_ohare/forest_park) fully wired; `settings.yaml` updated with registration URL comment (transitchicago.com/developers/traintrackerapply); all 11 smoke tests pass
 - [ ] Test: "When's the next Blue Line?" → arrival times
 
 ### Google Auth
@@ -158,3 +158,4 @@
 |------|-------|---------|--------|
 | 2026-05-07 | Phase 2 | Enrollment (Owner + Emily) and speaker-ID hardware tests require physical Pi + microphone — cannot run in dev environment | Blocked; proceed to Phase 3 |
 | 2026-05-08 | Phase 3 | `tests/test_weather_integration.py` integration tests skip until `weather.api_key` in `config/settings.yaml` is set to a real OpenWeatherMap key (currently CHANGE_ME) | Tests written; blocked on real key |
+| 2026-05-09 | Phase 3 | CTA integration test (`tests/test_cta_integration.py`) will skip until `cta.api_key` in `config/settings.yaml` is set to a real CTA Train Tracker key — register free at transitchicago.com/developers/traintrackerapply | Tests to be written next session |

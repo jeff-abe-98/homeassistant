@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-09 (session 28)
+**Status:** Phase 3 in progress. Registered CTA API key in config — confirmed `CtaConfig` (api_key + stop_id_ohare/forest_park) fully wired; added API registration URL comment to `config/settings.yaml`; all 11 CTA smoke tests pass.  
+**Next task:** Phase 3 — "When's the next Blue Line?" integration test (`tests/test_cta_integration.py`).  
+**Blockers:** CTA integration test auto-skips until real CTA API key set in config; Phase 2 enrollment needs physical Pi hardware.
+
 ### 2026-05-09 (session 27)
 **Status:** Processed inbox — created `docs/parts-list.md` (Pi 5 8 GB + ReSpeaker 2-Mic Pi HAT + accessories ~$130–140; server RTX 4060 Ti 16 GB GPU upgrade ~$500–550; ReSpeaker driver install notes included). Item moved from Phase 6 to top of plan and completed.  
 **Next task:** Phase 3 — Register CTA API key in config.  

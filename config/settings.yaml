@@ -43,8 +43,9 @@ spotify:
     redirect_uri: http://localhost:8889/callback
 
 cta:
+  # Register free API key at: https://www.transitchicago.com/developers/traintrackerapply/
   api_key: CHANGE_ME
-  # Blue Line stop IDs for Western & Milwaukee (O'Hare direction and Forest Park direction)
+  # Blue Line stop IDs for Western & Milwaukee (O'Hare-bound and Forest Park-bound platforms)
   stop_id_ohare: 30238
   stop_id_forest_park: 30239
 
