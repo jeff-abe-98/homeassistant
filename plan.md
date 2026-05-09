@@ -63,6 +63,9 @@
 - [x] Register OpenWeatherMap API key in config — `WeatherConfig` gains `units` field wired from YAML; `weather.py` uses `cfg.weather.units` (was hardcoded "imperial") and guards against `CHANGE_ME` placeholder; `tests/test_weather.py` smoke tests config loading + error path + happy path (5 passed)
 - [x] Test: "What's the weather today?" → natural spoken forecast — `tests/test_weather_integration.py`; two tests (current + forecast query) skip automatically when key is CHANGE_ME; exercise real OWM HTTP + mocked LLM when real key is set
 
+### Parts List (moved up from Phase 6 — user priority)
+- [x] `docs/parts-list.md` — hardware parts list split into Pi section and server section — Pi 5 (8 GB) + ReSpeaker 2-Mic Pi HAT + PSU + MicroSD + case (~$130–140); server GPU upgrade RTX 4060 Ti 16 GB + 650 W PSU (~$500–550); includes ReSpeaker driver install notes and post-GPU config change
+
 ### CTA L Train
 - [x] `server/tools/cta.py` — CTA Train Tracker API, Blue Line, Western & Milwaukee stop — `CtaTool` fetches arrivals from CTA Train Tracker API for Western & Milwaukee stop; direction param (ohare/forest_park/both); parses eta list; narrates via LLM; guards CHANGE_ME key; 8 smoke tests pass
 - [x] Handle directional queries (O'Hare vs Forest Park) — `run()` injects direction-specific context into LLM system prompt (ohare focuses on O'Hare, forest_park focuses on Forest Park, both groups by direction); 3 new tests cover Forest Park path + system prompt content; 11 tests pass
@@ -127,7 +130,6 @@
 ## Phase 6 — Hardening & Quality
 *Goal: Reliable, always-on operation.*
 
-- [ ] `docs/parts-list.md` — hardware parts list split into Pi section and server section (components, links, estimated prices)
 - [ ] Systemd service for server (auto-start, auto-restart)
 - [ ] Systemd service for Pi client (auto-start on boot)
 - [ ] Error handling: graceful recovery from LLM timeout, API failures, network drop

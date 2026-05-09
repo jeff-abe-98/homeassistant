@@ -12,7 +12,7 @@ The agent reads this at the start of every run.
 
 ## Ideas & Improvements
 *New features, changes to existing features, or improvements. Agent will triage these into plan.md and check them off.*
- - [ ] Seeing as we are blocked by getting the pi setup, we sjould do the parts list as the next step. move it from its current spot in phase 6 to the top of the todo list. initially i was rhinking a pi 5 and a ReSpeaker 2-Mic Pi HAT
+ - [x] Seeing as we are blocked by getting the pi setup, we sjould do the parts list as the next step. move it from its current spot in phase 6 to the top of the todo list. initially i was rhinking a pi 5 and a ReSpeaker 2-Mic Pi HAT *(moved up in plan.md and implemented — `docs/parts-list.md` created; Pi 5 8 GB + ReSpeaker 2-Mic Pi HAT + accessories ~$130–140; server GPU upgrade RTX 4060 Ti 16 GB + PSU ~$500–550; includes driver notes)*
  - [x] Make sure that when you are reading this at start up, you are also writing here. *(added to plan.md Phase 6)*
  - [x] Add a parts list. this should be split into parts for the Pi, and parts for the server. *(added to plan.md Phase 6)*
 
@@ -25,6 +25,11 @@ The agent reads this at the start of every run.
 
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
+
+### 2026-05-09 (session 27)
+**Status:** Processed inbox — created `docs/parts-list.md` (Pi 5 8 GB + ReSpeaker 2-Mic Pi HAT + accessories ~$130–140; server RTX 4060 Ti 16 GB GPU upgrade ~$500–550; ReSpeaker driver install notes included). Item moved from Phase 6 to top of plan and completed.  
+**Next task:** Phase 3 — Register CTA API key in config.  
+**Blockers:** CTA/Weather integration tests need real API keys; Phase 2 enrollment needs physical Pi hardware.
 
 ### 2026-05-08 (session 26)
 **Status:** Phase 3 in progress. Enhanced CTA directional handling — `CtaTool.run()` now injects direction-specific context into the LLM system prompt so narration focuses on O'Hare-bound, Forest Park-bound, or both. Added 3 new tests (Forest Park path + system prompt assertions); 11 CTA tests pass.  

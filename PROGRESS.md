@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-09 00:00 UTC]
+**Completed:** Created `docs/parts-list.md` — Pi section (Pi 5 8 GB + ReSpeaker 2-Mic Pi HAT + PSU + MicroSD + case, ~$130–140) and server section (RTX 4060 Ti 16 GB + 650 W PSU upgrade, ~$500–550); includes ReSpeaker Pi 5 driver install notes. Item moved from Phase 6 to top of plan and completed.
+**Files changed:** docs/parts-list.md, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Register CTA API key in config
+**Blockers:** None
+---
+
 ## [2026-05-08 04:00 UTC]
 **Completed:** Enhanced CTA directional query handling — `CtaTool.run()` now injects direction-specific context into the LLM system prompt (O'Hare-only, Forest Park-only, or group-both); added 3 new tests (Forest Park happy path, O'Hare system prompt assertion, both-direction system prompt assertion); 11 tests pass
 **Files changed:** server/tools/cta.py, tests/test_cta.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

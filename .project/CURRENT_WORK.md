@@ -1,13 +1,13 @@
 # Current Work
 
-**Last updated:** 2026-05-08  
+**Last updated:** 2026-05-09  
 **Phase:** Phase 3 — Core Tool Integrations (in progress)
 
 ---
 
 ## Status
 
-Enhanced `server/tools/cta.py` directional query handling — `run()` now injects a direction-specific sentence into the LLM system prompt: O'Hare-only requests focus narration on O'Hare-bound trains, Forest Park-only requests focus on Forest Park-bound trains, and unspecified requests group by direction. Added 3 new tests (Forest Park happy path, O'Hare system prompt content, both-direction system prompt content); 11 tests pass.
+Created `docs/parts-list.md` — hardware parts list moved up from Phase 6 per user request. Pi section: Raspberry Pi 5 (8 GB), ReSpeaker 2-Mic Pi HAT, official PSU, 64 GB A2 MicroSD, HAT-compatible case (~$130–140 total). Server section: RTX 4060 Ti 16 GB + 650 W PSU GPU upgrade (~$500–550). Includes ReSpeaker driver install notes for Pi 5 and post-GPU config change.
 
 Next task: Phase 3 — Register CTA API key in config.
 
