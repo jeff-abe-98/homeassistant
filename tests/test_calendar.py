@@ -247,6 +247,73 @@ class TestAddCalendarEventTool:
         assert "trouble" in result.lower()
 
     @pytest.mark.asyncio
+    async def test_emily_event_gets_emily_prefix(self):
+        fixed_dt = datetime.datetime(2026, 5, 14, 15, 0, tzinfo=_CHICAGO_TZ)
+        captured: dict = {}
+
+        def fake_insert(**kwargs):
+            captured.update(kwargs)
+            return MagicMock(**{"execute.return_value": {"htmlLink": ""}})
+
+        mock_service = MagicMock()
+        mock_service.events().insert.side_effect = fake_insert
+        tool = AddCalendarEventTool()
+        with (
+            patch("server.tools.calendar.is_configured", return_value=True),
+            patch("server.tools.calendar.build_service", return_value=mock_service),
+            patch("server.tools.calendar._parse_natural_date", return_value=fixed_dt),
+        ):
+            result = await tool.run({"title": "Dentist", "when": "Thursday at 3pm"}, "emily")
+
+        body = captured.get("body", {})
+        assert body.get("summary") == "Emily Dentist"
+        assert "Emily Dentist" in result
+
+    @pytest.mark.asyncio
+    async def test_emily_event_already_prefixed_no_double_prefix(self):
+        fixed_dt = datetime.datetime(2026, 5, 14, 15, 0, tzinfo=_CHICAGO_TZ)
+        captured: dict = {}
+
+        def fake_insert(**kwargs):
+            captured.update(kwargs)
+            return MagicMock(**{"execute.return_value": {"htmlLink": ""}})
+
+        mock_service = MagicMock()
+        mock_service.events().insert.side_effect = fake_insert
+        tool = AddCalendarEventTool()
+        with (
+            patch("server.tools.calendar.is_configured", return_value=True),
+            patch("server.tools.calendar.build_service", return_value=mock_service),
+            patch("server.tools.calendar._parse_natural_date", return_value=fixed_dt),
+        ):
+            await tool.run({"title": "Emily Dentist", "when": "Thursday at 3pm"}, "emily")
+
+        body = captured.get("body", {})
+        assert body.get("summary") == "Emily Dentist"
+
+    @pytest.mark.asyncio
+    async def test_owner_event_not_prefixed(self):
+        fixed_dt = datetime.datetime(2026, 5, 14, 15, 0, tzinfo=_CHICAGO_TZ)
+        captured: dict = {}
+
+        def fake_insert(**kwargs):
+            captured.update(kwargs)
+            return MagicMock(**{"execute.return_value": {"htmlLink": ""}})
+
+        mock_service = MagicMock()
+        mock_service.events().insert.side_effect = fake_insert
+        tool = AddCalendarEventTool()
+        with (
+            patch("server.tools.calendar.is_configured", return_value=True),
+            patch("server.tools.calendar.build_service", return_value=mock_service),
+            patch("server.tools.calendar._parse_natural_date", return_value=fixed_dt),
+        ):
+            await tool.run({"title": "Dentist", "when": "Thursday at 3pm"}, "owner")
+
+        body = captured.get("body", {})
+        assert body.get("summary") == "Dentist"
+
+    @pytest.mark.asyncio
     async def test_custom_duration_sets_correct_end_time(self):
         fixed_dt = datetime.datetime(2026, 5, 14, 14, 0, tzinfo=_CHICAGO_TZ)
         captured: dict = {}

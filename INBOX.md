@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-10 (session 33)
+**Status:** Phase 3 in progress. Implemented Emily event auto-prefix in `AddCalendarEventTool.run()` — title prefixed with "Emily " when user is emily and title doesn't already start with "Emily "; 3 new smoke tests (Emily prefix, no-double-prefix, owner no-prefix); 27 total tests pass.  
+**Next task:** Phase 3 — Google Calendar — Test: "What do I have tomorrow?" → reads events for speaking user.  
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup (create project, enable Calendar+Tasks APIs, download OAuth2 Desktop credentials JSON); CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware.
+
 ### 2026-05-10 (session 32)
 **Status:** Phase 3 in progress. Implemented `AddCalendarEventTool` in `server/tools/calendar.py` — `add_calendar_event` intent; `_parse_natural_date` via `dateparser` (future-preferring, Chicago TZ); creates event via Calendar API; guards no-title + unparseable-date; 24 smoke tests pass.  
 **Next task:** Phase 3 — Google Calendar — Emily events auto-prefixed with "Emily ".  

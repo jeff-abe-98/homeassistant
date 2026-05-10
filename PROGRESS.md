@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-10 04:00 UTC]
+**Completed:** Emily event auto-prefix — `AddCalendarEventTool.run()` in `server/tools/calendar.py` prefixes title with "Emily " when user is emily (case-insensitive, no double-prefix guard); 3 new smoke tests; 27 total pass
+**Files changed:** server/tools/calendar.py, tests/test_calendar.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Google Calendar — Test: "What do I have tomorrow?" → reads events for speaking user
+**Blockers:** Google Auth needs manual Google Cloud Console setup before Calendar can make live API calls
+---
+
 ## [2026-05-10 03:00 UTC]
 **Completed:** `AddCalendarEventTool` added to `server/tools/calendar.py` — `add_calendar_event` intent; `_parse_natural_date` uses `dateparser` (future-preferring, Chicago TZ, tz-aware); creates event via `service.events().insert()`; guards missing title + unparseable date + unconfigured auth; custom `duration_minutes` (default 60); `dateparser>=1.2.0` added to requirements; 10 new smoke tests (24 total pass)
 **Files changed:** server/tools/calendar.py, requirements-server.txt, tests/test_calendar.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
@@ -65,13 +72,6 @@ Most recent run at top.
 **Files changed:** tests/test_weather_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
 **Next up:** Phase 3 — `server/tools/cta.py` — CTA Train Tracker API, Blue Line, Western & Milwaukee stop
 **Blockers:** Integration tests skip until real OpenWeatherMap API key is set in config/settings.yaml
----
-
-## [2026-05-08 01:00 UTC]
-**Completed:** Registered OpenWeatherMap API key in config — added `units` field to `WeatherConfig` and wired from YAML; updated `WeatherTool.run()` to use `cfg.weather.units` (was hardcoded "imperial") and guard against `CHANGE_ME` placeholder; wrote `tests/test_weather.py` (5 smoke tests: config defaults, YAML loading, missing key, placeholder key, happy path — all pass)
-**Files changed:** shared/config.py, server/tools/weather.py, tests/test_weather.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
-**Next up:** Phase 3 — Test: "What's the weather today?" → natural spoken forecast (requires real OWM API key in settings.yaml)
-**Blockers:** None
 ---
 
 

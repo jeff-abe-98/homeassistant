@@ -7,14 +7,13 @@
 
 ## Status
 
-Implemented Google Calendar add-event tool:
-- `server/tools/calendar.py` — `AddCalendarEventTool` with `add_calendar_event` intent; `_parse_natural_date()` uses `dateparser` (future-preferring, America/Chicago TZ, returns tz-aware datetime); tool creates event via `service.events().insert()`; guards: unconfigured auth, unreachable service, missing title, unparseable date; custom `duration_minutes` param (default 60); graceful ImportError fallback if dateparser not installed
-- `requirements-server.txt` — added `dateparser>=1.2.0`
-- `tests/test_calendar.py` — 10 new smoke tests (3 for `_parse_natural_date`, 7 for `AddCalendarEventTool`); 24 total tests pass
+Implemented Emily event auto-prefix:
+- `server/tools/calendar.py` — `AddCalendarEventTool.run()` now prefixes event title with "Emily " when `user.lower() == "emily"` and title doesn't already start with "Emily " (case-insensitive guard prevents double-prefix)
+- `tests/test_calendar.py` — 3 new smoke tests: Emily prefix applied, no double-prefix, owner gets no prefix; 27 total tests pass
 
 Still blocked: Google Auth requires manual Google Cloud Console setup before Calendar tool can make live API calls.
 
-Next task: Phase 3 — Google Calendar — "Emily events auto-prefixed with 'Emily '".
+Next task: Phase 3 — Google Calendar — Test: "What do I have tomorrow?" → reads events for speaking user.
 
 ## Documents
 

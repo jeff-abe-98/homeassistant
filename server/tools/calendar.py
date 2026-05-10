@@ -140,6 +140,9 @@ class AddCalendarEventTool(BaseTool):
         when_str = params.get("when", "").strip()
         duration = int(params.get("duration_minutes", 60))
 
+        if user.lower() == "emily" and not title.lower().startswith("emily "):
+            title = f"Emily {title}"
+
         if not title:
             return "I need an event title to add it to your calendar."
 
