@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-10 (session 32)
+**Status:** Phase 3 in progress. Implemented `AddCalendarEventTool` in `server/tools/calendar.py` — `add_calendar_event` intent; `_parse_natural_date` via `dateparser` (future-preferring, Chicago TZ); creates event via Calendar API; guards no-title + unparseable-date; 24 smoke tests pass.  
+**Next task:** Phase 3 — Google Calendar — Emily events auto-prefixed with "Emily ".  
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup (create project, enable Calendar+Tasks APIs, download OAuth2 Desktop credentials JSON); CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware.
+
 ### 2026-05-10 (session 31)
 **Status:** Phase 3 in progress. Implemented `server/tools/calendar.py` — `CalendarTool` reads events for today/tomorrow/this_week from Google Calendar primary calendar; narrates results via LLM; guards CHANGE_ME/unconfigured states; 14 smoke tests pass.  
 **Next task:** Phase 3 — Google Calendar — Add event with natural language date parsing.  

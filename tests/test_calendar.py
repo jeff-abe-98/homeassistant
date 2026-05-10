@@ -8,7 +8,13 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from server.tools.calendar import CalendarTool, _format_events, _time_window
+from server.tools.calendar import (
+    AddCalendarEventTool,
+    CalendarTool,
+    _format_events,
+    _parse_natural_date,
+    _time_window,
+)
 
 _CHICAGO_TZ = ZoneInfo("America/Chicago")
 
@@ -149,3 +155,117 @@ class TestCalendarToolRun:
         tomorrow = (datetime.datetime.now(tz=_CHICAGO_TZ) + datetime.timedelta(days=1)).date()
         start = datetime.datetime.fromisoformat(captured["timeMin"])
         assert start.date() == tomorrow
+
+
+class TestParseNaturalDate:
+    def test_returns_datetime_when_dateparser_available(self):
+        fixed_dt = datetime.datetime(2026, 5, 14, 15, 0, tzinfo=_CHICAGO_TZ)
+        with patch.dict("sys.modules", {"dateparser": MagicMock(parse=MagicMock(return_value=fixed_dt))}):
+            result = _parse_natural_date("Thursday at 3pm")
+        assert result == fixed_dt
+
+    def test_returns_none_when_dateparser_unavailable(self):
+        with patch.dict("sys.modules", {"dateparser": None}):
+            result = _parse_natural_date("tomorrow at noon")
+        assert result is None
+
+    def test_returns_none_when_dateparser_returns_none(self):
+        mock_dp = MagicMock()
+        mock_dp.parse.return_value = None
+        with patch.dict("sys.modules", {"dateparser": mock_dp}):
+            result = _parse_natural_date("this is not a date")
+        assert result is None
+
+
+class TestAddCalendarEventTool:
+    @pytest.mark.asyncio
+    async def test_not_configured_returns_setup_message(self):
+        tool = AddCalendarEventTool()
+        with patch("server.tools.calendar.is_configured", return_value=False):
+            result = await tool.run({"title": "Dentist", "when": "Thursday at 3pm"}, "owner")
+        assert "set up" in result.lower() or "credentials" in result.lower()
+
+    @pytest.mark.asyncio
+    async def test_service_none_returns_connection_error(self):
+        tool = AddCalendarEventTool()
+        with (
+            patch("server.tools.calendar.is_configured", return_value=True),
+            patch("server.tools.calendar.build_service", return_value=None),
+        ):
+            result = await tool.run({"title": "Dentist", "when": "Thursday at 3pm"}, "owner")
+        assert "couldn't connect" in result.lower()
+
+    @pytest.mark.asyncio
+    async def test_missing_title_returns_error(self):
+        tool = AddCalendarEventTool()
+        with (
+            patch("server.tools.calendar.is_configured", return_value=True),
+            patch("server.tools.calendar.build_service", return_value=MagicMock()),
+        ):
+            result = await tool.run({"title": "", "when": "Thursday at 3pm"}, "owner")
+        assert "title" in result.lower()
+
+    @pytest.mark.asyncio
+    async def test_unparseable_date_returns_friendly_error(self):
+        tool = AddCalendarEventTool()
+        with (
+            patch("server.tools.calendar.is_configured", return_value=True),
+            patch("server.tools.calendar.build_service", return_value=MagicMock()),
+            patch("server.tools.calendar._parse_natural_date", return_value=None),
+        ):
+            result = await tool.run({"title": "Dentist", "when": "blorp"}, "owner")
+        assert "couldn't understand" in result.lower()
+        assert "blorp" in result
+
+    @pytest.mark.asyncio
+    async def test_event_created_returns_confirmation_with_title(self):
+        fixed_dt = datetime.datetime(2026, 5, 14, 15, 0, tzinfo=_CHICAGO_TZ)
+        mock_service = MagicMock()
+        mock_service.events().insert().execute.return_value = {"htmlLink": "https://example.com"}
+        tool = AddCalendarEventTool()
+        with (
+            patch("server.tools.calendar.is_configured", return_value=True),
+            patch("server.tools.calendar.build_service", return_value=mock_service),
+            patch("server.tools.calendar._parse_natural_date", return_value=fixed_dt),
+        ):
+            result = await tool.run({"title": "Dentist", "when": "Thursday at 3pm"}, "owner")
+        assert "Dentist" in result
+        assert "done" in result.lower() or "added" in result.lower()
+
+    @pytest.mark.asyncio
+    async def test_api_exception_returns_friendly_message(self):
+        fixed_dt = datetime.datetime(2026, 5, 14, 15, 0, tzinfo=_CHICAGO_TZ)
+        mock_service = MagicMock()
+        mock_service.events().insert().execute.side_effect = Exception("network error")
+        tool = AddCalendarEventTool()
+        with (
+            patch("server.tools.calendar.is_configured", return_value=True),
+            patch("server.tools.calendar.build_service", return_value=mock_service),
+            patch("server.tools.calendar._parse_natural_date", return_value=fixed_dt),
+        ):
+            result = await tool.run({"title": "Dentist", "when": "Thursday at 3pm"}, "owner")
+        assert "trouble" in result.lower()
+
+    @pytest.mark.asyncio
+    async def test_custom_duration_sets_correct_end_time(self):
+        fixed_dt = datetime.datetime(2026, 5, 14, 14, 0, tzinfo=_CHICAGO_TZ)
+        captured: dict = {}
+
+        def fake_insert(**kwargs):
+            captured.update(kwargs)
+            return MagicMock(**{"execute.return_value": {"htmlLink": ""}})
+
+        mock_service = MagicMock()
+        mock_service.events().insert.side_effect = fake_insert
+        tool = AddCalendarEventTool()
+        with (
+            patch("server.tools.calendar.is_configured", return_value=True),
+            patch("server.tools.calendar.build_service", return_value=mock_service),
+            patch("server.tools.calendar._parse_natural_date", return_value=fixed_dt),
+        ):
+            await tool.run({"title": "Meeting", "when": "2pm", "duration_minutes": 90}, "owner")
+
+        body = captured.get("body", {})
+        end_str = body.get("end", {}).get("dateTime", "")
+        end_dt = datetime.datetime.fromisoformat(end_str)
+        assert (end_dt - fixed_dt) == datetime.timedelta(minutes=90)

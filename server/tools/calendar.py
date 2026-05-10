@@ -96,6 +96,97 @@ class CalendarTool(BaseTool):
         return await self._llm_client().complete(system, user_msg)
 
 
+class AddCalendarEventTool(BaseTool):
+    name = "add_calendar_event"
+    description = (
+        "Add a new event to the user's Google Calendar. Use for requests like "
+        "'add a dentist appointment Thursday at 3', 'schedule lunch tomorrow at noon', "
+        "'put a meeting on my calendar Monday at 10am', 'I have a dentist Thursday at 3'."
+    )
+    parameters = {
+        "type": "object",
+        "properties": {
+            "title": {
+                "type": "string",
+                "description": "The event title.",
+            },
+            "when": {
+                "type": "string",
+                "description": (
+                    "Natural language date/time, e.g. 'Thursday at 3pm', "
+                    "'tomorrow at noon', 'next Monday at 10am'."
+                ),
+            },
+            "duration_minutes": {
+                "type": "integer",
+                "description": "Event duration in minutes (default 60).",
+            },
+        },
+        "required": ["title", "when"],
+    }
+
+    async def run(self, params: dict, user: str) -> str:
+        if not is_configured():
+            return (
+                "Google Calendar isn't set up yet — I need OAuth2 credentials. "
+                "Check config/google_credentials.json for setup instructions."
+            )
+
+        service = build_service("calendar", "v3")
+        if service is None:
+            return "I couldn't connect to Google Calendar right now."
+
+        title = params.get("title", "").strip()
+        when_str = params.get("when", "").strip()
+        duration = int(params.get("duration_minutes", 60))
+
+        if not title:
+            return "I need an event title to add it to your calendar."
+
+        start_dt = _parse_natural_date(when_str)
+        if start_dt is None:
+            return (
+                f"I couldn't understand '{when_str}' as a date. "
+                "Try something like 'Thursday at 3pm' or 'tomorrow at noon'."
+            )
+
+        end_dt = start_dt + datetime.timedelta(minutes=duration)
+
+        event_body = {
+            "summary": title,
+            "start": {"dateTime": start_dt.isoformat(), "timeZone": "America/Chicago"},
+            "end": {"dateTime": end_dt.isoformat(), "timeZone": "America/Chicago"},
+        }
+
+        try:
+            created = (
+                service.events().insert(calendarId="primary", body=event_body).execute()
+            )
+        except Exception as exc:
+            return f"I had trouble adding that to your calendar: {exc}"
+
+        _ = created  # htmlLink available but not needed for voice response
+        when_label = start_dt.strftime("%-I:%M %p on %A, %B %-d")
+        return f"Done — I've added '{title}' at {when_label} to your calendar."
+
+
+def _parse_natural_date(when_str: str) -> datetime.datetime | None:
+    """Parse a natural language date/time string into a tz-aware datetime."""
+    try:
+        import dateparser  # optional; graceful degradation if not installed
+    except ImportError:
+        return None
+
+    return dateparser.parse(
+        when_str,
+        settings={
+            "PREFER_DATES_FROM": "future",
+            "TIMEZONE": "America/Chicago",
+            "RETURN_AS_TIMEZONE_AWARE": True,
+        },
+    )
+
+
 def _time_window(when: str) -> tuple[str, str]:
     """Return (time_min, time_max) as RFC3339 strings for the requested window."""
     now = datetime.datetime.now(tz=_CHICAGO_TZ)

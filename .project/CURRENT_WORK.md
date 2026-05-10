@@ -7,13 +7,14 @@
 
 ## Status
 
-Implemented Google Calendar read tool:
-- `server/tools/calendar.py` — `CalendarTool` with `get_calendar_events` intent; supports `today`, `tomorrow`, `this_week` time windows; queries primary Google Calendar via `build_service("calendar", "v3")`; narrates events via OllamaClient; guards unconfigured state gracefully
-- `tests/test_calendar.py` — 14 smoke tests pass (time window math, event formatting, all run/error paths)
+Implemented Google Calendar add-event tool:
+- `server/tools/calendar.py` — `AddCalendarEventTool` with `add_calendar_event` intent; `_parse_natural_date()` uses `dateparser` (future-preferring, America/Chicago TZ, returns tz-aware datetime); tool creates event via `service.events().insert()`; guards: unconfigured auth, unreachable service, missing title, unparseable date; custom `duration_minutes` param (default 60); graceful ImportError fallback if dateparser not installed
+- `requirements-server.txt` — added `dateparser>=1.2.0`
+- `tests/test_calendar.py` — 10 new smoke tests (3 for `_parse_natural_date`, 7 for `AddCalendarEventTool`); 24 total tests pass
 
 Still blocked: Google Auth requires manual Google Cloud Console setup before Calendar tool can make live API calls.
 
-Next task: Phase 3 — Google Calendar — "Add event with natural language date parsing".
+Next task: Phase 3 — Google Calendar — "Emily events auto-prefixed with 'Emily '".
 
 ## Documents
 

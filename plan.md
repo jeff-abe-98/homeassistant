@@ -79,7 +79,7 @@
 
 ### Google Calendar
 - [x] `server/tools/calendar.py` — read events for today / date range — `CalendarTool` queries primary calendar via Google API; supports today/tomorrow/this_week windows; narrates events via LLM; guards unconfigured state; 14 smoke tests pass
-- [ ] Add event with natural language date parsing
+- [x] Add event with natural language date parsing — `AddCalendarEventTool` in `calendar.py`; `_parse_natural_date` via `dateparser` (future-preferring, Chicago TZ); creates event via Calendar API; guards no-title + unparseable-date; custom duration support; `dateparser>=1.2.0` added to requirements; 10 new smoke tests (24 total pass)
 - [ ] Emily events auto-prefixed with "Emily "
 - [ ] Test: "What do I have tomorrow?" → reads events for speaking user
 - [ ] Test: Emily says "I have a dentist appointment Thursday at 3" → event created as "Emily Dentist"
