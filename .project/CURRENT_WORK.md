@@ -7,9 +7,16 @@
 
 ## Status
 
-Wrote `tests/test_cta_integration.py` — two async integration tests (`test_cta_next_blue_line_real_api` + `test_cta_ohare_direction_real_api`) that auto-skip when `cta.api_key` is CHANGE_ME. When a real key is set they call the live CTA Train Tracker API, verify the parsed arrivals list structure (destination, arrival_time, is_delayed fields), and assert the LLM system prompt contains correct direction context. All 11 existing CTA smoke tests still pass.
+Implemented Google Auth module — all three Google Auth plan items completed:
+- `config/google_credentials.json` skeleton created with step-by-step setup instructions
+- `shared/config.py` `GoogleConfig` extended with `token_file` + `scopes` fields, wired from YAML
+- `server/tools/google_auth.py` — `is_configured()`, `get_credentials()` (load/refresh/new browser OAuth flow), `build_service(api_name, version)`; guards CHANGE_ME placeholder; lazy google-auth imports
+- `requirements-server.txt` — added `google-api-python-client`, `google-auth-httplib2`, `google-auth-oauthlib`
+- `tests/test_google_auth.py` — 8 smoke tests pass
 
-Next task: Phase 3 — Google Auth — Set up Google Cloud project, enable Calendar API + Tasks API.
+Blocked: Google Auth requires manual Google Cloud Console setup before Calendar/Tasks tools can use it.
+
+Next task: Phase 3 — Google Calendar — `server/tools/calendar.py` (read events for today / date range).
 
 ## Documents
 

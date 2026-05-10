@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-10 01:00 UTC]
+**Completed:** Google Auth module — `config/google_credentials.json` skeleton with setup instructions; `GoogleConfig` extended with `token_file` + `scopes` fields; `server/tools/google_auth.py` (`is_configured`, `get_credentials`, `build_service`); google-auth packages added to requirements; 8 smoke tests pass
+**Files changed:** config/google_credentials.json, shared/config.py, server/tools/google_auth.py, tests/test_google_auth.py, requirements-server.txt, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Google Calendar — `server/tools/calendar.py` (read events for today / date range)
+**Blockers:** Google Auth needs manual Google Cloud Console setup (create project, enable Calendar+Tasks APIs, download OAuth2 Desktop credentials JSON)
+---
+
 ## [2026-05-10 00:00 UTC]
 **Completed:** Wrote `tests/test_cta_integration.py` — two async integration tests (`test_cta_next_blue_line_real_api`, `test_cta_ohare_direction_real_api`) that auto-skip when cta.api_key is CHANGE_ME; verify parsed arrivals structure and direction-aware system prompt when real key is set; 11 existing CTA smoke tests still pass
 **Files changed:** tests/test_cta_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

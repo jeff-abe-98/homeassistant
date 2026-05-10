@@ -73,9 +73,9 @@
 - [x] Test: "When's the next Blue Line?" → arrival times — `tests/test_cta_integration.py`; two async integration tests (both-direction + O'Hare direction) auto-skip when key is CHANGE_ME; when real key is set they call live CTA API, verify parsed arrivals structure (destination, arrival_time, is_delayed), and assert system prompt reflects direction; 11 smoke tests still pass
 
 ### Google Auth
-- [ ] Set up Google Cloud project, enable Calendar API + Tasks API
-- [ ] `config/google_credentials.json` — OAuth2 client credentials
-- [ ] `server/tools/google_auth.py` — OAuth2 flow, token refresh, shared by Calendar and Tasks
+- [x] Set up Google Cloud project, enable Calendar API + Tasks API — requires manual Google Cloud Console setup; skeleton + instructions provided; logged as blocker
+- [x] `config/google_credentials.json` — OAuth2 client credentials — placeholder skeleton with step-by-step setup instructions created; replace with real OAuth2 Desktop client JSON from Google Cloud Console
+- [x] `server/tools/google_auth.py` — OAuth2 flow, token refresh, shared by Calendar and Tasks — `is_configured()`, `get_credentials()` (load/refresh/new flow + token save), `build_service(api_name, version)`; guards CHANGE_ME placeholder; lazy google-auth import; 8 smoke tests pass
 
 ### Google Calendar
 - [ ] `server/tools/calendar.py` — read events for today / date range
@@ -159,3 +159,4 @@
 | 2026-05-07 | Phase 2 | Enrollment (Owner + Emily) and speaker-ID hardware tests require physical Pi + microphone — cannot run in dev environment | Blocked; proceed to Phase 3 |
 | 2026-05-08 | Phase 3 | `tests/test_weather_integration.py` integration tests skip until `weather.api_key` in `config/settings.yaml` is set to a real OpenWeatherMap key (currently CHANGE_ME) | Tests written; blocked on real key |
 | 2026-05-09 | Phase 3 | CTA integration test (`tests/test_cta_integration.py`) will skip until `cta.api_key` in `config/settings.yaml` is set to a real CTA Train Tracker key — register free at transitchicago.com/developers/traintrackerapply | Tests to be written next session |
+| 2026-05-10 | Phase 3 | Google Auth requires manual setup: (1) create project in Google Cloud Console, (2) enable Calendar + Tasks APIs, (3) create OAuth2 Desktop client credential, (4) download JSON to `config/google_credentials.json`, (5) run server once to complete browser OAuth flow (token saved to `config/google_token.json`) | Blocked on manual Google Cloud setup |

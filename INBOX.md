@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-10 (session 30)
+**Status:** Phase 3 in progress. Implemented Google Auth — `config/google_credentials.json` placeholder skeleton with step-by-step setup instructions; `GoogleConfig` extended with `token_file` + `scopes`; `server/tools/google_auth.py` with `is_configured()`, `get_credentials()`, `build_service()`; added google-auth packages to requirements; 8 smoke tests pass.  
+**Next task:** Phase 3 — Google Calendar — `server/tools/calendar.py` (read events for today / date range).  
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup (create project, enable Calendar+Tasks APIs, download OAuth2 Desktop credentials JSON); CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware.
+
 ### 2026-05-10 (session 29)
 **Status:** Phase 3 in progress. Wrote `tests/test_cta_integration.py` — two integration tests (both-direction + O'Hare-only) that auto-skip without a real CTA key; verify live API response structure and direction-aware LLM system prompt. All 11 CTA smoke tests pass.  
 **Next task:** Phase 3 — Google Auth — Set up Google Cloud project, enable Calendar API + Tasks API.  

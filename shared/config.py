@@ -29,6 +29,11 @@ class WhisperConfig:
 @dataclass
 class GoogleConfig:
     credentials_file: str = "config/google_credentials.json"
+    token_file: str = "config/google_token.json"
+    scopes: list = field(default_factory=lambda: [
+        "https://www.googleapis.com/auth/calendar",
+        "https://www.googleapis.com/auth/tasks",
+    ])
 
 
 @dataclass
@@ -136,6 +141,11 @@ def load(path: str | None = None) -> AppConfig:
         ),
         google=GoogleConfig(
             credentials_file=goo.get("credentials_file", "config/google_credentials.json"),
+            token_file=goo.get("token_file", "config/google_token.json"),
+            scopes=goo.get("scopes", [
+                "https://www.googleapis.com/auth/calendar",
+                "https://www.googleapis.com/auth/tasks",
+            ]),
         ),
         spotify=SpotifyConfig(
             owner=_spotify_user(spo.get("owner", {})),
