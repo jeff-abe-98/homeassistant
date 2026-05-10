@@ -70,7 +70,7 @@
 - [x] `server/tools/cta.py` — CTA Train Tracker API, Blue Line, Western & Milwaukee stop — `CtaTool` fetches arrivals from CTA Train Tracker API for Western & Milwaukee stop; direction param (ohare/forest_park/both); parses eta list; narrates via LLM; guards CHANGE_ME key; 8 smoke tests pass
 - [x] Handle directional queries (O'Hare vs Forest Park) — `run()` injects direction-specific context into LLM system prompt (ohare focuses on O'Hare, forest_park focuses on Forest Park, both groups by direction); 3 new tests cover Forest Park path + system prompt content; 11 tests pass
 - [x] Register CTA API key in config — `CtaConfig` (api_key + stop_id_ohare/forest_park) fully wired; `settings.yaml` updated with registration URL comment (transitchicago.com/developers/traintrackerapply); all 11 smoke tests pass
-- [ ] Test: "When's the next Blue Line?" → arrival times
+- [x] Test: "When's the next Blue Line?" → arrival times — `tests/test_cta_integration.py`; two async integration tests (both-direction + O'Hare direction) auto-skip when key is CHANGE_ME; when real key is set they call live CTA API, verify parsed arrivals structure (destination, arrival_time, is_delayed), and assert system prompt reflects direction; 11 smoke tests still pass
 
 ### Google Auth
 - [ ] Set up Google Cloud project, enable Calendar API + Tasks API

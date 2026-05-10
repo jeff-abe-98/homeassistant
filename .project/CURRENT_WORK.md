@@ -1,15 +1,15 @@
 # Current Work
 
-**Last updated:** 2026-05-09  
+**Last updated:** 2026-05-10  
 **Phase:** Phase 3 — Core Tool Integrations (in progress)
 
 ---
 
 ## Status
 
-Confirmed CTA config registration complete. `CtaConfig` has `api_key`, `stop_id_ohare`, and `stop_id_forest_park` all wired from `config/settings.yaml`. Added API registration URL comment to `settings.yaml` (transitchicago.com/developers/traintrackerapply). All 11 CTA smoke tests pass.
+Wrote `tests/test_cta_integration.py` — two async integration tests (`test_cta_next_blue_line_real_api` + `test_cta_ohare_direction_real_api`) that auto-skip when `cta.api_key` is CHANGE_ME. When a real key is set they call the live CTA Train Tracker API, verify the parsed arrivals list structure (destination, arrival_time, is_delayed fields), and assert the LLM system prompt contains correct direction context. All 11 existing CTA smoke tests still pass.
 
-Next task: Phase 3 — "When's the next Blue Line?" integration test (`tests/test_cta_integration.py`).
+Next task: Phase 3 — Google Auth — Set up Google Cloud project, enable Calendar API + Tasks API.
 
 ## Documents
 

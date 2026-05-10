@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-10 (session 29)
+**Status:** Phase 3 in progress. Wrote `tests/test_cta_integration.py` — two integration tests (both-direction + O'Hare-only) that auto-skip without a real CTA key; verify live API response structure and direction-aware LLM system prompt. All 11 CTA smoke tests pass.  
+**Next task:** Phase 3 — Google Auth — Set up Google Cloud project, enable Calendar API + Tasks API.  
+**Blockers:** CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware.
+
 ### 2026-05-09 (session 28)
 **Status:** Phase 3 in progress. Registered CTA API key in config — confirmed `CtaConfig` (api_key + stop_id_ohare/forest_park) fully wired; added API registration URL comment to `config/settings.yaml`; all 11 CTA smoke tests pass.  
 **Next task:** Phase 3 — "When's the next Blue Line?" integration test (`tests/test_cta_integration.py`).  

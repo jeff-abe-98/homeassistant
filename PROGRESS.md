@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-10 00:00 UTC]
+**Completed:** Wrote `tests/test_cta_integration.py` — two async integration tests (`test_cta_next_blue_line_real_api`, `test_cta_ohare_direction_real_api`) that auto-skip when cta.api_key is CHANGE_ME; verify parsed arrivals structure and direction-aware system prompt when real key is set; 11 existing CTA smoke tests still pass
+**Files changed:** tests/test_cta_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Google Auth — Set up Google Cloud project, enable Calendar API + Tasks API
+**Blockers:** CTA integration tests skip until real CTA API key set in config/settings.yaml; Phase 2 enrollment needs physical Pi hardware
+---
+
 ## [2026-05-09 01:00 UTC]
 **Completed:** Registered CTA API key in config — confirmed `CtaConfig` (api_key + stop_id_ohare/forest_park) fully wired in `shared/config.py` and `config/settings.yaml`; added API registration URL comment to `settings.yaml` (transitchicago.com/developers/traintrackerapply); all 11 CTA smoke tests pass
 **Files changed:** config/settings.yaml, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
