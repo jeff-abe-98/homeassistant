@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-10 02:00 UTC]
+**Completed:** `server/tools/calendar.py` — `CalendarTool` reads Google Calendar events for today/tomorrow/this_week; narrates via LLM; guards unconfigured state; 14 smoke tests pass
+**Files changed:** server/tools/calendar.py, tests/test_calendar.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Google Calendar — Add event with natural language date parsing
+**Blockers:** Google Auth needs manual Google Cloud Console setup before Calendar can make live API calls
+---
+
 ## [2026-05-10 01:00 UTC]
 **Completed:** Google Auth module — `config/google_credentials.json` skeleton with setup instructions; `GoogleConfig` extended with `token_file` + `scopes` fields; `server/tools/google_auth.py` (`is_configured`, `get_credentials`, `build_service`); google-auth packages added to requirements; 8 smoke tests pass
 **Files changed:** config/google_credentials.json, shared/config.py, server/tools/google_auth.py, tests/test_google_auth.py, requirements-server.txt, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

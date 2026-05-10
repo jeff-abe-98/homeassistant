@@ -78,7 +78,7 @@
 - [x] `server/tools/google_auth.py` — OAuth2 flow, token refresh, shared by Calendar and Tasks — `is_configured()`, `get_credentials()` (load/refresh/new flow + token save), `build_service(api_name, version)`; guards CHANGE_ME placeholder; lazy google-auth import; 8 smoke tests pass
 
 ### Google Calendar
-- [ ] `server/tools/calendar.py` — read events for today / date range
+- [x] `server/tools/calendar.py` — read events for today / date range — `CalendarTool` queries primary calendar via Google API; supports today/tomorrow/this_week windows; narrates events via LLM; guards unconfigured state; 14 smoke tests pass
 - [ ] Add event with natural language date parsing
 - [ ] Emily events auto-prefixed with "Emily "
 - [ ] Test: "What do I have tomorrow?" → reads events for speaking user

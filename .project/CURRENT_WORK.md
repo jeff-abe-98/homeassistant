@@ -7,16 +7,13 @@
 
 ## Status
 
-Implemented Google Auth module — all three Google Auth plan items completed:
-- `config/google_credentials.json` skeleton created with step-by-step setup instructions
-- `shared/config.py` `GoogleConfig` extended with `token_file` + `scopes` fields, wired from YAML
-- `server/tools/google_auth.py` — `is_configured()`, `get_credentials()` (load/refresh/new browser OAuth flow), `build_service(api_name, version)`; guards CHANGE_ME placeholder; lazy google-auth imports
-- `requirements-server.txt` — added `google-api-python-client`, `google-auth-httplib2`, `google-auth-oauthlib`
-- `tests/test_google_auth.py` — 8 smoke tests pass
+Implemented Google Calendar read tool:
+- `server/tools/calendar.py` — `CalendarTool` with `get_calendar_events` intent; supports `today`, `tomorrow`, `this_week` time windows; queries primary Google Calendar via `build_service("calendar", "v3")`; narrates events via OllamaClient; guards unconfigured state gracefully
+- `tests/test_calendar.py` — 14 smoke tests pass (time window math, event formatting, all run/error paths)
 
-Blocked: Google Auth requires manual Google Cloud Console setup before Calendar/Tasks tools can use it.
+Still blocked: Google Auth requires manual Google Cloud Console setup before Calendar tool can make live API calls.
 
-Next task: Phase 3 — Google Calendar — `server/tools/calendar.py` (read events for today / date range).
+Next task: Phase 3 — Google Calendar — "Add event with natural language date parsing".
 
 ## Documents
 
