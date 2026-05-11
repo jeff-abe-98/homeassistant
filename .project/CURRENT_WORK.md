@@ -1,19 +1,20 @@
 # Current Work
 
-**Last updated:** 2026-05-10  
+**Last updated:** 2026-05-11  
 **Phase:** Phase 3 — Core Tool Integrations (in progress)
 
 ---
 
 ## Status
 
-Implemented Emily event auto-prefix:
-- `server/tools/calendar.py` — `AddCalendarEventTool.run()` now prefixes event title with "Emily " when `user.lower() == "emily"` and title doesn't already start with "Emily " (case-insensitive guard prevents double-prefix)
-- `tests/test_calendar.py` — 3 new smoke tests: Emily prefix applied, no double-prefix, owner gets no prefix; 27 total tests pass
+Implemented "reads events for speaking user" — calendar narration personalized by user:
+- `server/tools/calendar.py` — `CalendarTool.run()` injects user name into LLM system prompt when user is a known speaker (not "unknown"); LLM can now address them by name in narration
+- `tests/test_calendar.py` — 2 new smoke tests: known user name appears in system prompt, "unknown" does not; 29 total tests pass
+- `tests/test_calendar_integration.py` — 2 integration tests (owner + Emily) for "What do I have tomorrow?" hitting real Google Calendar API; auto-skip when credentials not configured
 
 Still blocked: Google Auth requires manual Google Cloud Console setup before Calendar tool can make live API calls.
 
-Next task: Phase 3 — Google Calendar — Test: "What do I have tomorrow?" → reads events for speaking user.
+Next task: Phase 3 — Google Calendar — Test: Emily says "I have a dentist appointment Thursday at 3" → event created as "Emily Dentist".
 
 ## Documents
 

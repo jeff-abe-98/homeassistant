@@ -84,10 +84,15 @@ class CalendarTool(BaseTool):
             return f"You don't have anything scheduled {window_label}."
 
         events_text = _format_events(events)
+        user_hint = (
+            f" You are speaking with {user.title()}."
+            if user and user.lower() != "unknown"
+            else ""
+        )
         system = (
             "You are a home assistant. Read back the following calendar events naturally "
             "in plain spoken English. Be concise — two or three sentences. "
-            "No markdown, no bullet points."
+            f"No markdown, no bullet points.{user_hint}"
         )
         user_msg = (
             f"Question: {params.get('query', 'what do I have scheduled')}\n\n"

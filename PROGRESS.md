@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-11 00:00 UTC]
+**Completed:** Calendar "reads events for speaking user" — `CalendarTool.run()` injects speaker name into LLM system prompt; 2 new smoke tests (known-user name in prompt, unknown-user not in prompt); `tests/test_calendar_integration.py` with 2 integration tests (owner + Emily, auto-skip without Google credentials); 29 smoke tests pass
+**Files changed:** server/tools/calendar.py, tests/test_calendar.py, tests/test_calendar_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Google Calendar — Test: Emily says "I have a dentist appointment Thursday at 3" → event created as "Emily Dentist"
+**Blockers:** Google Auth needs manual Google Cloud Console setup before Calendar can make live API calls
+---
+
 ## [2026-05-10 04:00 UTC]
 **Completed:** Emily event auto-prefix — `AddCalendarEventTool.run()` in `server/tools/calendar.py` prefixes title with "Emily " when user is emily (case-insensitive, no double-prefix guard); 3 new smoke tests; 27 total pass
 **Files changed:** server/tools/calendar.py, tests/test_calendar.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
@@ -65,13 +72,6 @@ Most recent run at top.
 **Files changed:** server/tools/cta.py, tests/test_cta.py, shared/config.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
 **Next up:** Phase 3 — Handle directional queries (O'Hare vs Forest Park) — next plan item
 **Blockers:** CTA integration tests need real CTA API key; Phase 2 enrollment needs physical Pi hardware
----
-
-## [2026-05-08 02:00 UTC]
-**Completed:** Weather integration test — `tests/test_weather_integration.py` with two async tests: `test_weather_today_real_api` (current conditions query) and `test_weather_forecast_real_api` (rain forecast query); both auto-skip when `weather.api_key` is CHANGE_ME; when real key is set they call live OWM API and verify payload structure passed to LLM; all 5 existing smoke tests still pass
-**Files changed:** tests/test_weather_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
-**Next up:** Phase 3 — `server/tools/cta.py` — CTA Train Tracker API, Blue Line, Western & Milwaukee stop
-**Blockers:** Integration tests skip until real OpenWeatherMap API key is set in config/settings.yaml
 ---
 
 

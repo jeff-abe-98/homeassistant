@@ -81,7 +81,7 @@
 - [x] `server/tools/calendar.py` — read events for today / date range — `CalendarTool` queries primary calendar via Google API; supports today/tomorrow/this_week windows; narrates events via LLM; guards unconfigured state; 14 smoke tests pass
 - [x] Add event with natural language date parsing — `AddCalendarEventTool` in `calendar.py`; `_parse_natural_date` via `dateparser` (future-preferring, Chicago TZ); creates event via Calendar API; guards no-title + unparseable-date; custom duration support; `dateparser>=1.2.0` added to requirements; 10 new smoke tests (24 total pass)
 - [x] Emily events auto-prefixed with "Emily " — `AddCalendarEventTool.run()` prefixes title when `user.lower() == "emily"` and title doesn't already start with "Emily "; 3 new smoke tests (Emily prefix, no-double-prefix, owner no-prefix); 27 total pass
-- [ ] Test: "What do I have tomorrow?" → reads events for speaking user
+- [x] Test: "What do I have tomorrow?" → reads events for speaking user — `CalendarTool.run()` injects user name into system prompt when user is known; 2 new smoke tests (known-user name in prompt, unknown-user not in prompt); `tests/test_calendar_integration.py` with 2 integration tests (owner + Emily, real Google Calendar API, auto-skip without credentials); 29 smoke tests pass
 - [ ] Test: Emily says "I have a dentist appointment Thursday at 3" → event created as "Emily Dentist"
 
 ### Google Tasks
