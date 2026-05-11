@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-11 (session 36)
+**Status:** Phase 3 in progress. Implemented `server/tools/tasks.py` — `AddTaskTool` (add item to default task list), `ListTasksTool` (list incomplete items, LLM narration with user-name injection), `CompleteTaskTool` (case-insensitive name match, patch status to completed); `_default_tasklist_id` + `_find_task_by_title` helpers; 23 smoke tests all pass.  
+**Next task:** Phase 3 — Google Tasks — Separate task lists per user ("Owner", "Emily").  
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware.
+
 ### 2026-05-11 (session 35)
 **Status:** Phase 3 in progress. Added integration test `test_emily_dentist_appointment_created_as_emily_dentist` — verifies Emily dentist flow end-to-end: real dateparser parses "Thursday at 3" → hour=15; Emily prefix applied → summary="Emily Dentist"; mocked Google Calendar insert captures event body for assertions; 29 smoke tests pass, 3 integration tests all skip without credentials.  
 **Next task:** Phase 3 — Google Tasks — `server/tools/tasks.py` (add item, list incomplete items, complete item by name).  

@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-11 02:00 UTC]
+**Completed:** `server/tools/tasks.py` — `AddTaskTool`, `ListTasksTool`, `CompleteTaskTool`; uses Google Tasks API v1 via shared `build_service`; `_default_tasklist_id` helper; case-insensitive `_find_task_by_title`; 23 smoke tests in `tests/test_tasks.py` all pass
+**Files changed:** server/tools/tasks.py, tests/test_tasks.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Google Tasks — Separate task lists per user ("Owner", "Emily")
+**Blockers:** Google Auth needs manual Google Cloud Console setup before Tasks/Calendar tools can make live API calls
+---
+
 ## [2026-05-11 01:00 UTC]
 **Completed:** Integration test for Emily dentist appointment — `test_emily_dentist_appointment_created_as_emily_dentist` added to `tests/test_calendar_integration.py`; uses real `dateparser` ("Thursday at 3" → hour=15); mocks Google Calendar insert to capture event body; asserts summary="Emily Dentist", hour=15, timeZone=America/Chicago; confirmation includes "Emily Dentist"; skips without credentials; 29 smoke tests still pass
 **Files changed:** tests/test_calendar_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

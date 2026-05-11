@@ -7,12 +7,16 @@
 
 ## Status
 
-Added integration test for Emily dentist appointment flow:
-- `tests/test_calendar_integration.py` — new test `test_emily_dentist_appointment_created_as_emily_dentist`; skips without real Google credentials; uses real `dateparser` to verify "Thursday at 3" resolves to 3:00 PM; mocks Google Calendar insert to capture event body; asserts summary="Emily Dentist", hour=15, timeZone=America/Chicago; 29 smoke tests still pass; 3 integration tests total (all skip without credentials)
+Implemented `server/tools/tasks.py` — three Google Tasks tools:
+- `AddTaskTool` (`add_task`) — inserts a task into the default task list
+- `ListTasksTool` (`list_tasks`) — reads incomplete tasks, narrates via LLM with user-name injection
+- `CompleteTaskTool` (`complete_task`) — finds task by case-insensitive name match and patches status to "completed"
+- `_default_tasklist_id` helper gets the first task list; `_find_task_by_title` does case-insensitive search
+- 23 smoke tests in `tests/test_tasks.py` — all pass
 
-Still blocked: Google Auth requires manual Google Cloud Console setup before Calendar tool can make live API calls.
+Still blocked: Google Auth requires manual Google Cloud Console setup before Tasks/Calendar tools can make live API calls.
 
-Next task: Phase 3 — Google Tasks — `server/tools/tasks.py` (add item, list incomplete items, complete item by name).
+Next task: Phase 3 — Google Tasks — Separate task lists per user ("Owner", "Emily").
 
 ## Documents
 

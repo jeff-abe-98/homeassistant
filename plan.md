@@ -85,7 +85,7 @@
 - [x] Test: Emily says "I have a dentist appointment Thursday at 3" → event created as "Emily Dentist" — `tests/test_calendar_integration.py::test_emily_dentist_appointment_created_as_emily_dentist`; skips without credentials; uses real dateparser + mocked Google insert; asserts summary="Emily Dentist", hour=15, timeZone=America/Chicago, and confirmation string; 29 smoke tests still pass
 
 ### Google Tasks
-- [ ] `server/tools/tasks.py` — add item, list incomplete items, complete item by name
+- [x] `server/tools/tasks.py` — add item, list incomplete items, complete item by name — `AddTaskTool`, `ListTasksTool`, `CompleteTaskTool`; uses `build_service("tasks","v1")`; `_default_tasklist_id` helper; `_find_task_by_title` for case-insensitive complete; 23 smoke tests pass
 - [ ] Separate task lists per user ("Owner", "Emily")
 - [ ] Test: "Add oat milk to my list" → added to correct user's list
 - [ ] Test: "What's on my list?" → reads back incomplete items
