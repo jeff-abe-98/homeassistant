@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-11 04:00 UTC]
+**Completed:** Integration tests for Google Tasks "add oat milk to my list" — `tests/test_tasks_integration.py` with 2 tests (owner + Emily per-user routing); auto-skip without Google credentials; 32 smoke tests pass, 2 skip
+**Files changed:** tests/test_tasks_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Google Tasks — Test: "What's on my list?" → reads back incomplete items
+**Blockers:** None
+---
+
 ## [2026-05-11 03:00 UTC]
 **Completed:** Per-user Google Tasks list routing — replaced `_default_tasklist_id` with `_user_tasklist_id(service, user)` that finds a list matching the user's name, creates it if absent, falls back to first list for unknown users; all 3 tasks tools updated; 9 new tests (7 unit + 2 e2e owner/emily routing); 32 total pass
 **Files changed:** server/tools/tasks.py, tests/test_tasks.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

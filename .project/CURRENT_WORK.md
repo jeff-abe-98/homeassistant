@@ -7,14 +7,15 @@
 
 ## Status
 
-Implemented per-user Google Tasks list routing in `server/tools/tasks.py`:
-- Replaced `_default_tasklist_id` with `_user_tasklist_id(service, user)` — looks up a task list whose title matches the user name (case-insensitive); creates one if not found; falls back to the first list for "unknown" users
-- All three tools (`AddTaskTool`, `ListTasksTool`, `CompleteTaskTool`) now route each user to their own named task list
-- 9 new tests (7 unit tests for `_user_tasklist_id` + 2 e2e tests verifying owner/emily route to correct lists); 32 total pass
+Created `tests/test_tasks_integration.py` — integration tests for Google Tasks "add oat milk" flow:
+- `test_add_oat_milk_owner_routed_to_owner_list` — Owner adds "oat milk"; asserts `tasks().insert()` called with Owner list ID
+- `test_add_oat_milk_emily_routed_to_emily_list` — Emily adds "oat milk"; asserts insert uses Emily list ID (not Owner's)
+- Both tests mock `build_service` (no real tasks created); auto-skip without Google credentials
+- 32 existing smoke tests pass; 2 new integration tests skip correctly
 
 Still blocked: Google Auth requires manual Google Cloud Console setup before Tasks/Calendar tools can make live API calls.
 
-Next task: Phase 3 — Google Tasks — Test: "Add oat milk to my list" → added to correct user's list.
+Next task: Phase 3 — Google Tasks — Test: "What's on my list?" → reads back incomplete items.
 
 ## Documents
 
