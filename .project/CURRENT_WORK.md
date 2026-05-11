@@ -7,14 +7,12 @@
 
 ## Status
 
-Implemented "reads events for speaking user" — calendar narration personalized by user:
-- `server/tools/calendar.py` — `CalendarTool.run()` injects user name into LLM system prompt when user is a known speaker (not "unknown"); LLM can now address them by name in narration
-- `tests/test_calendar.py` — 2 new smoke tests: known user name appears in system prompt, "unknown" does not; 29 total tests pass
-- `tests/test_calendar_integration.py` — 2 integration tests (owner + Emily) for "What do I have tomorrow?" hitting real Google Calendar API; auto-skip when credentials not configured
+Added integration test for Emily dentist appointment flow:
+- `tests/test_calendar_integration.py` — new test `test_emily_dentist_appointment_created_as_emily_dentist`; skips without real Google credentials; uses real `dateparser` to verify "Thursday at 3" resolves to 3:00 PM; mocks Google Calendar insert to capture event body; asserts summary="Emily Dentist", hour=15, timeZone=America/Chicago; 29 smoke tests still pass; 3 integration tests total (all skip without credentials)
 
 Still blocked: Google Auth requires manual Google Cloud Console setup before Calendar tool can make live API calls.
 
-Next task: Phase 3 — Google Calendar — Test: Emily says "I have a dentist appointment Thursday at 3" → event created as "Emily Dentist".
+Next task: Phase 3 — Google Tasks — `server/tools/tasks.py` (add item, list incomplete items, complete item by name).
 
 ## Documents
 

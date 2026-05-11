@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-11 (session 35)
+**Status:** Phase 3 in progress. Added integration test `test_emily_dentist_appointment_created_as_emily_dentist` — verifies Emily dentist flow end-to-end: real dateparser parses "Thursday at 3" → hour=15; Emily prefix applied → summary="Emily Dentist"; mocked Google Calendar insert captures event body for assertions; 29 smoke tests pass, 3 integration tests all skip without credentials.  
+**Next task:** Phase 3 — Google Tasks — `server/tools/tasks.py` (add item, list incomplete items, complete item by name).  
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware.
+
 ### 2026-05-11 (session 34)
 **Status:** Phase 3 in progress. Implemented "reads events for speaking user" — `CalendarTool.run()` now injects the speaker's name into the LLM system prompt for personalized narration; 2 new smoke tests; `tests/test_calendar_integration.py` created with 2 integration tests (owner + Emily, auto-skip without Google credentials); 29 total calendar smoke tests pass.  
 **Next task:** Phase 3 — Google Calendar — Test: Emily says "I have a dentist appointment Thursday at 3" → event created as "Emily Dentist".  

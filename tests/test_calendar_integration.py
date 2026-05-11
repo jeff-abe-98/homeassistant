@@ -11,7 +11,7 @@ Run with: pytest tests/test_calendar_integration.py -v -s
 from __future__ import annotations
 
 import datetime
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -98,3 +98,60 @@ async def test_calendar_tomorrow_emily_real_api() -> None:
         assert "emily" in system_prompt.lower(), (
             "system prompt should address Emily by name"
         )
+
+
+@_REQUIRES_GOOGLE
+@pytest.mark.asyncio
+async def test_emily_dentist_appointment_created_as_emily_dentist() -> None:
+    """Emily: 'I have a dentist appointment Thursday at 3' → event body has summary='Emily Dentist'.
+
+    Verifies the complete add-event flow with real credentials:
+    - is_configured() passes (credentials required for this test to run at all)
+    - dateparser resolves 'Thursday at 3' to 3:00 PM on a real future Thursday
+    - Emily prefix logic applies: 'Dentist' → 'Emily Dentist'
+    - the event body sent to Google Calendar has summary='Emily Dentist' and hour==15
+    - the confirmation response includes 'Emily Dentist'
+
+    The Google Calendar insert itself is mocked so no test events are created.
+    """
+    from server.tools.calendar import AddCalendarEventTool
+
+    inserted_bodies: list[dict] = []
+
+    def fake_insert(**kwargs):
+        inserted_bodies.append(kwargs.get("body", {}))
+        return MagicMock(**{"execute.return_value": {"id": "test-event-id", "htmlLink": ""}})
+
+    mock_service = MagicMock()
+    mock_service.events().insert.side_effect = fake_insert
+
+    tool = AddCalendarEventTool()
+
+    with patch("server.tools.calendar.build_service", return_value=mock_service):
+        result = await tool.run(
+            {"title": "Dentist", "when": "Thursday at 3"},
+            user="emily",
+        )
+
+    assert inserted_bodies, "Google Calendar insert was never called"
+    body = inserted_bodies[0]
+
+    # Emily prefix must be applied
+    assert body.get("summary") == "Emily Dentist", (
+        f"Expected summary='Emily Dentist', got {body.get('summary')!r}"
+    )
+
+    # dateparser must resolve 'Thursday at 3' to 3:00 PM (real dateparser call)
+    start = body.get("start", {})
+    start_dt_str = start.get("dateTime", "")
+    assert start_dt_str, "Event start.dateTime must be populated"
+    start_dt = datetime.datetime.fromisoformat(start_dt_str)
+    assert start_dt.hour == 15, (
+        f"Expected 3 PM (hour=15), got hour={start_dt.hour} — "
+        f"dateparser may not have parsed 'Thursday at 3' correctly"
+    )
+    assert start.get("timeZone") == "America/Chicago"
+
+    # Confirmation string must mention the event title
+    assert "Emily Dentist" in result, f"Expected 'Emily Dentist' in response: {result!r}"
+    assert "done" in result.lower() or "added" in result.lower()

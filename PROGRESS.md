@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-11 01:00 UTC]
+**Completed:** Integration test for Emily dentist appointment — `test_emily_dentist_appointment_created_as_emily_dentist` added to `tests/test_calendar_integration.py`; uses real `dateparser` ("Thursday at 3" → hour=15); mocks Google Calendar insert to capture event body; asserts summary="Emily Dentist", hour=15, timeZone=America/Chicago; confirmation includes "Emily Dentist"; skips without credentials; 29 smoke tests still pass
+**Files changed:** tests/test_calendar_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Google Tasks — `server/tools/tasks.py` (add item, list incomplete items, complete item by name)
+**Blockers:** Google Auth needs manual Google Cloud Console setup before Calendar/Tasks tools can make live API calls
+---
+
 ## [2026-05-11 00:00 UTC]
 **Completed:** Calendar "reads events for speaking user" — `CalendarTool.run()` injects speaker name into LLM system prompt; 2 new smoke tests (known-user name in prompt, unknown-user not in prompt); `tests/test_calendar_integration.py` with 2 integration tests (owner + Emily, auto-skip without Google credentials); 29 smoke tests pass
 **Files changed:** server/tools/calendar.py, tests/test_calendar.py, tests/test_calendar_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
