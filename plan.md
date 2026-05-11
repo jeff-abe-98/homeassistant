@@ -86,7 +86,7 @@
 
 ### Google Tasks
 - [x] `server/tools/tasks.py` — add item, list incomplete items, complete item by name — `AddTaskTool`, `ListTasksTool`, `CompleteTaskTool`; uses `build_service("tasks","v1")`; `_default_tasklist_id` helper; `_find_task_by_title` for case-insensitive complete; 23 smoke tests pass
-- [ ] Separate task lists per user ("Owner", "Emily")
+- [x] Separate task lists per user ("Owner", "Emily") — `_user_tasklist_id(service, user)` finds list by name (case-insensitive), creates it if not found, falls back to first list for "unknown"; all 3 tools updated; 9 new tests (7 unit + 2 e2e owner/emily routing); 32 total pass
 - [ ] Test: "Add oat milk to my list" → added to correct user's list
 - [ ] Test: "What's on my list?" → reads back incomplete items
 - [ ] Test: "Mark oat milk as done" → completes the item

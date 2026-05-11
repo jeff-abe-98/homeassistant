@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-11 03:00 UTC]
+**Completed:** Per-user Google Tasks list routing — replaced `_default_tasklist_id` with `_user_tasklist_id(service, user)` that finds a list matching the user's name, creates it if absent, falls back to first list for unknown users; all 3 tasks tools updated; 9 new tests (7 unit + 2 e2e owner/emily routing); 32 total pass
+**Files changed:** server/tools/tasks.py, tests/test_tasks.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Google Tasks — Test: "Add oat milk to my list" → added to correct user's list
+**Blockers:** Google Auth needs manual Google Cloud Console setup before Tasks/Calendar tools can make live API calls
+---
+
 ## [2026-05-11 02:00 UTC]
 **Completed:** `server/tools/tasks.py` — `AddTaskTool`, `ListTasksTool`, `CompleteTaskTool`; uses Google Tasks API v1 via shared `build_service`; `_default_tasklist_id` helper; case-insensitive `_find_task_by_title`; 23 smoke tests in `tests/test_tasks.py` all pass
 **Files changed:** server/tools/tasks.py, tests/test_tasks.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

@@ -7,16 +7,14 @@
 
 ## Status
 
-Implemented `server/tools/tasks.py` — three Google Tasks tools:
-- `AddTaskTool` (`add_task`) — inserts a task into the default task list
-- `ListTasksTool` (`list_tasks`) — reads incomplete tasks, narrates via LLM with user-name injection
-- `CompleteTaskTool` (`complete_task`) — finds task by case-insensitive name match and patches status to "completed"
-- `_default_tasklist_id` helper gets the first task list; `_find_task_by_title` does case-insensitive search
-- 23 smoke tests in `tests/test_tasks.py` — all pass
+Implemented per-user Google Tasks list routing in `server/tools/tasks.py`:
+- Replaced `_default_tasklist_id` with `_user_tasklist_id(service, user)` — looks up a task list whose title matches the user name (case-insensitive); creates one if not found; falls back to the first list for "unknown" users
+- All three tools (`AddTaskTool`, `ListTasksTool`, `CompleteTaskTool`) now route each user to their own named task list
+- 9 new tests (7 unit tests for `_user_tasklist_id` + 2 e2e tests verifying owner/emily route to correct lists); 32 total pass
 
 Still blocked: Google Auth requires manual Google Cloud Console setup before Tasks/Calendar tools can make live API calls.
 
-Next task: Phase 3 — Google Tasks — Separate task lists per user ("Owner", "Emily").
+Next task: Phase 3 — Google Tasks — Test: "Add oat milk to my list" → added to correct user's list.
 
 ## Documents
 

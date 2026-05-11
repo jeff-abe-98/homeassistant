@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-11 (session 37)
+**Status:** Phase 3 in progress. Implemented per-user Google Tasks list routing — `_user_tasklist_id(service, user)` finds a task list by user name (case-insensitive), creates one if not found ("Owner", "Emily"), falls back to first list for unknown; all 3 tools updated; 9 new tests + 32 total pass.  
+**Next task:** Phase 3 — Google Tasks — Test: "Add oat milk to my list" → added to correct user's list.  
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware.
+
 ### 2026-05-11 (session 36)
 **Status:** Phase 3 in progress. Implemented `server/tools/tasks.py` — `AddTaskTool` (add item to default task list), `ListTasksTool` (list incomplete items, LLM narration with user-name injection), `CompleteTaskTool` (case-insensitive name match, patch status to completed); `_default_tasklist_id` + `_find_task_by_title` helpers; 23 smoke tests all pass.  
 **Next task:** Phase 3 — Google Tasks — Separate task lists per user ("Owner", "Emily").  

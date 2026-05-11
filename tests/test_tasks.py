@@ -6,7 +6,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from server.tools.tasks import AddTaskTool, CompleteTaskTool, ListTasksTool, _find_task_by_title
+from server.tools.tasks import (
+    AddTaskTool,
+    CompleteTaskTool,
+    ListTasksTool,
+    _find_task_by_title,
+    _user_tasklist_id,
+)
 
 
 class TestAddTaskTool:
@@ -315,3 +321,99 @@ class TestFindTaskByTitle:
         mock_service.tasks().list().execute.side_effect = Exception("network error")
         task = _find_task_by_title(mock_service, "list1", "oat milk")
         assert task is None
+
+
+class TestUserTasklistId:
+    def test_finds_matching_list_for_owner(self):
+        mock_service = MagicMock()
+        mock_service.tasklists().list().execute.return_value = {
+            "items": [
+                {"id": "owner_list", "title": "Owner"},
+                {"id": "emily_list", "title": "Emily"},
+            ]
+        }
+        assert _user_tasklist_id(mock_service, "owner") == "owner_list"
+
+    def test_finds_matching_list_for_emily(self):
+        mock_service = MagicMock()
+        mock_service.tasklists().list().execute.return_value = {
+            "items": [
+                {"id": "owner_list", "title": "Owner"},
+                {"id": "emily_list", "title": "Emily"},
+            ]
+        }
+        assert _user_tasklist_id(mock_service, "emily") == "emily_list"
+
+    def test_case_insensitive_match(self):
+        mock_service = MagicMock()
+        mock_service.tasklists().list().execute.return_value = {
+            "items": [{"id": "list1", "title": "OWNER"}]
+        }
+        assert _user_tasklist_id(mock_service, "owner") == "list1"
+
+    def test_unknown_user_returns_first_list(self):
+        mock_service = MagicMock()
+        mock_service.tasklists().list().execute.return_value = {
+            "items": [{"id": "first_id", "title": "My Tasks"}]
+        }
+        assert _user_tasklist_id(mock_service, "unknown") == "first_id"
+
+    def test_no_matching_list_creates_new(self):
+        mock_service = MagicMock()
+        mock_service.tasklists().list().execute.return_value = {
+            "items": [{"id": "default", "title": "My Tasks"}]
+        }
+        mock_service.tasklists().insert().execute.return_value = {"id": "new_owner_list"}
+        assert _user_tasklist_id(mock_service, "owner") == "new_owner_list"
+
+    def test_empty_items_returns_none(self):
+        mock_service = MagicMock()
+        mock_service.tasklists().list().execute.return_value = {"items": []}
+        assert _user_tasklist_id(mock_service, "owner") is None
+
+    def test_api_exception_returns_none(self):
+        mock_service = MagicMock()
+        mock_service.tasklists().list().execute.side_effect = Exception("error")
+        assert _user_tasklist_id(mock_service, "owner") is None
+
+
+class TestAddTaskToolPerUserList:
+    @pytest.mark.asyncio
+    async def test_owner_uses_owner_tasklist(self):
+        mock_service = MagicMock()
+        mock_service.tasklists().list().execute.return_value = {
+            "items": [
+                {"id": "owner_list", "title": "Owner"},
+                {"id": "emily_list", "title": "Emily"},
+            ]
+        }
+        mock_service.tasks().insert().execute.return_value = {"id": "t1", "title": "eggs"}
+        tool = AddTaskTool()
+        with (
+            patch("server.tools.tasks.is_configured", return_value=True),
+            patch("server.tools.tasks.build_service", return_value=mock_service),
+        ):
+            result = await tool.run({"item": "eggs"}, "owner")
+        assert "eggs" in result
+        insert_call = mock_service.tasks.return_value.insert.call_args
+        assert insert_call[1]["tasklist"] == "owner_list"
+
+    @pytest.mark.asyncio
+    async def test_emily_uses_emily_tasklist(self):
+        mock_service = MagicMock()
+        mock_service.tasklists().list().execute.return_value = {
+            "items": [
+                {"id": "owner_list", "title": "Owner"},
+                {"id": "emily_list", "title": "Emily"},
+            ]
+        }
+        mock_service.tasks().insert().execute.return_value = {"id": "t2", "title": "bread"}
+        tool = AddTaskTool()
+        with (
+            patch("server.tools.tasks.is_configured", return_value=True),
+            patch("server.tools.tasks.build_service", return_value=mock_service),
+        ):
+            result = await tool.run({"item": "bread"}, "emily")
+        assert "bread" in result
+        insert_call = mock_service.tasks.return_value.insert.call_args
+        assert insert_call[1]["tasklist"] == "emily_list"

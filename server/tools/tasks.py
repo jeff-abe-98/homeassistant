@@ -8,14 +8,36 @@ from server.tools.base import BaseTool
 from server.tools.google_auth import build_service, is_configured
 
 
-def _default_tasklist_id(service) -> str | None:
-    """Return the ID of the first task list, or None on failure."""
+def _user_tasklist_id(service, user: str) -> str | None:
+    """Return the task list ID for the given user.
+
+    Searches for a list whose title matches the user name (case-insensitive).
+    Creates one if not found. Falls back to the first list for unknown users.
+    Returns None if no lists exist or the API fails.
+    """
     try:
-        result = service.tasklists().list(maxResults=10).execute()
+        result = service.tasklists().list(maxResults=20).execute()
         items = result.get("items", [])
-        return items[0]["id"] if items else None
     except Exception:
         return None
+
+    if not items:
+        return None
+
+    if not user or user.lower() == "unknown":
+        return items[0]["id"]
+
+    target = user.strip().lower()
+    for lst in items:
+        if lst.get("title", "").lower() == target:
+            return lst["id"]
+
+    # No matching list — create one named after the user.
+    try:
+        new_list = service.tasklists().insert(body={"title": user.title()}).execute()
+        return new_list["id"]
+    except Exception:
+        return items[0]["id"]
 
 
 def _find_task_by_title(service, tasklist_id: str, title: str) -> dict | None:
@@ -77,7 +99,7 @@ class AddTaskTool(BaseTool):
         if not item:
             return "I need an item name to add it to your list."
 
-        tasklist_id = _default_tasklist_id(service)
+        tasklist_id = _user_tasklist_id(service, user)
         if tasklist_id is None:
             return "I couldn't find a task list to add that to."
 
@@ -127,7 +149,7 @@ class ListTasksTool(BaseTool):
         if service is None:
             return "I couldn't connect to Google Tasks right now."
 
-        tasklist_id = _default_tasklist_id(service)
+        tasklist_id = _user_tasklist_id(service, user)
         if tasklist_id is None:
             return "I couldn't find a task list to read."
 
@@ -196,7 +218,7 @@ class CompleteTaskTool(BaseTool):
         if not item:
             return "I need an item name to mark it as done."
 
-        tasklist_id = _default_tasklist_id(service)
+        tasklist_id = _user_tasklist_id(service, user)
         if tasklist_id is None:
             return "I couldn't find a task list."
 
