@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-12 03:00 UTC]
+**Completed:** Phase 4 Android TV — launch app by package name; `_APP_PACKAGES` dict (10 apps), `_resolve_package()`, `_launch_intent()` (LEANBACK_LAUNCHER intent URI); `launch_app` action added to `AndroidTvTool`; 11 new smoke tests; 105 total pass
+**Files changed:** server/tools/androidtv.py, tests/test_androidtv.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 4 — Send media key events (play, pause, next, previous)
+**Blockers:** None
+---
+
 ## [2026-05-12 02:00 UTC]
 **Completed:** Phase 4 Android TV — `server/tools/androidtv.py` with `androidtvremote2` connection infrastructure; `_connect()` helper (cert auto-generate + async_connect); `AndroidTvTool` power_on/power_off; `AndroidTvConfig` extended with cert/key paths; 9 new smoke tests; 94 total pass
 **Files changed:** server/tools/androidtv.py, tests/test_androidtv.py, shared/config.py, config/settings.yaml, requirements-server.txt, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

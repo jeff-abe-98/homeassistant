@@ -204,3 +204,144 @@ async def test_disconnect_called_even_on_send_error() -> None:
             await tool.run({"action": "power_on"}, user="owner")
 
     mock_atv.disconnect.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# _resolve_package — friendly name + passthrough
+# ---------------------------------------------------------------------------
+
+
+def test_resolve_package_friendly_spotify() -> None:
+    from server.tools.androidtv import _resolve_package
+
+    assert _resolve_package("spotify") == "com.spotify.tv.android"
+
+
+def test_resolve_package_friendly_netflix() -> None:
+    from server.tools.androidtv import _resolve_package
+
+    assert _resolve_package("Netflix") == "com.netflix.ninja"
+
+
+def test_resolve_package_friendly_youtube() -> None:
+    from server.tools.androidtv import _resolve_package
+
+    assert _resolve_package("youtube") == "com.google.android.youtube.tv"
+
+
+def test_resolve_package_passthrough_raw_package() -> None:
+    from server.tools.androidtv import _resolve_package
+
+    pkg = "com.example.myapp"
+    assert _resolve_package(pkg) == pkg
+
+
+def test_resolve_package_unknown_name_raises() -> None:
+    from server.tools.androidtv import _resolve_package
+
+    with pytest.raises(ValueError, match="Unknown app"):
+        _resolve_package("totallyfakeapp")
+
+
+# ---------------------------------------------------------------------------
+# _launch_intent — intent URI format
+# ---------------------------------------------------------------------------
+
+
+def test_launch_intent_contains_package() -> None:
+    from server.tools.androidtv import _launch_intent
+
+    intent = _launch_intent("com.netflix.ninja")
+    assert "com.netflix.ninja" in intent
+    assert "LEANBACK_LAUNCHER" in intent
+    assert "launchFlags" in intent
+
+
+# ---------------------------------------------------------------------------
+# AndroidTvTool.run() — launch_app action
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_launch_app_no_app_param_returns_prompt() -> None:
+    from server.tools.androidtv import AndroidTvTool
+
+    tool = AndroidTvTool()
+
+    with patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()):
+        result = await tool.run({"action": "launch_app"}, user="owner")
+
+    assert "app" in result.lower() or "open" in result.lower()
+
+
+@pytest.mark.asyncio
+async def test_launch_app_unknown_name_returns_error() -> None:
+    from server.tools.androidtv import AndroidTvTool
+
+    tool = AndroidTvTool()
+
+    with patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()):
+        result = await tool.run({"action": "launch_app", "app": "totallyfakeapp"}, user="owner")
+
+    assert "unknown app" in result.lower() or "known apps" in result.lower()
+
+
+@pytest.mark.asyncio
+async def test_launch_app_netflix_calls_send_launch_app() -> None:
+    from server.tools.androidtv import AndroidTvTool
+
+    tool = AndroidTvTool()
+    mock_atv = _make_mock_atv()
+    mock_atv.send_launch_app = MagicMock()
+
+    with (
+        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+    ):
+        result = await tool.run({"action": "launch_app", "app": "netflix"}, user="owner")
+
+    mock_atv.send_launch_app.assert_called_once()
+    intent_arg = mock_atv.send_launch_app.call_args[0][0]
+    assert "com.netflix.ninja" in intent_arg
+    assert "netflix" in result.lower() or "opening" in result.lower()
+    mock_atv.disconnect.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_launch_app_raw_package_calls_send_launch_app() -> None:
+    from server.tools.androidtv import AndroidTvTool
+
+    tool = AndroidTvTool()
+    mock_atv = _make_mock_atv()
+    mock_atv.send_launch_app = MagicMock()
+
+    with (
+        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+    ):
+        result = await tool.run(
+            {"action": "launch_app", "app": "com.spotify.tv.android"}, user="owner"
+        )
+
+    mock_atv.send_launch_app.assert_called_once()
+    intent_arg = mock_atv.send_launch_app.call_args[0][0]
+    assert "com.spotify.tv.android" in intent_arg
+    mock_atv.disconnect.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_launch_app_disconnect_called_on_send_error() -> None:
+    from server.tools.androidtv import AndroidTvTool
+
+    tool = AndroidTvTool()
+    mock_atv = _make_mock_atv()
+    mock_atv.send_launch_app = MagicMock(side_effect=RuntimeError("launch failed"))
+
+    with (
+        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+    ):
+        with pytest.raises(RuntimeError, match="launch failed"):
+            await tool.run({"action": "launch_app", "app": "netflix"}, user="owner")
+
+    mock_atv.disconnect.assert_called_once()

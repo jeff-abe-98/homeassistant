@@ -7,14 +7,14 @@
 
 ## Status
 
-Implemented `server/tools/androidtv.py` — Phase 4 Android TV connection task:
-- `_connect(atv_cfg)` — instantiates `AndroidTVRemote`, calls `async_generate_cert_if_missing()` + `async_connect()`; cert pair stored at `config/androidtv_cert.pem` / `config/androidtv_key.pem`
-- `AndroidTvTool` — `power_on` (KEYCODE_WAKEUP) and `power_off` (KEYCODE_SLEEP); guards unconfigured host; friendly messages for CannotConnect / InvalidAuth errors; `disconnect()` in finally block
-- `AndroidTvConfig` extended with `cert_file` / `key_file` fields; wired in `load()`
-- `androidtvremote2>=0.1.1` added to `requirements-server.txt`
-- 9 smoke tests all pass; full suite: 94 passed, 13 skipped
+Implemented app launch by package name in `server/tools/androidtv.py`:
+- `_APP_PACKAGES` — friendly name → package mapping (Spotify, Netflix, YouTube, Hulu, Disney+, Max, Prime Video, and more)
+- `_resolve_package(app)` — case-insensitive friendly name lookup; raw package passthrough if name contains `.`; raises `ValueError` for unknown names
+- `_launch_intent(package)` — builds Android intent URI with `LEANBACK_LAUNCHER` category and `launchFlags=0x10000000`
+- `AndroidTvTool` updated — added `launch_app` to action enum; optional `app` parameter; calls `atv.send_launch_app()` in `run()`
+- 11 new smoke tests; 20 androidtv tests total; 105 passed, 13 skipped full suite
 
-Next: Phase 4 — Launch app by package name (Spotify, Netflix, YouTube).
+Next: Phase 4 — Send media key events (play, pause, next, previous).
 
 ## Documents
 
