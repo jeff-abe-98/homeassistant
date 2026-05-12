@@ -233,3 +233,143 @@ async def test_list_tasks_emily_reads_from_emily_list() -> None:
     assert list_call[1].get("showCompleted") is False, (
         "tasks().list() must pass showCompleted=False to exclude completed items"
     )
+
+
+@_REQUIRES_GOOGLE
+@pytest.mark.asyncio
+async def test_mark_oat_milk_done_owner() -> None:
+    """Owner: 'Mark oat milk as done' → task patched to completed in Owner's list.
+
+    Verifies the complete complete-task flow with real credentials:
+    - _user_tasklist_id resolves 'owner' to the Owner list
+    - _find_task_by_title searches the Owner list and finds 'oat milk'
+    - tasks().patch() is called with the Owner list ID, the task ID, and
+      body={"status": "completed"}
+    - the response confirms completion
+
+    The Google Tasks API calls are mocked so no live changes are made.
+    """
+    import server.tools.tasks as tasks_module
+    from server.tools.tasks import CompleteTaskTool
+
+    owner_list_id = "owner_list_id_test"
+    task_id = "t1"
+
+    mock_service = MagicMock()
+    mock_service.tasklists().list().execute.return_value = {
+        "items": [
+            {"id": owner_list_id, "title": "Owner"},
+            {"id": "emily_list_id_test", "title": "Emily"},
+        ]
+    }
+    mock_service.tasks().list().execute.return_value = {
+        "items": [
+            {"id": task_id, "title": "oat milk", "status": "needsAction"},
+        ]
+    }
+    mock_service.tasks().patch().execute.return_value = {
+        "id": task_id,
+        "title": "oat milk",
+        "status": "completed",
+    }
+
+    tool = CompleteTaskTool()
+
+    with patch.object(tasks_module, "build_service", return_value=mock_service):
+        result = await tool.run({"item": "oat milk"}, user="owner")
+
+    assert isinstance(result, str), "tool must return a string"
+    assert "oat milk" in result, f"response should mention 'oat milk': {result!r}"
+    assert "done" in result.lower() or "complet" in result.lower(), (
+        f"response should confirm completion: {result!r}"
+    )
+
+    # Verify tasks().list() searched the Owner list for the task
+    list_call = mock_service.tasks.return_value.list.call_args
+    assert list_call is not None, "tasks().list() was never called"
+    assert list_call[1].get("tasklist") == owner_list_id, (
+        f"Expected task search in Owner list '{owner_list_id}', "
+        f"got tasklist={list_call[1].get('tasklist')!r}"
+    )
+
+    # Verify tasks().patch() was called with the correct args
+    patch_call = mock_service.tasks.return_value.patch.call_args
+    assert patch_call is not None, "tasks().patch() was never called"
+    assert patch_call[1].get("tasklist") == owner_list_id, (
+        f"Expected patch in Owner list '{owner_list_id}', "
+        f"got tasklist={patch_call[1].get('tasklist')!r}"
+    )
+    assert patch_call[1].get("task") == task_id, (
+        f"Expected task ID '{task_id}', got task={patch_call[1].get('task')!r}"
+    )
+    assert patch_call[1].get("body") == {"status": "completed"}, (
+        f"Expected body={{'status': 'completed'}}, got {patch_call[1].get('body')!r}"
+    )
+
+
+@_REQUIRES_GOOGLE
+@pytest.mark.asyncio
+async def test_mark_oat_milk_done_emily() -> None:
+    """Emily: 'Mark oat milk as done' → task patched in Emily's list, not Owner's.
+
+    Verifies per-user list isolation for task completion:
+    - _user_tasklist_id resolves 'emily' to Emily's list
+    - tasks().patch() uses Emily's list ID, not Owner's
+    - body={"status": "completed"} is passed
+    """
+    import server.tools.tasks as tasks_module
+    from server.tools.tasks import CompleteTaskTool
+
+    emily_list_id = "emily_list_id_test"
+    task_id = "t2"
+
+    mock_service = MagicMock()
+    mock_service.tasklists().list().execute.return_value = {
+        "items": [
+            {"id": "owner_list_id_test", "title": "Owner"},
+            {"id": emily_list_id, "title": "Emily"},
+        ]
+    }
+    mock_service.tasks().list().execute.return_value = {
+        "items": [
+            {"id": task_id, "title": "oat milk", "status": "needsAction"},
+        ]
+    }
+    mock_service.tasks().patch().execute.return_value = {
+        "id": task_id,
+        "title": "oat milk",
+        "status": "completed",
+    }
+
+    tool = CompleteTaskTool()
+
+    with patch.object(tasks_module, "build_service", return_value=mock_service):
+        result = await tool.run({"item": "oat milk"}, user="emily")
+
+    assert isinstance(result, str)
+    assert "oat milk" in result, f"response should mention 'oat milk': {result!r}"
+    assert "done" in result.lower() or "complet" in result.lower(), (
+        f"response should confirm completion: {result!r}"
+    )
+
+    # Verify tasks().list() searched Emily's list, not Owner's
+    list_call = mock_service.tasks.return_value.list.call_args
+    assert list_call is not None, "tasks().list() was never called"
+    assert list_call[1].get("tasklist") == emily_list_id, (
+        f"Expected task search in Emily list '{emily_list_id}', "
+        f"got tasklist={list_call[1].get('tasklist')!r}"
+    )
+
+    # Verify tasks().patch() used Emily's list ID, not Owner's
+    patch_call = mock_service.tasks.return_value.patch.call_args
+    assert patch_call is not None, "tasks().patch() was never called"
+    assert patch_call[1].get("tasklist") == emily_list_id, (
+        f"Expected patch in Emily list '{emily_list_id}', "
+        f"got tasklist={patch_call[1].get('tasklist')!r}"
+    )
+    assert patch_call[1].get("task") == task_id, (
+        f"Expected task ID '{task_id}', got task={patch_call[1].get('task')!r}"
+    )
+    assert patch_call[1].get("body") == {"status": "completed"}, (
+        f"Expected body={{'status': 'completed'}}, got {patch_call[1].get('body')!r}"
+    )

@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-12 (session 40)
+**Status:** Phase 3 complete. Added 2 integration tests to `tests/test_tasks_integration.py` — "Mark oat milk as done" flow for Owner and Emily; both verify `tasks().patch()` uses correct per-user list ID and `body={"status": "completed"}`; auto-skip without Google credentials; 85 smoke tests pass.  
+**Next task:** Phase 4 — Android TV — `server/tools/androidtv.py` (`androidtvremote2` connection to TV).  
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware.
+
 ### 2026-05-12 (session 39)
 **Status:** Phase 3 in progress. Added 2 integration tests to `tests/test_tasks_integration.py` — "What's on my list?" flow for Owner and Emily; both verify `tasks().list()` targets the correct per-user list ID and passes `showCompleted=False`; LLM is mocked; auto-skip without Google credentials; 32 smoke tests pass.  
 **Next task:** Phase 3 — Google Tasks — Test: "Mark oat milk as done" → completes the item.  

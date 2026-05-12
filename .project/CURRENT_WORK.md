@@ -1,20 +1,19 @@
 # Current Work
 
 **Last updated:** 2026-05-12  
-**Phase:** Phase 3 — Core Tool Integrations (in progress)
+**Phase:** Phase 3 complete → Phase 4 starting
 
 ---
 
 ## Status
 
-Extended `tests/test_tasks_integration.py` — integration tests for Google Tasks "What's on my list?" flow:
-- `test_list_tasks_owner_reads_from_owner_list` — Owner: verifies `tasks().list()` uses Owner list ID and `showCompleted=False`; LLM mocked; auto-skip without credentials
-- `test_list_tasks_emily_reads_from_emily_list` — Emily: verifies `tasks().list()` uses Emily list ID (not Owner's); `showCompleted=False`; auto-skip without credentials
-- 32 existing smoke tests pass; 4 integration tests skip correctly
+Added 2 integration tests to `tests/test_tasks_integration.py` for "Mark oat milk as done" flow:
+- `test_mark_oat_milk_done_owner` — Owner: verifies `tasks().patch()` called with Owner list ID, correct task ID, and `body={"status": "completed"}`; auto-skip without Google credentials
+- `test_mark_oat_milk_done_emily` — Emily: verifies patch uses Emily's list ID (not Owner's); same body and task ID assertions; auto-skip without credentials
 
-Still blocked: Google Auth requires manual Google Cloud Console setup before Tasks/Calendar tools can make live API calls.
+All 6 integration tests skip correctly without credentials. 85 smoke tests pass.
 
-Next task: Phase 3 — Google Tasks — Test: "Mark oat milk as done" → completes the item.
+Phase 3 is now fully complete. Next phase is Phase 4 — Entertainment (Android TV + Spotify).
 
 ## Documents
 
