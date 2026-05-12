@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-12 02:00 UTC]
+**Completed:** Phase 4 Android TV — `server/tools/androidtv.py` with `androidtvremote2` connection infrastructure; `_connect()` helper (cert auto-generate + async_connect); `AndroidTvTool` power_on/power_off; `AndroidTvConfig` extended with cert/key paths; 9 new smoke tests; 94 total pass
+**Files changed:** server/tools/androidtv.py, tests/test_androidtv.py, shared/config.py, config/settings.yaml, requirements-server.txt, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 4 — Launch app by package name (Spotify: `com.spotify.tv.android`, Netflix, YouTube, etc.)
+**Blockers:** None
+---
+
 ## [2026-05-12 01:00 UTC]
 **Completed:** Integration tests for Google Tasks "Mark oat milk as done" — 2 new tests in `tests/test_tasks_integration.py` (owner + Emily); verify `tasks().patch()` called with correct per-user list ID, task ID, and `body={"status": "completed"}`; auto-skip without Google credentials; 85 smoke tests pass; Phase 3 fully complete
 **Files changed:** tests/test_tasks_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

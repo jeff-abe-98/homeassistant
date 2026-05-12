@@ -66,6 +66,8 @@ class WeatherConfig:
 class AndroidTvConfig:
     host: str = ""
     port: int = 6466
+    cert_file: str = "config/androidtv_cert.pem"
+    key_file: str = "config/androidtv_key.pem"
 
 
 @dataclass
@@ -164,6 +166,8 @@ def load(path: str | None = None) -> AppConfig:
         androidtv=AndroidTvConfig(
             host=atv.get("host", ""),
             port=int(atv.get("port", 6466)),
+            cert_file=atv.get("cert_file", "config/androidtv_cert.pem"),
+            key_file=atv.get("key_file", "config/androidtv_key.pem"),
         ),
         wake_word=WakeWordConfig(
             model=wkw.get("model", "hey_jarvis"),

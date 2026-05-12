@@ -97,7 +97,7 @@
 *Goal: Spotify playback and Android TV control working.*
 
 ### Android TV
-- [ ] `server/tools/androidtv.py` — `androidtvremote2` connection to TV (port 6466, no ADB debug needed)
+- [x] `server/tools/androidtv.py` — `androidtvremote2` connection to TV (port 6466, no ADB debug needed) — `_connect()` helper (cert auto-generate, async_connect); `AndroidTvTool` with power_on/power_off; guards CHANGE_ME host; `AndroidTvConfig` extended with cert_file/key_file; `androidtvremote2>=0.1.1` added to requirements; 9 smoke tests pass
 - [ ] Launch app by package name (Spotify: `com.spotify.tv.android`, Netflix, YouTube, etc.)
 - [ ] Send media key events (play, pause, next, previous)
 - [ ] Test: "Put on Netflix" → Netflix opens on TV

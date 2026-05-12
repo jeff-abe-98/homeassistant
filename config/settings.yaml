@@ -57,6 +57,9 @@ weather:
 androidtv:
   host: 192.168.x.x   # Replace with TV's local IP address
   port: 6466           # Android TV Remote Service protocol (no ADB needed)
+  # TLS cert pair generated automatically on first run (stored locally, never committed)
+  cert_file: config/androidtv_cert.pem
+  key_file: config/androidtv_key.pem
   # Supported apps (package names)
   apps:
     spotify: com.spotify.tv.android

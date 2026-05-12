@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-12 (session 41)
+**Status:** Phase 4 started. Implemented `server/tools/androidtv.py` — `androidtvremote2` connection infrastructure; `_connect()` (cert auto-generate + async_connect); `AndroidTvTool` power_on/power_off with KEYCODE_WAKEUP/SLEEP; guards unconfigured host; cert paths added to `AndroidTvConfig`; `androidtvremote2>=0.1.1` in requirements; 9 new smoke tests; 94 total pass, 13 skipped.  
+**Next task:** Phase 4 — Android TV — launch app by package name (Spotify, Netflix, YouTube).  
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware.
+
 ### 2026-05-12 (session 40)
 **Status:** Phase 3 complete. Added 2 integration tests to `tests/test_tasks_integration.py` — "Mark oat milk as done" flow for Owner and Emily; both verify `tasks().patch()` uses correct per-user list ID and `body={"status": "completed"}`; auto-skip without Google credentials; 85 smoke tests pass.  
 **Next task:** Phase 4 — Android TV — `server/tools/androidtv.py` (`androidtvremote2` connection to TV).  

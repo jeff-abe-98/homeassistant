@@ -1,19 +1,20 @@
 # Current Work
 
 **Last updated:** 2026-05-12  
-**Phase:** Phase 3 complete → Phase 4 starting
+**Phase:** Phase 4 — Android TV (in progress)
 
 ---
 
 ## Status
 
-Added 2 integration tests to `tests/test_tasks_integration.py` for "Mark oat milk as done" flow:
-- `test_mark_oat_milk_done_owner` — Owner: verifies `tasks().patch()` called with Owner list ID, correct task ID, and `body={"status": "completed"}`; auto-skip without Google credentials
-- `test_mark_oat_milk_done_emily` — Emily: verifies patch uses Emily's list ID (not Owner's); same body and task ID assertions; auto-skip without credentials
+Implemented `server/tools/androidtv.py` — Phase 4 Android TV connection task:
+- `_connect(atv_cfg)` — instantiates `AndroidTVRemote`, calls `async_generate_cert_if_missing()` + `async_connect()`; cert pair stored at `config/androidtv_cert.pem` / `config/androidtv_key.pem`
+- `AndroidTvTool` — `power_on` (KEYCODE_WAKEUP) and `power_off` (KEYCODE_SLEEP); guards unconfigured host; friendly messages for CannotConnect / InvalidAuth errors; `disconnect()` in finally block
+- `AndroidTvConfig` extended with `cert_file` / `key_file` fields; wired in `load()`
+- `androidtvremote2>=0.1.1` added to `requirements-server.txt`
+- 9 smoke tests all pass; full suite: 94 passed, 13 skipped
 
-All 6 integration tests skip correctly without credentials. 85 smoke tests pass.
-
-Phase 3 is now fully complete. Next phase is Phase 4 — Entertainment (Android TV + Spotify).
+Next: Phase 4 — Launch app by package name (Spotify, Netflix, YouTube).
 
 ## Documents
 
