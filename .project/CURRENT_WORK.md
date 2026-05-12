@@ -1,21 +1,20 @@
 # Current Work
 
-**Last updated:** 2026-05-11  
+**Last updated:** 2026-05-12  
 **Phase:** Phase 3 — Core Tool Integrations (in progress)
 
 ---
 
 ## Status
 
-Created `tests/test_tasks_integration.py` — integration tests for Google Tasks "add oat milk" flow:
-- `test_add_oat_milk_owner_routed_to_owner_list` — Owner adds "oat milk"; asserts `tasks().insert()` called with Owner list ID
-- `test_add_oat_milk_emily_routed_to_emily_list` — Emily adds "oat milk"; asserts insert uses Emily list ID (not Owner's)
-- Both tests mock `build_service` (no real tasks created); auto-skip without Google credentials
-- 32 existing smoke tests pass; 2 new integration tests skip correctly
+Extended `tests/test_tasks_integration.py` — integration tests for Google Tasks "What's on my list?" flow:
+- `test_list_tasks_owner_reads_from_owner_list` — Owner: verifies `tasks().list()` uses Owner list ID and `showCompleted=False`; LLM mocked; auto-skip without credentials
+- `test_list_tasks_emily_reads_from_emily_list` — Emily: verifies `tasks().list()` uses Emily list ID (not Owner's); `showCompleted=False`; auto-skip without credentials
+- 32 existing smoke tests pass; 4 integration tests skip correctly
 
 Still blocked: Google Auth requires manual Google Cloud Console setup before Tasks/Calendar tools can make live API calls.
 
-Next task: Phase 3 — Google Tasks — Test: "What's on my list?" → reads back incomplete items.
+Next task: Phase 3 — Google Tasks — Test: "Mark oat milk as done" → completes the item.
 
 ## Documents
 

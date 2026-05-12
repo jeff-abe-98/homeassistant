@@ -10,7 +10,7 @@ Run with: pytest tests/test_tasks_integration.py -v -s
 """
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -122,3 +122,114 @@ async def test_add_oat_milk_emily_routed_to_emily_list() -> None:
         f"got tasklist={insert_call[1].get('tasklist')!r}"
     )
     assert insert_call[1].get("body", {}).get("title") == "oat milk"
+
+
+@_REQUIRES_GOOGLE
+@pytest.mark.asyncio
+async def test_list_tasks_owner_reads_from_owner_list() -> None:
+    """Owner: 'What's on my list?' → incomplete items read from Owner's task list.
+
+    Verifies the complete list-tasks flow with real credentials:
+    - is_configured() passes (credentials required for this test to run at all)
+    - _user_tasklist_id resolves 'owner' to the Owner list
+    - tasks().list() is called with the Owner list ID and showCompleted=False
+    - the LLM narrates the returned items
+    - the response is non-empty
+
+    The Google Tasks list call is mocked so no live API requests are made.
+    """
+    import server.tools.tasks as tasks_module
+    from server.tools.tasks import ListTasksTool
+
+    owner_list_id = "owner_list_id_test"
+    mock_service = MagicMock()
+    mock_service.tasklists().list().execute.return_value = {
+        "items": [
+            {"id": owner_list_id, "title": "Owner"},
+            {"id": "emily_list_id_test", "title": "Emily"},
+        ]
+    }
+    mock_service.tasks().list().execute.return_value = {
+        "items": [
+            {"id": "t1", "title": "oat milk", "status": "needsAction"},
+            {"id": "t2", "title": "eggs", "status": "needsAction"},
+        ]
+    }
+
+    tool = ListTasksTool()
+
+    with (
+        patch.object(tasks_module, "build_service", return_value=mock_service),
+        patch.object(tool, "_llm_client") as mock_client_fn,
+    ):
+        mock_client_fn.return_value.complete = AsyncMock(
+            return_value="You have oat milk and eggs on your list."
+        )
+        result = await tool.run({"query": "What's on my list?"}, user="owner")
+
+    assert isinstance(result, str), "tool must return a string"
+    assert result, "response must be non-empty"
+
+    # Verify tasks().list() was called with the Owner list ID and showCompleted=False
+    list_call = mock_service.tasks.return_value.list.call_args
+    assert list_call is not None, "tasks().list() was never called"
+    assert list_call[1].get("tasklist") == owner_list_id, (
+        f"Expected tasks read from Owner list '{owner_list_id}', "
+        f"got tasklist={list_call[1].get('tasklist')!r}"
+    )
+    assert list_call[1].get("showCompleted") is False, (
+        "tasks().list() must pass showCompleted=False to exclude completed items"
+    )
+
+
+@_REQUIRES_GOOGLE
+@pytest.mark.asyncio
+async def test_list_tasks_emily_reads_from_emily_list() -> None:
+    """Emily: 'What's on my list?' → incomplete items read from Emily's list, not Owner's.
+
+    Verifies per-user list isolation for reads (parallel to the add-oat-milk routing tests):
+    - _user_tasklist_id resolves 'emily' to Emily's list
+    - tasks().list() uses Emily's list ID, not Owner's
+    - showCompleted=False is passed (only incomplete items returned)
+    """
+    import server.tools.tasks as tasks_module
+    from server.tools.tasks import ListTasksTool
+
+    emily_list_id = "emily_list_id_test"
+    mock_service = MagicMock()
+    mock_service.tasklists().list().execute.return_value = {
+        "items": [
+            {"id": "owner_list_id_test", "title": "Owner"},
+            {"id": emily_list_id, "title": "Emily"},
+        ]
+    }
+    mock_service.tasks().list().execute.return_value = {
+        "items": [
+            {"id": "t3", "title": "shampoo", "status": "needsAction"},
+        ]
+    }
+
+    tool = ListTasksTool()
+
+    with (
+        patch.object(tasks_module, "build_service", return_value=mock_service),
+        patch.object(tool, "_llm_client") as mock_client_fn,
+    ):
+        mock_client_fn.return_value.complete = AsyncMock(
+            return_value="Emily, you have shampoo on your list."
+        )
+        result = await tool.run({"query": "What's on my list?"}, user="emily")
+
+    assert isinstance(result, str)
+    assert result
+
+    # Verify tasks().list() used Emily's list ID, not Owner's
+    list_call = mock_service.tasks.return_value.list.call_args
+    assert list_call is not None, "tasks().list() was never called"
+    assert list_call[1].get("tasklist") == emily_list_id, (
+        f"Expected tasks read from Emily list '{emily_list_id}', "
+        f"got tasklist={list_call[1].get('tasklist')!r}"
+    )
+    assert list_call[1].get("showCompleted") is False, (
+        "tasks().list() must pass showCompleted=False to exclude completed items"
+    )

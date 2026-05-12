@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-12 00:00 UTC]
+**Completed:** Integration tests for Google Tasks "What's on my list?" — added 2 tests to `tests/test_tasks_integration.py` (owner + Emily); verify correct list ID used in `tasks().list()` and `showCompleted=False`; LLM mocked; auto-skip without credentials; 32 smoke tests pass
+**Files changed:** tests/test_tasks_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 3 — Google Tasks — Test: "Mark oat milk as done" → completes the item
+**Blockers:** None
+---
+
 ## [2026-05-11 04:00 UTC]
 **Completed:** Integration tests for Google Tasks "add oat milk to my list" — `tests/test_tasks_integration.py` with 2 tests (owner + Emily per-user routing); auto-skip without Google credentials; 32 smoke tests pass, 2 skip
 **Files changed:** tests/test_tasks_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
