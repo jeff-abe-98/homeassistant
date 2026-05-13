@@ -40,6 +40,8 @@ class GoogleConfig:
 class SpotifyUserConfig:
     client_id: str = ""
     client_secret: str = ""
+    redirect_uri: str = "http://localhost:8888/callback"
+    token_file: str = ""
 
 
 @dataclass
@@ -96,10 +98,12 @@ class AppConfig:
     tts: PiperConfig = field(default_factory=PiperConfig)
 
 
-def _spotify_user(d: dict) -> SpotifyUserConfig:
+def _spotify_user(d: dict, token_file: str = "", default_redirect: str = "http://localhost:8888/callback") -> SpotifyUserConfig:
     return SpotifyUserConfig(
         client_id=d.get("client_id", ""),
         client_secret=d.get("client_secret", ""),
+        redirect_uri=d.get("redirect_uri", default_redirect),
+        token_file=token_file,
     )
 
 
@@ -126,6 +130,7 @@ def load(path: str | None = None) -> AppConfig:
     atv = raw.get("androidtv", {})
     wkw = raw.get("wake_word", {})
     tts = raw.get("tts", {})
+    users_raw = raw.get("users", {})
 
     return AppConfig(
         server=ServerConfig(
@@ -150,8 +155,20 @@ def load(path: str | None = None) -> AppConfig:
             ]),
         ),
         spotify=SpotifyConfig(
-            owner=_spotify_user(spo.get("owner", {})),
-            emily=_spotify_user(spo.get("emily", {})),
+            owner=_spotify_user(
+                spo.get("owner", {}),
+                token_file=users_raw.get("owner", {}).get(
+                    "spotify_token_file", "config/spotify_token_owner.json"
+                ),
+                default_redirect="http://localhost:8888/callback",
+            ),
+            emily=_spotify_user(
+                spo.get("emily", {}),
+                token_file=users_raw.get("emily", {}).get(
+                    "spotify_token_file", "config/spotify_token_emily.json"
+                ),
+                default_redirect="http://localhost:8889/callback",
+            ),
         ),
         cta=CtaConfig(
             api_key=cta.get("api_key", ""),

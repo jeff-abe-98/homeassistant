@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-13 02:00 UTC]
+**Completed:** Phase 4 Spotify — `server/tools/spotify.py` OAuth2 per user; `SpotifyUserConfig` extended with `redirect_uri`+`token_file`; `_is_configured()`, `_get_spotify()` (SpotifyOAuth token cache), `SpotifyTool` per-user routing + `now_playing`; `spotipy>=2.24.0` in requirements; spotipy stubbed in conftest; pytest env fixed (httpx + pytest-asyncio via uv); 20 new tests; 129 total pass
+**Files changed:** server/tools/spotify.py, shared/config.py, requirements-server.txt, tests/test_spotify.py, conftest.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 4 — Spotify — Combined launch flow (androidtv launches Spotify app → poll `sp.devices()` → transfer playback to TV)
+**Blockers:** None
+---
+
 ## [2026-05-13 01:00 UTC]
 **Completed:** Phase 4 Android TV — "Put on Netflix" integration tests; `tests/test_androidtv_integration.py` with 3 tests (correct Netflix package, case-insensitive, disconnect-on-error); auto-skip when androidtv.host is placeholder; 24 smoke tests + 3 skipped pass
 **Files changed:** tests/test_androidtv_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

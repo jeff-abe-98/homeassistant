@@ -1,19 +1,22 @@
 # Current Work
 
 **Last updated:** 2026-05-13  
-**Phase:** Phase 4 — Android TV (in progress)
+**Phase:** Phase 4 — Spotify (in progress)
 
 ---
 
 ## Status
 
-Created `tests/test_androidtv_integration.py` — "Put on Netflix" integration tests:
-- `test_put_on_netflix_sends_correct_package`: verifies `send_launch_app()` called with `com.netflix.ninja` LEANBACK_LAUNCHER intent using real config (not mocked cfg); `_connect` is mocked
-- `test_put_on_netflix_case_insensitive`: title-cased "Netflix" works the same
-- `test_put_on_netflix_disconnect_called_even_on_error`: disconnect runs in finally even on launch error
-- All 3 skip when `androidtv.host` is still placeholder (192.168.x.x); 24 smoke tests + 3 skipped pass
+Created `server/tools/spotify.py` — spotipy OAuth2 per user:
+- `_is_configured(user_cfg)` — guards CHANGE_ME credentials
+- `_get_spotify(user_cfg)` — returns `spotipy.Spotify` via `SpotifyOAuth` (token cache file, `open_browser=False`)
+- `_user_cfg_and_display(cfg, user)` — routes emily→emily config, all others→owner config
+- `SpotifyTool` — BaseTool with `now_playing` action (functional); other actions return "not wired yet" stub
+- `SpotifyUserConfig` extended with `redirect_uri` and `token_file` fields; `load()` reads from `users` YAML section for token paths
+- `spotipy>=2.24.0` added to `requirements-server.txt`; spotipy stubbed in `conftest.py`
+- 20 smoke tests in `tests/test_spotify.py`; 129 total pass, 16 skipped
 
-Next: Phase 4 — Spotify — `server/tools/spotify.py` (spotipy OAuth2 per user).
+Next: Phase 4 — Spotify — Combined launch flow (androidtv launches Spotify app → poll `sp.devices()` → transfer playback to TV).
 
 ## Documents
 

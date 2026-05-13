@@ -103,7 +103,7 @@
 - [x] Test: "Put on Netflix" → Netflix opens on TV — `tests/test_androidtv_integration.py`; 3 integration tests (correct package, case-insensitive, disconnect-on-error); skip when androidtv.host is still placeholder; 24 smoke + 3 skipped pass
 
 ### Spotify
-- [ ] `server/tools/spotify.py` — spotipy OAuth2 per user (Owner + Emily separate accounts, both need Premium)
+- [x] `server/tools/spotify.py` — spotipy OAuth2 per user (Owner + Emily separate accounts, both need Premium) — `_is_configured()`, `_get_spotify()` (SpotifyOAuth with cache_path token file, open_browser=False), `SpotifyTool` with per-user routing (emily→emily config, else→owner); `now_playing` action functional; `SpotifyUserConfig` gains `redirect_uri`+`token_file`; `spotipy>=2.24.0` added to requirements; 20 smoke tests pass; spotipy stubbed in conftest
 - [ ] Combined launch flow: androidtv launches Spotify app → poll `sp.devices()` → transfer playback to TV
 - [ ] Never cache device ID — resolve fresh from `sp.devices()` each time
 - [ ] Play by song / artist / playlist / mood query
