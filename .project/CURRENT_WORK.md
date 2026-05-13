@@ -7,13 +7,13 @@
 
 ## Status
 
-Implemented media key events in `server/tools/androidtv.py`:
-- `_KEYCODE_MEDIA_PLAY/PAUSE/NEXT/PREVIOUS` constants added
-- `AndroidTvTool` action enum extended: `play`, `pause`, `next`, `previous` (each calls `atv.send_key_command()` with the matching keycode)
-- Description updated to mention media control
-- 4 new smoke tests; 24 androidtv tests total pass
+Created `tests/test_androidtv_integration.py` — "Put on Netflix" integration tests:
+- `test_put_on_netflix_sends_correct_package`: verifies `send_launch_app()` called with `com.netflix.ninja` LEANBACK_LAUNCHER intent using real config (not mocked cfg); `_connect` is mocked
+- `test_put_on_netflix_case_insensitive`: title-cased "Netflix" works the same
+- `test_put_on_netflix_disconnect_called_even_on_error`: disconnect runs in finally even on launch error
+- All 3 skip when `androidtv.host` is still placeholder (192.168.x.x); 24 smoke tests + 3 skipped pass
 
-Next: Phase 4 — Test: "Put on Netflix" → Netflix opens on TV.
+Next: Phase 4 — Spotify — `server/tools/spotify.py` (spotipy OAuth2 per user).
 
 ## Documents
 

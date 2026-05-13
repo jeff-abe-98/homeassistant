@@ -100,7 +100,7 @@
 - [x] `server/tools/androidtv.py` — `androidtvremote2` connection to TV (port 6466, no ADB debug needed) — `_connect()` helper (cert auto-generate, async_connect); `AndroidTvTool` with power_on/power_off; guards CHANGE_ME host; `AndroidTvConfig` extended with cert_file/key_file; `androidtvremote2>=0.1.1` added to requirements; 9 smoke tests pass
 - [x] Launch app by package name (Spotify: `com.spotify.tv.android`, Netflix, YouTube, etc.) — `_APP_PACKAGES` dict + `_resolve_package()` (friendly name or raw package passthrough) + `_launch_intent()` (LEANBACK_LAUNCHER intent URI); `launch_app` action added to `AndroidTvTool`; calls `atv.send_launch_app()`; 11 new smoke tests; 20 androidtv tests, 105 total pass
 - [x] Send media key events (play, pause, next, previous) — `_KEYCODE_MEDIA_PLAY/PAUSE/NEXT/PREVIOUS` constants; `play`, `pause`, `next`, `previous` added to action enum; 4 new smoke tests; 24 androidtv tests pass
-- [ ] Test: "Put on Netflix" → Netflix opens on TV
+- [x] Test: "Put on Netflix" → Netflix opens on TV — `tests/test_androidtv_integration.py`; 3 integration tests (correct package, case-insensitive, disconnect-on-error); skip when androidtv.host is still placeholder; 24 smoke + 3 skipped pass
 
 ### Spotify
 - [ ] `server/tools/spotify.py` — spotipy OAuth2 per user (Owner + Emily separate accounts, both need Premium)

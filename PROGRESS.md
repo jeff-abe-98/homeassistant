@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-13 01:00 UTC]
+**Completed:** Phase 4 Android TV — "Put on Netflix" integration tests; `tests/test_androidtv_integration.py` with 3 tests (correct Netflix package, case-insensitive, disconnect-on-error); auto-skip when androidtv.host is placeholder; 24 smoke tests + 3 skipped pass
+**Files changed:** tests/test_androidtv_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 4 — Spotify — `server/tools/spotify.py` (spotipy OAuth2 per user)
+**Blockers:** None
+---
+
 ## [2026-05-13 00:00 UTC]
 **Completed:** Phase 4 Android TV — media key events; `_KEYCODE_MEDIA_PLAY/PAUSE/NEXT/PREVIOUS` constants; `play`, `pause`, `next`, `previous` actions in `AndroidTvTool`; 4 new smoke tests; 24 androidtv tests pass
 **Files changed:** server/tools/androidtv.py, tests/test_androidtv.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
@@ -67,9 +74,3 @@ Most recent run at top.
 **Blockers:** Google Auth needs manual Google Cloud Console setup before Calendar/Tasks tools can make live API calls
 ---
 
-## [2026-05-11 00:00 UTC]
-**Completed:** Calendar "reads events for speaking user" — `CalendarTool.run()` injects speaker name into LLM system prompt; 2 new smoke tests (known-user name in prompt, unknown-user not in prompt); `tests/test_calendar_integration.py` with 2 integration tests (owner + Emily, auto-skip without Google credentials); 29 smoke tests pass
-**Files changed:** server/tools/calendar.py, tests/test_calendar.py, tests/test_calendar_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
-**Next up:** Phase 3 — Google Calendar — Test: Emily says "I have a dentist appointment Thursday at 3" → event created as "Emily Dentist"
-**Blockers:** Google Auth needs manual Google Cloud Console setup before Calendar can make live API calls
----

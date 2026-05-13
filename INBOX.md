@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-13 (session 44)
+**Status:** Phase 4 in progress. Created `tests/test_androidtv_integration.py` — 3 integration tests for "Put on Netflix" flow (correct Netflix package, case-insensitive name, disconnect-on-error); all skip when androidtv.host is placeholder; 24 smoke tests + 3 skipped pass.
+**Next task:** Phase 4 — Spotify — `server/tools/spotify.py` (spotipy OAuth2 per user, Owner + Emily separate accounts).
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware; Android TV integration tests skip until real TV host configured.
+
 ### 2026-05-13 (session 43)
 **Status:** Phase 4 in progress. Added media key events to `server/tools/androidtv.py` — `_KEYCODE_MEDIA_PLAY/PAUSE/NEXT/PREVIOUS` constants; `play`, `pause`, `next`, `previous` actions in `AndroidTvTool`; 4 new smoke tests; 24 androidtv tests pass.
 **Next task:** Phase 4 — Android TV — Test: "Put on Netflix" → Netflix opens on TV.
