@@ -345,3 +345,80 @@ async def test_launch_app_disconnect_called_on_send_error() -> None:
             await tool.run({"action": "launch_app", "app": "netflix"}, user="owner")
 
     mock_atv.disconnect.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# AndroidTvTool.run() — media key actions
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_play_sends_media_play_keycode() -> None:
+    from server.tools.androidtv import AndroidTvTool, _KEYCODE_MEDIA_PLAY
+
+    tool = AndroidTvTool()
+    mock_atv = _make_mock_atv()
+
+    with (
+        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+    ):
+        result = await tool.run({"action": "play"}, user="owner")
+
+    mock_atv.send_key_command.assert_called_once_with(_KEYCODE_MEDIA_PLAY)
+    mock_atv.disconnect.assert_called_once()
+    assert "play" in result.lower()
+
+
+@pytest.mark.asyncio
+async def test_pause_sends_media_pause_keycode() -> None:
+    from server.tools.androidtv import AndroidTvTool, _KEYCODE_MEDIA_PAUSE
+
+    tool = AndroidTvTool()
+    mock_atv = _make_mock_atv()
+
+    with (
+        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+    ):
+        result = await tool.run({"action": "pause"}, user="owner")
+
+    mock_atv.send_key_command.assert_called_once_with(_KEYCODE_MEDIA_PAUSE)
+    mock_atv.disconnect.assert_called_once()
+    assert "pause" in result.lower()
+
+
+@pytest.mark.asyncio
+async def test_next_sends_media_next_keycode() -> None:
+    from server.tools.androidtv import AndroidTvTool, _KEYCODE_MEDIA_NEXT
+
+    tool = AndroidTvTool()
+    mock_atv = _make_mock_atv()
+
+    with (
+        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+    ):
+        result = await tool.run({"action": "next"}, user="owner")
+
+    mock_atv.send_key_command.assert_called_once_with(_KEYCODE_MEDIA_NEXT)
+    mock_atv.disconnect.assert_called_once()
+    assert "next" in result.lower() or "skip" in result.lower()
+
+
+@pytest.mark.asyncio
+async def test_previous_sends_media_previous_keycode() -> None:
+    from server.tools.androidtv import AndroidTvTool, _KEYCODE_MEDIA_PREVIOUS
+
+    tool = AndroidTvTool()
+    mock_atv = _make_mock_atv()
+
+    with (
+        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+    ):
+        result = await tool.run({"action": "previous"}, user="owner")
+
+    mock_atv.send_key_command.assert_called_once_with(_KEYCODE_MEDIA_PREVIOUS)
+    mock_atv.disconnect.assert_called_once()
+    assert "previous" in result.lower() or "back" in result.lower()

@@ -1,20 +1,19 @@
 # Current Work
 
-**Last updated:** 2026-05-12  
+**Last updated:** 2026-05-13  
 **Phase:** Phase 4 — Android TV (in progress)
 
 ---
 
 ## Status
 
-Implemented app launch by package name in `server/tools/androidtv.py`:
-- `_APP_PACKAGES` — friendly name → package mapping (Spotify, Netflix, YouTube, Hulu, Disney+, Max, Prime Video, and more)
-- `_resolve_package(app)` — case-insensitive friendly name lookup; raw package passthrough if name contains `.`; raises `ValueError` for unknown names
-- `_launch_intent(package)` — builds Android intent URI with `LEANBACK_LAUNCHER` category and `launchFlags=0x10000000`
-- `AndroidTvTool` updated — added `launch_app` to action enum; optional `app` parameter; calls `atv.send_launch_app()` in `run()`
-- 11 new smoke tests; 20 androidtv tests total; 105 passed, 13 skipped full suite
+Implemented media key events in `server/tools/androidtv.py`:
+- `_KEYCODE_MEDIA_PLAY/PAUSE/NEXT/PREVIOUS` constants added
+- `AndroidTvTool` action enum extended: `play`, `pause`, `next`, `previous` (each calls `atv.send_key_command()` with the matching keycode)
+- Description updated to mention media control
+- 4 new smoke tests; 24 androidtv tests total pass
 
-Next: Phase 4 — Send media key events (play, pause, next, previous).
+Next: Phase 4 — Test: "Put on Netflix" → Netflix opens on TV.
 
 ## Documents
 

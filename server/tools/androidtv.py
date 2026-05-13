@@ -7,6 +7,10 @@ from server.tools.base import BaseTool
 
 _KEYCODE_POWER_ON = "KEYCODE_WAKEUP"
 _KEYCODE_POWER_OFF = "KEYCODE_SLEEP"
+_KEYCODE_MEDIA_PLAY = "KEYCODE_MEDIA_PLAY"
+_KEYCODE_MEDIA_PAUSE = "KEYCODE_MEDIA_PAUSE"
+_KEYCODE_MEDIA_NEXT = "KEYCODE_MEDIA_NEXT"
+_KEYCODE_MEDIA_PREVIOUS = "KEYCODE_MEDIA_PREVIOUS"
 
 _UNCONFIGURED_HOSTS = {"", "192.168.x.x"}
 
@@ -81,19 +85,20 @@ class AndroidTvTool(BaseTool):
     name = "androidtv_control"
     description = (
         "Control the Android TV in the living room. "
-        "Can turn the TV on or off, and launch apps by name. "
+        "Can turn the TV on or off, launch apps by name, and send media key events. "
         "Use for: 'turn on the TV', 'turn off the TV', 'open Netflix', 'launch Spotify on the TV', "
-        "'put on YouTube', 'open Disney Plus'."
+        "'put on YouTube', 'open Disney Plus', 'play', 'pause', 'next song', 'previous track'."
     )
     parameters = {
         "type": "object",
         "properties": {
             "action": {
                 "type": "string",
-                "enum": ["power_on", "power_off", "launch_app"],
+                "enum": ["power_on", "power_off", "launch_app", "play", "pause", "next", "previous"],
                 "description": (
                     "Turn the TV on (power_on), put it to sleep (power_off), "
-                    "or open an app (launch_app)."
+                    "open an app (launch_app), or send a media key: "
+                    "play, pause, next (next track), previous (previous track)."
                 ),
             },
             "app": {
@@ -148,6 +153,18 @@ class AndroidTvTool(BaseTool):
             elif action == "power_off":
                 atv.send_key_command(_KEYCODE_POWER_OFF)
                 return "TV is off."
+            elif action == "play":
+                atv.send_key_command(_KEYCODE_MEDIA_PLAY)
+                return "Playing."
+            elif action == "pause":
+                atv.send_key_command(_KEYCODE_MEDIA_PAUSE)
+                return "Paused."
+            elif action == "next":
+                atv.send_key_command(_KEYCODE_MEDIA_NEXT)
+                return "Skipped to the next track."
+            elif action == "previous":
+                atv.send_key_command(_KEYCODE_MEDIA_PREVIOUS)
+                return "Went back to the previous track."
             else:  # launch_app
                 atv.send_launch_app(_launch_intent(package))
                 friendly = app_name.title() if "." not in app_name else package

@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-13 (session 43)
+**Status:** Phase 4 in progress. Added media key events to `server/tools/androidtv.py` — `_KEYCODE_MEDIA_PLAY/PAUSE/NEXT/PREVIOUS` constants; `play`, `pause`, `next`, `previous` actions in `AndroidTvTool`; 4 new smoke tests; 24 androidtv tests pass.
+**Next task:** Phase 4 — Android TV — Test: "Put on Netflix" → Netflix opens on TV.
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware.
+
 ### 2026-05-12 (session 42)
 **Status:** Phase 4 in progress. Implemented `launch_app` action in `server/tools/androidtv.py` — `_APP_PACKAGES` dict (10 apps), `_resolve_package()` (friendly name or raw package), `_launch_intent()` (LEANBACK_LAUNCHER intent URI); `AndroidTvTool` extended with `launch_app` action + optional `app` parameter; calls `atv.send_launch_app()`; 11 new smoke tests; 105 total pass, 13 skipped.
 **Next task:** Phase 4 — Android TV — Send media key events (play, pause, next, previous).
