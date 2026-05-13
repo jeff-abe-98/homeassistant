@@ -7,14 +7,16 @@
 
 ## Status
 
-Implemented combined Spotify+TV launch flow in `server/tools/spotify.py`:
-- `_find_tv_device_id(sp)` — resolves TV device from `sp.devices()` fresh every call; never cached; matches `type == "TV"` (case-insensitive)
-- `_launch_spotify_on_tv(atv_cfg)` — async; opens `com.spotify.tv.android` via `androidtvremote2` LEANBACK_LAUNCHER intent; disconnects in finally block
-- `_ensure_playing_on_tv(sp, cfg)` — combined flow: launch best-effort (swallows errors) → poll `sp.devices()` with 1s interval / 15s timeout → `sp.transfer_playback(device_id, force_play=True)`; skips TV launch when androidtv unconfigured
-- `_run_action` updated to accept `cfg` parameter; `play` action now calls `_ensure_playing_on_tv`
-- 15 new smoke tests; 35 spotify tests total, 144 total pass (16 skipped, all integration)
+Implemented Spotify search-and-play in `server/tools/spotify.py`:
+- `_ensure_tv_ready(sp, cfg)` — factored from `_ensure_playing_on_tv`; launches Spotify on TV via androidtv, polls `sp.devices()` until TV appears, returns device ID
+- `_ensure_playing_on_tv(sp, cfg)` — thin wrapper: `_ensure_tv_ready` + `sp.transfer_playback(force_play=True)` (behavior unchanged)
+- `_find_user_playlist(sp, query)` — scans user's own playlists with pagination; strips leading "my "; case-insensitive substring match; returns first matching URI
+- `_search_spotify(sp, query)` — searches `track,playlist` catalog; personal hints (my ..., Discover Weekly, Release Radar, etc.) → user playlists first; vague ≤3-word queries → prefer playlist; specific queries (contains " by ") → prefer track; returns `(context_uri, track_uris, description)`
+- `_search_and_play(sp, query, device_id)` — calls `_search_spotify`, then `sp.start_playback(device_id, context_uri, uris)`
+- `play` action: if `query` present → `_ensure_tv_ready` + `_search_and_play`; otherwise → `_ensure_playing_on_tv` (resume)
+- 19 new smoke tests; 54 spotify tests, 163 total pass
 
-Next: Phase 4 — Spotify — Play by song / artist / playlist / mood query.
+Next: Phase 4 — Spotify — Controls: pause, skip, volume.
 
 ## Documents
 

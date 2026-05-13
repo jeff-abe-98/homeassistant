@@ -16,6 +16,10 @@ _SCOPES = (
 _UNCONFIGURED_TV_HOSTS = {"", "192.168.x.x"}
 _TV_POLL_INTERVAL = 1.0   # seconds between sp.devices() polls
 _TV_POLL_TIMEOUT = 15.0   # total seconds to wait for TV to appear in Spotify
+# Personal playlist hints that trigger user-playlist lookup before catalog search
+_PERSONAL_PLAYLIST_HINTS = frozenset(
+    {"discover weekly", "release radar", "daily mix", "time capsule", "on repeat"}
+)
 
 
 def _is_configured(user_cfg) -> bool:
@@ -91,27 +95,18 @@ async def _launch_spotify_on_tv(atv_cfg) -> None:
         atv.disconnect()
 
 
-async def _ensure_playing_on_tv(sp, cfg) -> str:
-    """Launch Spotify on TV and transfer Spotify playback to it.
+async def _ensure_tv_ready(sp, cfg) -> str:
+    """Launch Spotify on TV and wait for it to appear in sp.devices().
 
-    Steps:
-      1. Launch com.spotify.tv.android via androidtvremote2 (best-effort).
-      2. Poll sp.devices() until the TV device appears (up to _TV_POLL_TIMEOUT).
-      3. Transfer playback to the TV with force_play=True.
-
-    Returns the Spotify Connect device ID of the TV.
+    Returns the Spotify Connect device ID.
     Raises RuntimeError if the TV device never appears within the timeout.
     """
-    # Launch Spotify on TV if androidtv is configured; swallow errors so a
-    # TV that's already showing Spotify doesn't block playback transfer.
     if cfg.androidtv.host not in _UNCONFIGURED_TV_HOSTS:
         try:
             await _launch_spotify_on_tv(cfg.androidtv)
         except Exception:
             pass
 
-    # Poll sp.devices() until the TV appears.  The device ID must never be
-    # cached — it changes every time Spotify on the TV restarts.
     elapsed = 0.0
     device_id: str | None = None
     while elapsed < _TV_POLL_TIMEOUT:
@@ -126,9 +121,93 @@ async def _ensure_playing_on_tv(sp, cfg) -> str:
             f"TV didn't appear in Spotify within {int(_TV_POLL_TIMEOUT)} seconds. "
             "Make sure the TV is on and the Spotify app is open."
         )
+    return device_id
 
+
+async def _ensure_playing_on_tv(sp, cfg) -> str:
+    """Launch Spotify on TV, poll until device appears, transfer playback.
+
+    Returns the Spotify Connect device ID of the TV.
+    Raises RuntimeError if the TV device never appears within the timeout.
+    """
+    device_id = await _ensure_tv_ready(sp, cfg)
     sp.transfer_playback(device_id=device_id, force_play=True)
     return device_id
+
+
+def _find_user_playlist(sp, query: str) -> str | None:
+    """Search the user's own playlists for one whose name contains query.
+
+    Strips a leading "my " from query before matching.
+    Returns the Spotify URI of the first match, or None.
+    """
+    target = query.lower().removeprefix("my ").strip()
+    offset = 0
+    while True:
+        resp = sp.current_user_playlists(limit=50, offset=offset)
+        for item in (resp.get("items") or []):
+            if item and target in item.get("name", "").lower():
+                return item["uri"]
+        if resp.get("next") is None:
+            break
+        offset += 50
+    return None
+
+
+def _search_spotify(sp, query: str):
+    """Search Spotify for query; return (context_uri, track_uris, description).
+
+    Strategy:
+    - Personal playlist hints (my ..., Discover Weekly, etc.) → user playlists first.
+    - Short/vague query (≤3 words, no " by ") → prefer Spotify-curated playlist.
+    - Specific query (song + artist) → prefer track.
+
+    Returns (None, None, None) if nothing is found.
+    """
+    query_lower = query.lower()
+    is_personal = query_lower.startswith("my ") or any(
+        hint in query_lower for hint in _PERSONAL_PLAYLIST_HINTS
+    )
+    if is_personal:
+        uri = _find_user_playlist(sp, query)
+        if uri:
+            return uri, None, query
+
+    results = sp.search(q=query, type="track,playlist", limit=5)
+    playlists = [p for p in ((results.get("playlists") or {}).get("items") or []) if p]
+    tracks = [t for t in ((results.get("tracks") or {}).get("items") or []) if t]
+
+    # Short/vague query → mood/genre → prefer playlist
+    prefer_playlist = len(query.strip().split()) <= 3 and " by " not in query_lower
+
+    if prefer_playlist and playlists:
+        pl = playlists[0]
+        return pl["uri"], None, pl.get("name", query)
+
+    if tracks:
+        track = tracks[0]
+        name = track.get("name", "")
+        artist = ", ".join(a["name"] for a in (track.get("artists") or []))
+        desc = f"{name} by {artist}" if artist else name
+        return None, [track["uri"]], desc
+
+    if playlists:
+        pl = playlists[0]
+        return pl["uri"], None, pl.get("name", query)
+
+    return None, None, None
+
+
+def _search_and_play(sp, query: str, device_id: str) -> str:
+    """Search for query and call sp.start_playback on device_id.
+
+    Returns a natural language description of what started playing.
+    """
+    context_uri, track_uris, description = _search_spotify(sp, query)
+    if context_uri is None and track_uris is None:
+        return f"I couldn't find anything on Spotify for \"{query}\"."
+    sp.start_playback(device_id=device_id, context_uri=context_uri, uris=track_uris)
+    return f"Playing {description} on the TV."
 
 
 class SpotifyTool(BaseTool):
@@ -214,6 +293,10 @@ async def _run_action(sp, action: str, params: dict, display: str, cfg) -> str:
         artists = ", ".join(a["name"] for a in item.get("artists", []))
         return f"Now playing: {track} by {artists}."
     elif action == "play":
+        query = (params.get("query") or "").strip()
+        if query:
+            device_id = await _ensure_tv_ready(sp, cfg)
+            return _search_and_play(sp, query, device_id)
         await _ensure_playing_on_tv(sp, cfg)
         return f"Playing on the TV for {display}."
     else:

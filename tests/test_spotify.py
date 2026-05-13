@@ -621,3 +621,326 @@ async def test_play_action_timeout_returns_spotify_error() -> None:
         result = await tool.run({"action": "play"}, user="owner")
 
     assert "spotify error" in result.lower() or "tv" in result.lower()
+
+
+# ---------------------------------------------------------------------------
+# _find_user_playlist
+# ---------------------------------------------------------------------------
+
+
+def test_find_user_playlist_returns_matching_uri() -> None:
+    from server.tools.spotify import _find_user_playlist
+
+    sp = MagicMock()
+    sp.current_user_playlists.return_value = {
+        "items": [
+            {"name": "Discover Weekly", "uri": "spotify:playlist:discover"},
+            {"name": "Rock Classics", "uri": "spotify:playlist:rock"},
+        ],
+        "next": None,
+    }
+    uri = _find_user_playlist(sp, "Discover Weekly")
+    assert uri == "spotify:playlist:discover"
+
+
+def test_find_user_playlist_strips_my_prefix() -> None:
+    from server.tools.spotify import _find_user_playlist
+
+    sp = MagicMock()
+    sp.current_user_playlists.return_value = {
+        "items": [{"name": "Discover Weekly", "uri": "spotify:playlist:dw"}],
+        "next": None,
+    }
+    uri = _find_user_playlist(sp, "my Discover Weekly")
+    assert uri == "spotify:playlist:dw"
+
+
+def test_find_user_playlist_case_insensitive() -> None:
+    from server.tools.spotify import _find_user_playlist
+
+    sp = MagicMock()
+    sp.current_user_playlists.return_value = {
+        "items": [{"name": "DISCOVER WEEKLY", "uri": "spotify:playlist:dw"}],
+        "next": None,
+    }
+    uri = _find_user_playlist(sp, "discover weekly")
+    assert uri == "spotify:playlist:dw"
+
+
+def test_find_user_playlist_returns_none_when_no_match() -> None:
+    from server.tools.spotify import _find_user_playlist
+
+    sp = MagicMock()
+    sp.current_user_playlists.return_value = {
+        "items": [{"name": "Rock Classics", "uri": "spotify:playlist:rock"}],
+        "next": None,
+    }
+    uri = _find_user_playlist(sp, "Discover Weekly")
+    assert uri is None
+
+
+def test_find_user_playlist_paginates() -> None:
+    from server.tools.spotify import _find_user_playlist
+
+    sp = MagicMock()
+    sp.current_user_playlists.side_effect = [
+        {
+            "items": [{"name": "Rock Classics", "uri": "spotify:playlist:rock"}],
+            "next": "page2_url",
+        },
+        {
+            "items": [{"name": "Discover Weekly", "uri": "spotify:playlist:dw"}],
+            "next": None,
+        },
+    ]
+    uri = _find_user_playlist(sp, "Discover Weekly")
+    assert uri == "spotify:playlist:dw"
+    assert sp.current_user_playlists.call_count == 2
+
+
+# ---------------------------------------------------------------------------
+# _search_spotify
+# ---------------------------------------------------------------------------
+
+
+def test_search_spotify_prefers_playlist_for_mood_query() -> None:
+    from server.tools.spotify import _search_spotify
+
+    sp = MagicMock()
+    sp.search.return_value = {
+        "playlists": {"items": [{"uri": "spotify:playlist:jazz", "name": "Jazz Vibes"}]},
+        "tracks": {"items": [{"uri": "spotify:track:t1", "name": "Jazz Song", "artists": [{"name": "A"}]}]},
+    }
+    context_uri, track_uris, description = _search_spotify(sp, "jazz")
+    assert context_uri == "spotify:playlist:jazz"
+    assert track_uris is None
+    assert description == "Jazz Vibes"
+
+
+def test_search_spotify_prefers_track_for_specific_query() -> None:
+    from server.tools.spotify import _search_spotify
+
+    sp = MagicMock()
+    sp.search.return_value = {
+        "playlists": {"items": [{"uri": "spotify:playlist:p1", "name": "Some Playlist"}]},
+        "tracks": {"items": [{
+            "uri": "spotify:track:bohemian",
+            "name": "Bohemian Rhapsody",
+            "artists": [{"name": "Queen"}],
+        }]},
+    }
+    context_uri, track_uris, description = _search_spotify(sp, "Bohemian Rhapsody by Queen")
+    assert context_uri is None
+    assert track_uris == ["spotify:track:bohemian"]
+    assert "Bohemian Rhapsody" in description
+    assert "Queen" in description
+
+
+def test_search_spotify_checks_user_playlists_for_personal_my_prefix() -> None:
+    from server.tools.spotify import _search_spotify
+    from unittest.mock import patch
+
+    sp = MagicMock()
+    with patch("server.tools.spotify._find_user_playlist", return_value="spotify:playlist:dw") as mock_find:
+        context_uri, track_uris, description = _search_spotify(sp, "my Discover Weekly")
+
+    mock_find.assert_called_once()
+    assert context_uri == "spotify:playlist:dw"
+    assert track_uris is None
+    sp.search.assert_not_called()
+
+
+def test_search_spotify_checks_user_playlists_for_discover_weekly_hint() -> None:
+    from server.tools.spotify import _search_spotify
+    from unittest.mock import patch
+
+    sp = MagicMock()
+    with patch("server.tools.spotify._find_user_playlist", return_value="spotify:playlist:dw"):
+        context_uri, _, _ = _search_spotify(sp, "Discover Weekly")
+
+    assert context_uri == "spotify:playlist:dw"
+
+
+def test_search_spotify_falls_back_to_catalog_if_user_playlist_not_found() -> None:
+    from server.tools.spotify import _search_spotify
+    from unittest.mock import patch
+
+    sp = MagicMock()
+    sp.search.return_value = {
+        "playlists": {"items": [{"uri": "spotify:playlist:p1", "name": "Weekly Mix"}]},
+        "tracks": {"items": []},
+    }
+    with patch("server.tools.spotify._find_user_playlist", return_value=None):
+        context_uri, track_uris, _ = _search_spotify(sp, "my Discover Weekly")
+
+    assert context_uri == "spotify:playlist:p1"
+    assert track_uris is None
+
+
+def test_search_spotify_returns_none_triple_when_no_results() -> None:
+    from server.tools.spotify import _search_spotify
+
+    sp = MagicMock()
+    sp.search.return_value = {"playlists": {"items": []}, "tracks": {"items": []}}
+    result = _search_spotify(sp, "xyzzy obscure query no results")
+    assert result == (None, None, None)
+
+
+def test_search_spotify_falls_back_to_track_when_no_playlist_for_specific_query() -> None:
+    from server.tools.spotify import _search_spotify
+
+    sp = MagicMock()
+    sp.search.return_value = {
+        "playlists": {"items": []},
+        "tracks": {"items": [{"uri": "spotify:track:t1", "name": "Song", "artists": [{"name": "Artist"}]}]},
+    }
+    context_uri, track_uris, description = _search_spotify(sp, "Song by Artist")
+    assert context_uri is None
+    assert track_uris == ["spotify:track:t1"]
+
+
+# ---------------------------------------------------------------------------
+# _search_and_play
+# ---------------------------------------------------------------------------
+
+
+def test_search_and_play_starts_context_playback() -> None:
+    from server.tools.spotify import _search_and_play
+    from unittest.mock import patch
+
+    sp = MagicMock()
+    with patch(
+        "server.tools.spotify._search_spotify",
+        return_value=("spotify:playlist:jazz", None, "Jazz Vibes"),
+    ):
+        result = _search_and_play(sp, "jazz", "device-123")
+
+    sp.start_playback.assert_called_once_with(
+        device_id="device-123",
+        context_uri="spotify:playlist:jazz",
+        uris=None,
+    )
+    assert "Jazz Vibes" in result
+
+
+def test_search_and_play_starts_track_playback() -> None:
+    from server.tools.spotify import _search_and_play
+    from unittest.mock import patch
+
+    sp = MagicMock()
+    with patch(
+        "server.tools.spotify._search_spotify",
+        return_value=(None, ["spotify:track:bohemian"], "Bohemian Rhapsody by Queen"),
+    ):
+        result = _search_and_play(sp, "Bohemian Rhapsody by Queen", "device-123")
+
+    sp.start_playback.assert_called_once_with(
+        device_id="device-123",
+        context_uri=None,
+        uris=["spotify:track:bohemian"],
+    )
+    assert "Bohemian Rhapsody" in result
+
+
+def test_search_and_play_returns_not_found_when_no_results() -> None:
+    from server.tools.spotify import _search_and_play
+    from unittest.mock import patch
+
+    sp = MagicMock()
+    with patch("server.tools.spotify._search_spotify", return_value=(None, None, None)):
+        result = _search_and_play(sp, "xyzzy", "device-123")
+
+    sp.start_playback.assert_not_called()
+    assert "xyzzy" in result or "couldn't find" in result.lower()
+
+
+# ---------------------------------------------------------------------------
+# SpotifyTool.run() — play with query
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_play_with_query_calls_ensure_tv_ready_and_search_and_play() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_cfg = MagicMock()
+    mock_cfg.spotify.owner.client_id = "owner_id"
+    mock_cfg.spotify.owner.client_secret = "owner_secret"
+
+    mock_sp = MagicMock()
+    mock_ensure_ready = AsyncMock(return_value="tv-device-id")
+    mock_search_play = MagicMock(return_value="Playing Jazz Vibes on the TV.")
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=mock_cfg), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp), \
+         patch("server.tools.spotify._ensure_tv_ready", mock_ensure_ready), \
+         patch("server.tools.spotify._search_and_play", mock_search_play):
+        result = await tool.run({"action": "play", "query": "jazz"}, user="owner")
+
+    mock_ensure_ready.assert_called_once_with(mock_sp, mock_cfg)
+    mock_search_play.assert_called_once_with(mock_sp, "jazz", "tv-device-id")
+    assert "Jazz Vibes" in result
+
+
+@pytest.mark.asyncio
+async def test_play_with_query_for_emily_routes_to_emily_account() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_cfg = MagicMock()
+    mock_cfg.spotify.emily.client_id = "emily_id"
+    mock_cfg.spotify.emily.client_secret = "emily_secret"
+
+    mock_sp = MagicMock()
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=mock_cfg), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp) as mock_get, \
+         patch("server.tools.spotify._ensure_tv_ready", AsyncMock(return_value="tv-id")), \
+         patch("server.tools.spotify._search_and_play", MagicMock(return_value="Playing Discover Weekly on the TV.")):
+        result = await tool.run({"action": "play", "query": "my Discover Weekly"}, user="emily")
+
+    mock_get.assert_called_once_with(mock_cfg.spotify.emily)
+    assert "Discover Weekly" in result
+
+
+@pytest.mark.asyncio
+async def test_play_without_query_uses_ensure_playing_on_tv() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_cfg = MagicMock()
+    mock_cfg.spotify.owner.client_id = "owner_id"
+    mock_cfg.spotify.owner.client_secret = "owner_secret"
+
+    mock_sp = MagicMock()
+    mock_ensure = AsyncMock(return_value="tv-device-id")
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=mock_cfg), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp), \
+         patch("server.tools.spotify._ensure_playing_on_tv", mock_ensure):
+        result = await tool.run({"action": "play"}, user="owner")
+
+    mock_ensure.assert_called_once_with(mock_sp, mock_cfg)
+    assert "playing" in result.lower()
+
+
+@pytest.mark.asyncio
+async def test_play_with_empty_string_query_uses_ensure_playing_on_tv() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_cfg = MagicMock()
+    mock_cfg.spotify.owner.client_id = "owner_id"
+    mock_cfg.spotify.owner.client_secret = "owner_secret"
+
+    mock_sp = MagicMock()
+    mock_ensure = AsyncMock(return_value="tv-device-id")
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=mock_cfg), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp), \
+         patch("server.tools.spotify._ensure_playing_on_tv", mock_ensure):
+        result = await tool.run({"action": "play", "query": ""}, user="owner")
+
+    mock_ensure.assert_called_once_with(mock_sp, mock_cfg)
+    assert "playing" in result.lower()

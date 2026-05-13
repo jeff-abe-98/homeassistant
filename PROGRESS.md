@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-13 04:00 UTC]
+**Completed:** Phase 4 Spotify — play by song/artist/playlist/mood query; `_find_user_playlist` (pagination, "my " strip, case-insensitive), `_search_spotify` (personal hints→user playlists, ≤3-word vague→playlist, specific "by" query→track), `_search_and_play` (`sp.start_playback`); `_ensure_tv_ready` factored from `_ensure_playing_on_tv`; `play` action dispatches to search when `query` present; 19 new tests; 54 spotify tests, 163 total pass
+**Files changed:** server/tools/spotify.py, tests/test_spotify.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 4 — Spotify — Controls: pause, skip, volume
+**Blockers:** None
+
+---
+
 ## [2026-05-13 03:00 UTC]
 **Completed:** Phase 4 Spotify — combined TV launch flow; `_find_tv_device_id(sp)` (fresh sp.devices() every call, never cached), `_launch_spotify_on_tv(atv_cfg)` (androidtvremote2 LEANBACK_LAUNCHER intent), `_ensure_playing_on_tv(sp, cfg)` (launch best-effort → poll 1s/15s → transfer_playback force_play=True); `play` action wired; "never cache device ID" constraint satisfied; 15 new smoke tests; 35 spotify tests, 144 total pass
 **Files changed:** server/tools/spotify.py, tests/test_spotify.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
