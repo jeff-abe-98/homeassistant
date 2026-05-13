@@ -104,8 +104,8 @@
 
 ### Spotify
 - [x] `server/tools/spotify.py` — spotipy OAuth2 per user (Owner + Emily separate accounts, both need Premium) — `_is_configured()`, `_get_spotify()` (SpotifyOAuth with cache_path token file, open_browser=False), `SpotifyTool` with per-user routing (emily→emily config, else→owner); `now_playing` action functional; `SpotifyUserConfig` gains `redirect_uri`+`token_file`; `spotipy>=2.24.0` added to requirements; 20 smoke tests pass; spotipy stubbed in conftest
-- [ ] Combined launch flow: androidtv launches Spotify app → poll `sp.devices()` → transfer playback to TV
-- [ ] Never cache device ID — resolve fresh from `sp.devices()` each time
+- [x] Combined launch flow: androidtv launches Spotify app → poll `sp.devices()` → transfer playback to TV — `_find_tv_device_id(sp)` (always fresh), `_launch_spotify_on_tv(atv_cfg)` (androidtvremote2), `_ensure_playing_on_tv(sp, cfg)` (launch best-effort → poll → transfer_playback force_play=True); 15 new smoke tests; 35 spotify tests pass
+- [x] Never cache device ID — resolve fresh from `sp.devices()` each time — `_find_tv_device_id` always calls `sp.devices()` on every invocation; no module-level or instance cache
 - [ ] Play by song / artist / playlist / mood query
 - [ ] Controls: pause, skip, volume
 - [ ] Test: Owner says "Play some jazz" → plays on TV through Owner's account

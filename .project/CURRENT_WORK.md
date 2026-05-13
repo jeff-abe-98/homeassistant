@@ -7,16 +7,14 @@
 
 ## Status
 
-Created `server/tools/spotify.py` — spotipy OAuth2 per user:
-- `_is_configured(user_cfg)` — guards CHANGE_ME credentials
-- `_get_spotify(user_cfg)` — returns `spotipy.Spotify` via `SpotifyOAuth` (token cache file, `open_browser=False`)
-- `_user_cfg_and_display(cfg, user)` — routes emily→emily config, all others→owner config
-- `SpotifyTool` — BaseTool with `now_playing` action (functional); other actions return "not wired yet" stub
-- `SpotifyUserConfig` extended with `redirect_uri` and `token_file` fields; `load()` reads from `users` YAML section for token paths
-- `spotipy>=2.24.0` added to `requirements-server.txt`; spotipy stubbed in `conftest.py`
-- 20 smoke tests in `tests/test_spotify.py`; 129 total pass, 16 skipped
+Implemented combined Spotify+TV launch flow in `server/tools/spotify.py`:
+- `_find_tv_device_id(sp)` — resolves TV device from `sp.devices()` fresh every call; never cached; matches `type == "TV"` (case-insensitive)
+- `_launch_spotify_on_tv(atv_cfg)` — async; opens `com.spotify.tv.android` via `androidtvremote2` LEANBACK_LAUNCHER intent; disconnects in finally block
+- `_ensure_playing_on_tv(sp, cfg)` — combined flow: launch best-effort (swallows errors) → poll `sp.devices()` with 1s interval / 15s timeout → `sp.transfer_playback(device_id, force_play=True)`; skips TV launch when androidtv unconfigured
+- `_run_action` updated to accept `cfg` parameter; `play` action now calls `_ensure_playing_on_tv`
+- 15 new smoke tests; 35 spotify tests total, 144 total pass (16 skipped, all integration)
 
-Next: Phase 4 — Spotify — Combined launch flow (androidtv launches Spotify app → poll `sp.devices()` → transfer playback to TV).
+Next: Phase 4 — Spotify — Play by song / artist / playlist / mood query.
 
 ## Documents
 

@@ -4,7 +4,7 @@ Run with: pytest tests/test_spotify.py -v
 """
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -369,3 +369,255 @@ async def test_get_spotify_init_error_is_caught() -> None:
         result = await tool.run({"action": "now_playing"}, user="owner")
 
     assert "couldn't" in result.lower() or "error" in result.lower()
+
+
+# ---------------------------------------------------------------------------
+# _find_tv_device_id — always resolves fresh from sp.devices()
+# ---------------------------------------------------------------------------
+
+
+def test_find_tv_device_id_returns_tv_device() -> None:
+    from server.tools.spotify import _find_tv_device_id
+
+    sp = MagicMock()
+    sp.devices.return_value = {
+        "devices": [{"id": "tv-device-abc", "type": "TV", "name": "Hisense TV"}]
+    }
+    assert _find_tv_device_id(sp) == "tv-device-abc"
+
+
+def test_find_tv_device_id_returns_none_when_no_tv() -> None:
+    from server.tools.spotify import _find_tv_device_id
+
+    sp = MagicMock()
+    sp.devices.return_value = {
+        "devices": [{"id": "phone-id", "type": "Smartphone", "name": "Jeff's Phone"}]
+    }
+    assert _find_tv_device_id(sp) is None
+
+
+def test_find_tv_device_id_returns_none_when_no_devices() -> None:
+    from server.tools.spotify import _find_tv_device_id
+
+    sp = MagicMock()
+    sp.devices.return_value = {"devices": []}
+    assert _find_tv_device_id(sp) is None
+
+
+def test_find_tv_device_id_skips_non_tv_types() -> None:
+    from server.tools.spotify import _find_tv_device_id
+
+    sp = MagicMock()
+    sp.devices.return_value = {
+        "devices": [
+            {"id": "comp-id", "type": "Computer", "name": "Laptop"},
+            {"id": "tv-id", "type": "TV", "name": "Living Room TV"},
+        ]
+    }
+    assert _find_tv_device_id(sp) == "tv-id"
+
+
+def test_find_tv_device_id_case_insensitive_type() -> None:
+    from server.tools.spotify import _find_tv_device_id
+
+    sp = MagicMock()
+    sp.devices.return_value = {
+        "devices": [{"id": "tv-id", "type": "tv", "name": "TV"}]
+    }
+    assert _find_tv_device_id(sp) == "tv-id"
+
+
+def test_find_tv_device_id_calls_devices_each_time() -> None:
+    """Must call sp.devices() fresh each invocation — never use a cache."""
+    from server.tools.spotify import _find_tv_device_id
+
+    sp = MagicMock()
+    sp.devices.return_value = {"devices": [{"id": "tv-id", "type": "TV", "name": "TV"}]}
+    _find_tv_device_id(sp)
+    _find_tv_device_id(sp)
+    assert sp.devices.call_count == 2
+
+
+# ---------------------------------------------------------------------------
+# _ensure_playing_on_tv — combined launch flow
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_ensure_playing_on_tv_transfers_when_tv_found_immediately() -> None:
+    from server.tools.spotify import _ensure_playing_on_tv
+
+    sp = MagicMock()
+    sp.devices.return_value = {"devices": [{"id": "tv-123", "type": "TV", "name": "TV"}]}
+
+    mock_cfg = MagicMock()
+    mock_cfg.androidtv.host = "192.168.x.x"  # unconfigured → skip launch
+
+    with patch("asyncio.sleep", new_callable=AsyncMock):
+        device_id = await _ensure_playing_on_tv(sp, mock_cfg)
+
+    assert device_id == "tv-123"
+    sp.transfer_playback.assert_called_once_with(device_id="tv-123", force_play=True)
+
+
+@pytest.mark.asyncio
+async def test_ensure_playing_on_tv_polls_until_tv_appears() -> None:
+    from server.tools.spotify import _ensure_playing_on_tv
+
+    sp = MagicMock()
+    # First call: no devices; second call: TV appears
+    sp.devices.side_effect = [
+        {"devices": []},
+        {"devices": [{"id": "tv-456", "type": "TV", "name": "TV"}]},
+    ]
+
+    mock_cfg = MagicMock()
+    mock_cfg.androidtv.host = "192.168.x.x"  # skip TV launch
+
+    with patch("asyncio.sleep", new_callable=AsyncMock):
+        device_id = await _ensure_playing_on_tv(sp, mock_cfg)
+
+    assert device_id == "tv-456"
+    assert sp.devices.call_count == 2
+    sp.transfer_playback.assert_called_once_with(device_id="tv-456", force_play=True)
+
+
+@pytest.mark.asyncio
+async def test_ensure_playing_on_tv_raises_on_timeout() -> None:
+    from server.tools.spotify import _ensure_playing_on_tv
+
+    sp = MagicMock()
+    sp.devices.return_value = {"devices": []}  # TV never appears
+
+    mock_cfg = MagicMock()
+    mock_cfg.androidtv.host = "192.168.x.x"
+
+    with patch("server.tools.spotify._TV_POLL_TIMEOUT", 0), \
+         patch("asyncio.sleep", new_callable=AsyncMock):
+        with pytest.raises(RuntimeError, match="TV didn't appear"):
+            await _ensure_playing_on_tv(sp, mock_cfg)
+
+    sp.transfer_playback.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_ensure_playing_on_tv_launches_spotify_app_when_tv_configured() -> None:
+    from server.tools.spotify import _ensure_playing_on_tv
+
+    sp = MagicMock()
+    sp.devices.return_value = {"devices": [{"id": "tv-789", "type": "TV", "name": "TV"}]}
+
+    mock_cfg = MagicMock()
+    mock_cfg.androidtv.host = "192.168.1.50"  # real host → launch should be called
+
+    mock_launch = AsyncMock()
+    with patch("server.tools.spotify._launch_spotify_on_tv", mock_launch), \
+         patch("asyncio.sleep", new_callable=AsyncMock):
+        await _ensure_playing_on_tv(sp, mock_cfg)
+
+    mock_launch.assert_called_once_with(mock_cfg.androidtv)
+
+
+@pytest.mark.asyncio
+async def test_ensure_playing_on_tv_skips_launch_when_tv_unconfigured() -> None:
+    from server.tools.spotify import _ensure_playing_on_tv
+
+    sp = MagicMock()
+    sp.devices.return_value = {"devices": [{"id": "tv-id", "type": "TV", "name": "TV"}]}
+
+    mock_cfg = MagicMock()
+    mock_cfg.androidtv.host = "192.168.x.x"  # placeholder → skip launch
+
+    mock_launch = AsyncMock()
+    with patch("server.tools.spotify._launch_spotify_on_tv", mock_launch), \
+         patch("asyncio.sleep", new_callable=AsyncMock):
+        await _ensure_playing_on_tv(sp, mock_cfg)
+
+    mock_launch.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_ensure_playing_on_tv_continues_if_launch_fails() -> None:
+    from server.tools.spotify import _ensure_playing_on_tv
+
+    sp = MagicMock()
+    sp.devices.return_value = {"devices": [{"id": "tv-id", "type": "TV", "name": "TV"}]}
+
+    mock_cfg = MagicMock()
+    mock_cfg.androidtv.host = "192.168.1.50"
+
+    # TV launch raises — should be swallowed; playback transfer still happens
+    mock_launch = AsyncMock(side_effect=RuntimeError("TV unreachable"))
+    with patch("server.tools.spotify._launch_spotify_on_tv", mock_launch), \
+         patch("asyncio.sleep", new_callable=AsyncMock):
+        device_id = await _ensure_playing_on_tv(sp, mock_cfg)
+
+    assert device_id == "tv-id"
+    sp.transfer_playback.assert_called_once_with(device_id="tv-id", force_play=True)
+
+
+# ---------------------------------------------------------------------------
+# SpotifyTool.run() — play action (combined launch flow)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_play_action_calls_ensure_playing_on_tv() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_cfg = MagicMock()
+    mock_cfg.spotify.owner.client_id = "owner_id"
+    mock_cfg.spotify.owner.client_secret = "owner_secret"
+
+    mock_sp = MagicMock()
+    mock_ensure = AsyncMock(return_value="tv-device-id")
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=mock_cfg), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp), \
+         patch("server.tools.spotify._ensure_playing_on_tv", mock_ensure):
+        result = await tool.run({"action": "play"}, user="owner")
+
+    mock_ensure.assert_called_once_with(mock_sp, mock_cfg)
+    assert "playing" in result.lower() or "tv" in result.lower()
+
+
+@pytest.mark.asyncio
+async def test_play_action_for_emily_routes_to_emily_spotify() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_cfg = MagicMock()
+    mock_cfg.spotify.emily.client_id = "emily_id"
+    mock_cfg.spotify.emily.client_secret = "emily_secret"
+
+    mock_sp = MagicMock()
+    mock_ensure = AsyncMock(return_value="tv-device-id")
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=mock_cfg), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp) as mock_get, \
+         patch("server.tools.spotify._ensure_playing_on_tv", mock_ensure):
+        result = await tool.run({"action": "play"}, user="emily")
+
+    mock_get.assert_called_once_with(mock_cfg.spotify.emily)
+    assert "emily" in result.lower()
+
+
+@pytest.mark.asyncio
+async def test_play_action_timeout_returns_spotify_error() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_cfg = MagicMock()
+    mock_cfg.spotify.owner.client_id = "owner_id"
+    mock_cfg.spotify.owner.client_secret = "owner_secret"
+
+    mock_sp = MagicMock()
+    mock_ensure = AsyncMock(side_effect=RuntimeError("TV didn't appear in Spotify"))
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=mock_cfg), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp), \
+         patch("server.tools.spotify._ensure_playing_on_tv", mock_ensure):
+        result = await tool.run({"action": "play"}, user="owner")
+
+    assert "spotify error" in result.lower() or "tv" in result.lower()

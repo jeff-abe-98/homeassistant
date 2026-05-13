@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-13 (session 46)
+**Status:** Phase 4 in progress. Implemented combined Spotify+TV launch flow — `_find_tv_device_id(sp)` (always fresh, never cached), `_launch_spotify_on_tv(atv_cfg)` (androidtvremote2 LEANBACK_LAUNCHER intent), `_ensure_playing_on_tv(sp, cfg)` (launch best-effort → poll devices() 1s/15s → transfer_playback force_play); `play` action wired; 15 new smoke tests, 35 spotify tests pass (144 total).
+**Next task:** Phase 4 — Spotify — Play by song / artist / playlist / mood query.
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware; Android TV integration tests skip until real TV host configured.
+
 ### 2026-05-13 (session 45)
 **Status:** Phase 4 in progress. Created `server/tools/spotify.py` — spotipy OAuth2 per user; `_is_configured()`, `_get_spotify()` (SpotifyOAuth with token cache, open_browser=False), `SpotifyTool` per-user routing + `now_playing` action; `SpotifyUserConfig` extended with `redirect_uri` and `token_file`; `spotipy>=2.24.0` added to requirements; 20 smoke tests pass; pytest env fixed (httpx + pytest-asyncio reinstalled via uv).
 **Next task:** Phase 4 — Spotify — Combined launch flow (androidtv launches Spotify → poll `sp.devices()` → transfer playback to TV).

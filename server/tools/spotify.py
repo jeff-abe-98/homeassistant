@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+
 import shared.config as cfg_module
 from server.tools.base import BaseTool
 
@@ -11,6 +13,9 @@ _SCOPES = (
     "user-modify-playback-state "
     "user-read-currently-playing"
 )
+_UNCONFIGURED_TV_HOSTS = {"", "192.168.x.x"}
+_TV_POLL_INTERVAL = 1.0   # seconds between sp.devices() polls
+_TV_POLL_TIMEOUT = 15.0   # total seconds to wait for TV to appear in Spotify
 
 
 def _is_configured(user_cfg) -> bool:
@@ -48,6 +53,84 @@ def _user_cfg_and_display(cfg, user: str):
     return cfg.spotify.owner, "Owner"
 
 
+def _find_tv_device_id(sp) -> str | None:
+    """Return the Spotify Connect device ID for the TV, or None if not found.
+
+    Always resolves fresh from sp.devices() — never cached, because the device
+    ID changes across Spotify sessions.
+    """
+    resp = sp.devices()
+    for dev in resp.get("devices", []):
+        if dev.get("type", "").upper() == "TV":
+            return dev["id"]
+    return None
+
+
+async def _launch_spotify_on_tv(atv_cfg) -> None:
+    """Open com.spotify.tv.android on the Android TV via androidtvremote2."""
+    from androidtvremote2 import AndroidTVRemote  # lazy — not installed on Pi
+
+    atv = AndroidTVRemote(
+        client_name="HomeAssistant",
+        certfile=atv_cfg.cert_file,
+        keyfile=atv_cfg.key_file,
+        host=atv_cfg.host,
+        port=atv_cfg.port,
+    )
+    await atv.async_generate_cert_if_missing()
+    await atv.async_connect()
+    try:
+        atv.send_launch_app(
+            "intent:#Intent;"
+            "action=android.intent.action.MAIN;"
+            "category=android.intent.category.LEANBACK_LAUNCHER;"
+            "launchFlags=0x10000000;"
+            "package=com.spotify.tv.android;end"
+        )
+    finally:
+        atv.disconnect()
+
+
+async def _ensure_playing_on_tv(sp, cfg) -> str:
+    """Launch Spotify on TV and transfer Spotify playback to it.
+
+    Steps:
+      1. Launch com.spotify.tv.android via androidtvremote2 (best-effort).
+      2. Poll sp.devices() until the TV device appears (up to _TV_POLL_TIMEOUT).
+      3. Transfer playback to the TV with force_play=True.
+
+    Returns the Spotify Connect device ID of the TV.
+    Raises RuntimeError if the TV device never appears within the timeout.
+    """
+    # Launch Spotify on TV if androidtv is configured; swallow errors so a
+    # TV that's already showing Spotify doesn't block playback transfer.
+    if cfg.androidtv.host not in _UNCONFIGURED_TV_HOSTS:
+        try:
+            await _launch_spotify_on_tv(cfg.androidtv)
+        except Exception:
+            pass
+
+    # Poll sp.devices() until the TV appears.  The device ID must never be
+    # cached — it changes every time Spotify on the TV restarts.
+    elapsed = 0.0
+    device_id: str | None = None
+    while elapsed < _TV_POLL_TIMEOUT:
+        device_id = _find_tv_device_id(sp)
+        if device_id:
+            break
+        await asyncio.sleep(_TV_POLL_INTERVAL)
+        elapsed += _TV_POLL_INTERVAL
+
+    if not device_id:
+        raise RuntimeError(
+            f"TV didn't appear in Spotify within {int(_TV_POLL_TIMEOUT)} seconds. "
+            "Make sure the TV is on and the Spotify app is open."
+        )
+
+    sp.transfer_playback(device_id=device_id, force_play=True)
+    return device_id
+
+
 class SpotifyTool(BaseTool):
     name = "spotify_control"
     description = (
@@ -63,7 +146,7 @@ class SpotifyTool(BaseTool):
                 "type": "string",
                 "enum": ["play", "pause", "skip", "previous", "volume", "now_playing"],
                 "description": (
-                    "play: search and play music (requires query); "
+                    "play: launch Spotify on TV and start/resume playback; "
                     "pause: pause playback; "
                     "skip: skip to next track; "
                     "previous: go back to previous track; "
@@ -105,7 +188,7 @@ class SpotifyTool(BaseTool):
             return f"Couldn't initialize Spotify for {display}: {exc}"
 
         try:
-            return await _run_action(sp, action, params, display)
+            return await _run_action(sp, action, params, display, cfg)
         except Exception as exc:
             err = str(exc)
             if "premium" in err.lower() or "403" in err:
@@ -121,7 +204,7 @@ class SpotifyTool(BaseTool):
             return f"Spotify error: {err}"
 
 
-async def _run_action(sp, action: str, params: dict, display: str) -> str:
+async def _run_action(sp, action: str, params: dict, display: str, cfg) -> str:
     if action == "now_playing":
         current = sp.current_playback()
         if not current or not current.get("item"):
@@ -130,6 +213,9 @@ async def _run_action(sp, action: str, params: dict, display: str) -> str:
         track = item.get("name", "Unknown")
         artists = ", ".join(a["name"] for a in item.get("artists", []))
         return f"Now playing: {track} by {artists}."
+    elif action == "play":
+        await _ensure_playing_on_tv(sp, cfg)
+        return f"Playing on the TV for {display}."
     else:
         return (
             f"Spotify is connected for {display}, "
