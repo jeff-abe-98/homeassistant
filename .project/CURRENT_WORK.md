@@ -1,20 +1,19 @@
 # Current Work
 
 **Last updated:** 2026-05-14  
-**Phase:** Phase 4 — Spotify (in progress)
+**Phase:** Phase 4 — Spotify complete → Phase 5 next
 
 ---
 
 ## Status
 
-Implemented Spotify playback controls in `server/tools/spotify.py`:
-- `pause` action → `sp.pause_playback()`
-- `skip` action → `sp.next_track()`
-- `previous` action → `sp.previous_track()`
-- `volume` action → `sp.volume(level)` with 0–100 clamping; error if level missing
-- 7 new smoke tests; 61 spotify tests, 170 total pass
+Phase 4 Spotify is complete. Last item: created `tests/test_spotify_integration.py`:
+- `test_owner_play_jazz_uses_owner_account_and_starts_playback` — verifies Owner credentials used, "jazz" search returns playlist, `start_playback` called with TV device ID
+- `test_emily_play_discover_weekly_uses_emily_account_and_user_playlist` — verifies Emily credentials used, `current_user_playlists` called, `start_playback` called with Emily's Discover Weekly URI
+- Both tests skip when credentials are CHANGE_ME; 170 smoke pass, 2 new skipped
+- Also fixed pytest environment: added pyyaml and httpx to `uv tool install` so all 170 tests run correctly
 
-Next: Phase 4 — Spotify — Test: Owner says "Play some jazz" → plays on TV through Owner's account.
+Next: Phase 5 — Autonomous Tool Creation — `server/tool_creator/generator.py`.
 
 ## Documents
 

@@ -108,8 +108,8 @@
 - [x] Never cache device ID — resolve fresh from `sp.devices()` each time — `_find_tv_device_id` always calls `sp.devices()` on every invocation; no module-level or instance cache
 - [x] Play by song / artist / playlist / mood query — `_find_user_playlist` (pagination, strips "my " prefix), `_search_spotify` (mood→playlist, specific→track, personal hints→user playlists first), `_search_and_play` (calls `sp.start_playback`); `_ensure_tv_ready` factored out; `play` action uses search when `query` present; 19 new tests; 54 spotify tests, 163 total pass
 - [x] Controls: pause, skip, volume — `pause_playback()`, `next_track()`, `previous_track()`, `volume(level)` in `_run_action`; volume clamps 0–100; 7 new smoke tests; 61 spotify tests, 170 total pass
-- [ ] Test: Owner says "Play some jazz" → plays on TV through Owner's account
-- [ ] Test: Emily says "Play my Discover Weekly" → plays on TV through Emily's account
+- [x] Test: Owner says "Play some jazz" → plays on TV through Owner's account — `tests/test_spotify_integration.py::test_owner_play_jazz_uses_owner_account_and_starts_playback`; skips without real credentials; verifies owner config used, search called with "jazz", start_playback called with TV device ID and jazz playlist URI; 170 smoke pass, 2 new skipped
+- [x] Test: Emily says "Play my Discover Weekly" → plays on TV through Emily's account — `tests/test_spotify_integration.py::test_emily_play_discover_weekly_uses_emily_account_and_user_playlist`; skips without real credentials; verifies emily config used, current_user_playlists called, start_playback with TV device ID and Emily's playlist URI; 170 smoke pass, 2 new skipped
 
 ---
 

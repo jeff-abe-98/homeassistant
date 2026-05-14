@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-14 (session 49)
+**Status:** Phase 4 complete. Created `tests/test_spotify_integration.py` — two integration tests: Owner "Play jazz" (verifies owner account, search→playlist, start_playback with TV device ID) and Emily "Play my Discover Weekly" (verifies emily account, user playlist lookup, start_playback with correct URI); both skip when credentials are CHANGE_ME; 170 smoke pass, 2 new skipped. Also fixed pytest environment (pyyaml + httpx).
+**Next task:** Phase 5 — Autonomous Tool Creation — `server/tool_creator/generator.py`.
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware; Android TV and Spotify integration tests skip until real devices/credentials configured.
+
 ### 2026-05-14 (session 48)
 **Status:** Phase 4 in progress. Implemented Spotify playback controls — `pause` (`sp.pause_playback()`), `skip` (`sp.next_track()`), `previous` (`sp.previous_track()`), `volume` (`sp.volume(level)` with 0–100 clamping, error message if level not provided); 7 new smoke tests; 61 spotify tests, 170 total pass.
 **Next task:** Phase 4 — Spotify — Test: Owner says "Play some jazz" → plays on TV through Owner's account.

@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-14 01:00 UTC]
+**Completed:** Phase 4 Spotify integration tests — `tests/test_spotify_integration.py`; Owner "Play some jazz" verifies owner account used, search→jazz playlist, `start_playback` with TV device ID; Emily "Play my Discover Weekly" verifies emily account, `current_user_playlists` called, `start_playback` with Emily's playlist URI; both skip when credentials are CHANGE_ME; 170 smoke pass, 18 skipped (2 new); Phase 4 complete
+**Files changed:** tests/test_spotify_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 5 — Autonomous Tool Creation — `server/tool_creator/generator.py`
+**Blockers:** None
+
+---
+
 ## [2026-05-14 00:00 UTC]
 **Completed:** Phase 4 Spotify — controls: `pause` (`sp.pause_playback()`), `skip` (`sp.next_track()`), `previous` (`sp.previous_track()`), `volume` (`sp.volume(level)`, clamped 0–100, error if level missing); 7 new smoke tests; 61 spotify tests, 170 total pass
 **Files changed:** server/tools/spotify.py, tests/test_spotify.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
@@ -69,38 +77,4 @@ Most recent run at top.
 **Blockers:** None
 ---
 
-## [2026-05-12 00:00 UTC]
-**Completed:** Integration tests for Google Tasks "What's on my list?" — added 2 tests to `tests/test_tasks_integration.py` (owner + Emily); verify correct list ID used in `tasks().list()` and `showCompleted=False`; LLM mocked; auto-skip without credentials; 32 smoke tests pass
-**Files changed:** tests/test_tasks_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
-**Next up:** Phase 3 — Google Tasks — Test: "Mark oat milk as done" → completes the item
-**Blockers:** None
----
-
-## [2026-05-11 04:00 UTC]
-**Completed:** Integration tests for Google Tasks "add oat milk to my list" — `tests/test_tasks_integration.py` with 2 tests (owner + Emily per-user routing); auto-skip without Google credentials; 32 smoke tests pass, 2 skip
-**Files changed:** tests/test_tasks_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
-**Next up:** Phase 3 — Google Tasks — Test: "What's on my list?" → reads back incomplete items
-**Blockers:** None
----
-
-## [2026-05-11 03:00 UTC]
-**Completed:** Per-user Google Tasks list routing — replaced `_default_tasklist_id` with `_user_tasklist_id(service, user)` that finds a list matching the user's name, creates it if absent, falls back to first list for unknown users; all 3 tasks tools updated; 9 new tests (7 unit + 2 e2e owner/emily routing); 32 total pass
-**Files changed:** server/tools/tasks.py, tests/test_tasks.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
-**Next up:** Phase 3 — Google Tasks — Test: "Add oat milk to my list" → added to correct user's list
-**Blockers:** Google Auth needs manual Google Cloud Console setup before Tasks/Calendar tools can make live API calls
----
-
-## [2026-05-11 02:00 UTC]
-**Completed:** `server/tools/tasks.py` — `AddTaskTool`, `ListTasksTool`, `CompleteTaskTool`; uses Google Tasks API v1 via shared `build_service`; `_default_tasklist_id` helper; case-insensitive `_find_task_by_title`; 23 smoke tests in `tests/test_tasks.py` all pass
-**Files changed:** server/tools/tasks.py, tests/test_tasks.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
-**Next up:** Phase 3 — Google Tasks — Separate task lists per user ("Owner", "Emily")
-**Blockers:** Google Auth needs manual Google Cloud Console setup before Tasks/Calendar tools can make live API calls
----
-
-## [2026-05-11 01:00 UTC]
-**Completed:** Integration test for Emily dentist appointment — `test_emily_dentist_appointment_created_as_emily_dentist` added to `tests/test_calendar_integration.py`; uses real `dateparser` ("Thursday at 3" → hour=15); mocks Google Calendar insert to capture event body; asserts summary="Emily Dentist", hour=15, timeZone=America/Chicago; confirmation includes "Emily Dentist"; skips without credentials; 29 smoke tests still pass
-**Files changed:** tests/test_calendar_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
-**Next up:** Phase 3 — Google Tasks — `server/tools/tasks.py` (add item, list incomplete items, complete item by name)
-**Blockers:** Google Auth needs manual Google Cloud Console setup before Calendar/Tasks tools can make live API calls
----
 
