@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-14 03:00 UTC]
+**Completed:** Phase 5 — `server/tool_creator/sandbox.py`: subprocess runner with resource limits and import allowlist; `ALLOWED_IMPORTS` frozenset; `check_imports` static AST walk; `SandboxResult` dataclass; `run_in_sandbox` spawns subprocess with CPU (5s) + memory (256MB) limits via `resource.setrlimit` preexec_fn and wall-clock timeout; 18 new smoke tests; 203 total pass
+**Files changed:** server/tool_creator/sandbox.py, tests/test_tool_creator_sandbox.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 5 — `server/tool_creator/validator.py` — run generated tool with test inputs, check for errors
+**Blockers:** None
+
+---
+
 ## [2026-05-14 02:00 UTC]
 **Completed:** Phase 5 — `server/tool_creator/generator.py`: `ToolGenerator.generate(intent, existing_tool_names)` — LLM-driven BaseTool code generator; strips markdown fences, validates syntax via `ast.parse`, retries up to 3× with error feedback, raises ValueError after max retries; 15 new smoke tests; 185 total pass
 **Files changed:** server/tool_creator/generator.py, tests/test_tool_creator_generator.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

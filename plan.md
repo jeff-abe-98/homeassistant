@@ -117,7 +117,7 @@
 *Goal: Assistant can build new tools when asked to do something it can't do.*
 
 - [x] `server/tool_creator/generator.py` — LLM prompt to generate a `BaseTool` Python implementation — `ToolGenerator.generate(intent, existing_tool_names)` uses OllamaClient with a strict system prompt; strips markdown fences; validates syntax via `ast.parse`; retries up to 3×; raises ValueError after max retries; 15 smoke tests pass; 185 total pass
-- [ ] `server/tool_creator/sandbox.py` — subprocess runner with resource limits and import allowlist
+- [x] `server/tool_creator/sandbox.py` — subprocess runner with resource limits and import allowlist — `ALLOWED_IMPORTS` frozenset; `check_imports(source)` static AST walk; `SandboxResult` dataclass; `run_in_sandbox(source, timeout)` writes to temp file, spawns subprocess with CPU+memory limits via `preexec_fn` (`resource.setrlimit`), wall-clock timeout via `asyncio.wait_for`; 18 new smoke tests; 203 total pass
 - [ ] `server/tool_creator/validator.py` — run generated tool with test inputs, check for errors
 - [ ] `server/tool_creator/installer.py` — write validated tool to `tools/generated/`, register it
 - [ ] Integrate into main request flow: if no tool matches intent → trigger tool creator

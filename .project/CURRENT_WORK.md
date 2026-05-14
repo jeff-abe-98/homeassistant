@@ -7,13 +7,15 @@
 
 ## Status
 
-Phase 5 started. Implemented `server/tool_creator/generator.py`:
-- `ToolGenerator.generate(intent, existing_tool_names)` — prompts OllamaClient with a strict system prompt that shows the BaseTool interface + rules; strips markdown fences from LLM output; validates via `ast.parse`; retries up to 3× with error feedback; raises ValueError on total failure
-- `_strip_fences`, `_syntax_check`, `_build_user_message` helpers
-- `tests/test_tool_creator_generator.py` — 15 smoke tests covering fence stripping, syntax checking, user message construction, first-try success, retry on invalid syntax, max-retry failure, fence stripping in generate, and existing-name passing
-- 185 total tests pass, 18 skipped
+Phase 5 in progress. Implemented `server/tool_creator/sandbox.py`:
+- `ALLOWED_IMPORTS` — frozenset of allowed top-level module names (stdlib + httpx, pydantic, yaml, shared, server)
+- `check_imports(source)` — static AST walk; returns list of disallowed module names; raises SyntaxError on invalid Python
+- `SandboxResult` — dataclass with `success`, `stdout`, `stderr`, `exit_code`
+- `run_in_sandbox(source, timeout)` — static import check → write to temp file → spawn subprocess with CPU time + address-space limits via `preexec_fn` (`resource.setrlimit`) → wall-clock timeout via `asyncio.wait_for`; kills process on timeout; cleans up temp file
+- `_apply_resource_limits()` — POSIX preexec_fn; RLIMIT_CPU=5s, RLIMIT_AS=256MB; no-op on non-POSIX
+- `tests/test_tool_creator_sandbox.py` — 18 smoke tests; 203 total pass
 
-Next: Phase 5 — `server/tool_creator/sandbox.py` — subprocess runner with resource limits and import allowlist.
+Next: Phase 5 — `server/tool_creator/validator.py` — run generated tool with test inputs, check for errors.
 
 ## Documents
 
