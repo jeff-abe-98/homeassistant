@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-14 04:00 UTC]
+**Completed:** Phase 5 — `server/tool_creator/validator.py`: `ValidationResult` dataclass; `validate(source, timeout)` does static import check then spawns subprocess that loads the tool, instantiates it, verifies name/description/parameters, calls `run({}, "test_user")`, confirms str return; tools returning error strings count as valid; 11 smoke tests; 214 total pass
+**Files changed:** server/tool_creator/validator.py, tests/test_tool_creator_validator.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 5 — `server/tool_creator/installer.py` — write validated tool to `tools/generated/`, register it
+**Blockers:** None
+
+---
+
 ## [2026-05-14 03:00 UTC]
 **Completed:** Phase 5 — `server/tool_creator/sandbox.py`: subprocess runner with resource limits and import allowlist; `ALLOWED_IMPORTS` frozenset; `check_imports` static AST walk; `SandboxResult` dataclass; `run_in_sandbox` spawns subprocess with CPU (5s) + memory (256MB) limits via `resource.setrlimit` preexec_fn and wall-clock timeout; 18 new smoke tests; 203 total pass
 **Files changed:** server/tool_creator/sandbox.py, tests/test_tool_creator_sandbox.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

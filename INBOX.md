@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-14 (session 52)
+**Status:** Phase 5 in progress. Created `server/tool_creator/validator.py` — `ValidationResult` dataclass; `validate(source, timeout)` static-import-checks then spawns subprocess that loads the tool, instantiates it, verifies name/description/parameters, calls `run({}, "test_user")`, confirms str return; tools returning error strings (e.g. "API key not configured") are valid. 11 smoke tests; 214 total pass.
+**Next task:** Phase 5 — `server/tool_creator/installer.py` — write validated tool to `tools/generated/`, register it.
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware; Android TV and Spotify integration tests skip until real devices/credentials configured.
+
 ### 2026-05-14 (session 51)
 **Status:** Phase 5 in progress. Created `server/tool_creator/sandbox.py` — `ALLOWED_IMPORTS` frozenset; `check_imports(source)` static AST walk for disallowed modules; `SandboxResult` dataclass; `run_in_sandbox(source, timeout)` spawns subprocess with CPU (5s) and memory (256MB) limits via `resource.setrlimit` preexec_fn, wall-clock timeout via `asyncio.wait_for`. 18 new smoke tests; 203 total pass, 18 skipped.
 **Next task:** Phase 5 — `server/tool_creator/validator.py` — run generated tool with test inputs, check for errors.

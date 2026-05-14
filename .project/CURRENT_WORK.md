@@ -7,15 +7,13 @@
 
 ## Status
 
-Phase 5 in progress. Implemented `server/tool_creator/sandbox.py`:
-- `ALLOWED_IMPORTS` — frozenset of allowed top-level module names (stdlib + httpx, pydantic, yaml, shared, server)
-- `check_imports(source)` — static AST walk; returns list of disallowed module names; raises SyntaxError on invalid Python
-- `SandboxResult` — dataclass with `success`, `stdout`, `stderr`, `exit_code`
-- `run_in_sandbox(source, timeout)` — static import check → write to temp file → spawn subprocess with CPU time + address-space limits via `preexec_fn` (`resource.setrlimit`) → wall-clock timeout via `asyncio.wait_for`; kills process on timeout; cleans up temp file
-- `_apply_resource_limits()` — POSIX preexec_fn; RLIMIT_CPU=5s, RLIMIT_AS=256MB; no-op on non-POSIX
-- `tests/test_tool_creator_sandbox.py` — 18 smoke tests; 203 total pass
+Phase 5 in progress. Implemented `server/tool_creator/validator.py`:
+- `ValidationResult` — dataclass with `success`, `tool_name`, `tool_description`, `error`
+- `validate(source, timeout)` — (1) static import allowlist check via `check_imports()`; (2) subprocess test that loads the tool module, finds the concrete BaseTool subclass, verifies `name`/`description`/`parameters` attributes, calls `run({}, "test_user")` via `asyncio.run`, and confirms str return; parses `OK:<name>:<description>` from stdout; returns ValidationResult
+- Tools returning error strings (e.g. "API key not configured") count as valid — they ran without raising
+- `tests/test_tool_creator_validator.py` — 11 smoke tests; 214 total pass
 
-Next: Phase 5 — `server/tool_creator/validator.py` — run generated tool with test inputs, check for errors.
+Next: Phase 5 — `server/tool_creator/installer.py` — write validated tool to `tools/generated/`, register it.
 
 ## Documents
 
