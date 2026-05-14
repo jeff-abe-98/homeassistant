@@ -1,22 +1,20 @@
 # Current Work
 
-**Last updated:** 2026-05-13  
+**Last updated:** 2026-05-14  
 **Phase:** Phase 4 — Spotify (in progress)
 
 ---
 
 ## Status
 
-Implemented Spotify search-and-play in `server/tools/spotify.py`:
-- `_ensure_tv_ready(sp, cfg)` — factored from `_ensure_playing_on_tv`; launches Spotify on TV via androidtv, polls `sp.devices()` until TV appears, returns device ID
-- `_ensure_playing_on_tv(sp, cfg)` — thin wrapper: `_ensure_tv_ready` + `sp.transfer_playback(force_play=True)` (behavior unchanged)
-- `_find_user_playlist(sp, query)` — scans user's own playlists with pagination; strips leading "my "; case-insensitive substring match; returns first matching URI
-- `_search_spotify(sp, query)` — searches `track,playlist` catalog; personal hints (my ..., Discover Weekly, Release Radar, etc.) → user playlists first; vague ≤3-word queries → prefer playlist; specific queries (contains " by ") → prefer track; returns `(context_uri, track_uris, description)`
-- `_search_and_play(sp, query, device_id)` — calls `_search_spotify`, then `sp.start_playback(device_id, context_uri, uris)`
-- `play` action: if `query` present → `_ensure_tv_ready` + `_search_and_play`; otherwise → `_ensure_playing_on_tv` (resume)
-- 19 new smoke tests; 54 spotify tests, 163 total pass
+Implemented Spotify playback controls in `server/tools/spotify.py`:
+- `pause` action → `sp.pause_playback()`
+- `skip` action → `sp.next_track()`
+- `previous` action → `sp.previous_track()`
+- `volume` action → `sp.volume(level)` with 0–100 clamping; error if level missing
+- 7 new smoke tests; 61 spotify tests, 170 total pass
 
-Next: Phase 4 — Spotify — Controls: pause, skip, volume.
+Next: Phase 4 — Spotify — Test: Owner says "Play some jazz" → plays on TV through Owner's account.
 
 ## Documents
 

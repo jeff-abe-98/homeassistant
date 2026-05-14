@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-14 00:00 UTC]
+**Completed:** Phase 4 Spotify — controls: `pause` (`sp.pause_playback()`), `skip` (`sp.next_track()`), `previous` (`sp.previous_track()`), `volume` (`sp.volume(level)`, clamped 0–100, error if level missing); 7 new smoke tests; 61 spotify tests, 170 total pass
+**Files changed:** server/tools/spotify.py, tests/test_spotify.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 4 — Spotify — Test: Owner says "Play some jazz" → plays on TV through Owner's account
+**Blockers:** None
+
+---
+
 ## [2026-05-13 04:00 UTC]
 **Completed:** Phase 4 Spotify — play by song/artist/playlist/mood query; `_find_user_playlist` (pagination, "my " strip, case-insensitive), `_search_spotify` (personal hints→user playlists, ≤3-word vague→playlist, specific "by" query→track), `_search_and_play` (`sp.start_playback`); `_ensure_tv_ready` factored from `_ensure_playing_on_tv`; `play` action dispatches to search when `query` present; 19 new tests; 54 spotify tests, 163 total pass
 **Files changed:** server/tools/spotify.py, tests/test_spotify.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

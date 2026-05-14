@@ -107,7 +107,7 @@
 - [x] Combined launch flow: androidtv launches Spotify app → poll `sp.devices()` → transfer playback to TV — `_find_tv_device_id(sp)` (always fresh), `_launch_spotify_on_tv(atv_cfg)` (androidtvremote2), `_ensure_playing_on_tv(sp, cfg)` (launch best-effort → poll → transfer_playback force_play=True); 15 new smoke tests; 35 spotify tests pass
 - [x] Never cache device ID — resolve fresh from `sp.devices()` each time — `_find_tv_device_id` always calls `sp.devices()` on every invocation; no module-level or instance cache
 - [x] Play by song / artist / playlist / mood query — `_find_user_playlist` (pagination, strips "my " prefix), `_search_spotify` (mood→playlist, specific→track, personal hints→user playlists first), `_search_and_play` (calls `sp.start_playback`); `_ensure_tv_ready` factored out; `play` action uses search when `query` present; 19 new tests; 54 spotify tests, 163 total pass
-- [ ] Controls: pause, skip, volume
+- [x] Controls: pause, skip, volume — `pause_playback()`, `next_track()`, `previous_track()`, `volume(level)` in `_run_action`; volume clamps 0–100; 7 new smoke tests; 61 spotify tests, 170 total pass
 - [ ] Test: Owner says "Play some jazz" → plays on TV through Owner's account
 - [ ] Test: Emily says "Play my Discover Weekly" → plays on TV through Emily's account
 

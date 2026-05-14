@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-14 (session 48)
+**Status:** Phase 4 in progress. Implemented Spotify playback controls — `pause` (`sp.pause_playback()`), `skip` (`sp.next_track()`), `previous` (`sp.previous_track()`), `volume` (`sp.volume(level)` with 0–100 clamping, error message if level not provided); 7 new smoke tests; 61 spotify tests, 170 total pass.
+**Next task:** Phase 4 — Spotify — Test: Owner says "Play some jazz" → plays on TV through Owner's account.
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware; Android TV integration tests skip until real TV host configured.
+
 ### 2026-05-13 (session 47)
 **Status:** Phase 4 in progress. Implemented Spotify search-and-play — `_find_user_playlist` (pagination, case-insensitive, strips "my " prefix), `_search_spotify` (personal hints→user playlists, mood/genre→catalog playlist, specific queries→track), `_search_and_play` (calls `sp.start_playback`); `_ensure_tv_ready` factored out of `_ensure_playing_on_tv`; `play` action uses search when `query` param present; 19 new tests; 54 spotify tests, 163 total pass.
 **Next task:** Phase 4 — Spotify — Controls: pause, skip, volume.

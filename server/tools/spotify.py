@@ -299,8 +299,21 @@ async def _run_action(sp, action: str, params: dict, display: str, cfg) -> str:
             return _search_and_play(sp, query, device_id)
         await _ensure_playing_on_tv(sp, cfg)
         return f"Playing on the TV for {display}."
+    elif action == "pause":
+        sp.pause_playback()
+        return "Paused."
+    elif action == "skip":
+        sp.next_track()
+        return "Skipped to the next track."
+    elif action == "previous":
+        sp.previous_track()
+        return "Going back to the previous track."
+    elif action == "volume":
+        level = params.get("level")
+        if level is None:
+            return "Please specify a volume level between 0 and 100."
+        level = max(0, min(100, int(level)))
+        sp.volume(level)
+        return f"Volume set to {level}."
     else:
-        return (
-            f"Spotify is connected for {display}, "
-            "but that action isn't wired up yet — it's coming in the next update."
-        )
+        return f"Unknown Spotify action: {action}."

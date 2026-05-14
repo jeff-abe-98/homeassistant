@@ -944,3 +944,122 @@ async def test_play_with_empty_string_query_uses_ensure_playing_on_tv() -> None:
 
     mock_ensure.assert_called_once_with(mock_sp, mock_cfg)
     assert "playing" in result.lower()
+
+
+# ---------------------------------------------------------------------------
+# SpotifyTool.run() — pause, skip, previous, volume controls
+# ---------------------------------------------------------------------------
+
+
+def _configured_mock():
+    mock_cfg = MagicMock()
+    mock_cfg.spotify.owner.client_id = "owner_id"
+    mock_cfg.spotify.owner.client_secret = "owner_secret"
+    mock_cfg.spotify.emily.client_id = "emily_id"
+    mock_cfg.spotify.emily.client_secret = "emily_secret"
+    return mock_cfg
+
+
+@pytest.mark.asyncio
+async def test_pause_action_calls_pause_playback() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_sp = MagicMock()
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=_configured_mock()), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp):
+        result = await tool.run({"action": "pause"}, user="owner")
+
+    mock_sp.pause_playback.assert_called_once()
+    assert "paused" in result.lower()
+
+
+@pytest.mark.asyncio
+async def test_skip_action_calls_next_track() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_sp = MagicMock()
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=_configured_mock()), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp):
+        result = await tool.run({"action": "skip"}, user="owner")
+
+    mock_sp.next_track.assert_called_once()
+    assert "skip" in result.lower() or "next" in result.lower()
+
+
+@pytest.mark.asyncio
+async def test_previous_action_calls_previous_track() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_sp = MagicMock()
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=_configured_mock()), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp):
+        result = await tool.run({"action": "previous"}, user="owner")
+
+    mock_sp.previous_track.assert_called_once()
+    assert "previous" in result.lower() or "back" in result.lower()
+
+
+@pytest.mark.asyncio
+async def test_volume_action_calls_sp_volume() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_sp = MagicMock()
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=_configured_mock()), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp):
+        result = await tool.run({"action": "volume", "level": 60}, user="owner")
+
+    mock_sp.volume.assert_called_once_with(60)
+    assert "60" in result
+
+
+@pytest.mark.asyncio
+async def test_volume_action_clamps_level_above_100() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_sp = MagicMock()
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=_configured_mock()), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp):
+        result = await tool.run({"action": "volume", "level": 150}, user="owner")
+
+    mock_sp.volume.assert_called_once_with(100)
+    assert "100" in result
+
+
+@pytest.mark.asyncio
+async def test_volume_action_clamps_level_below_0() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_sp = MagicMock()
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=_configured_mock()), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp):
+        result = await tool.run({"action": "volume", "level": -10}, user="owner")
+
+    mock_sp.volume.assert_called_once_with(0)
+    assert "0" in result
+
+
+@pytest.mark.asyncio
+async def test_volume_action_without_level_returns_error() -> None:
+    from server.tools.spotify import SpotifyTool
+
+    tool = SpotifyTool()
+    mock_sp = MagicMock()
+
+    with patch("server.tools.spotify.cfg_module.load", return_value=_configured_mock()), \
+         patch("server.tools.spotify._get_spotify", return_value=mock_sp):
+        result = await tool.run({"action": "volume"}, user="owner")
+
+    mock_sp.volume.assert_not_called()
+    assert "level" in result.lower() or "specify" in result.lower()
