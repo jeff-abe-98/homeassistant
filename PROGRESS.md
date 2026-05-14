@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-14 02:00 UTC]
+**Completed:** Phase 5 — `server/tool_creator/generator.py`: `ToolGenerator.generate(intent, existing_tool_names)` — LLM-driven BaseTool code generator; strips markdown fences, validates syntax via `ast.parse`, retries up to 3× with error feedback, raises ValueError after max retries; 15 new smoke tests; 185 total pass
+**Files changed:** server/tool_creator/generator.py, tests/test_tool_creator_generator.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 5 — `server/tool_creator/sandbox.py` — subprocess runner with resource limits and import allowlist
+**Blockers:** None
+
+---
+
 ## [2026-05-14 01:00 UTC]
 **Completed:** Phase 4 Spotify integration tests — `tests/test_spotify_integration.py`; Owner "Play some jazz" verifies owner account used, search→jazz playlist, `start_playback` with TV device ID; Emily "Play my Discover Weekly" verifies emily account, `current_user_playlists` called, `start_playback` with Emily's playlist URI; both skip when credentials are CHANGE_ME; 170 smoke pass, 18 skipped (2 new); Phase 4 complete
 **Files changed:** tests/test_spotify_integration.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

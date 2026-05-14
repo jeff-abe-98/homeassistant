@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-14 (session 50)
+**Status:** Phase 5 started. Created `server/tool_creator/generator.py` — `ToolGenerator.generate(intent, existing_tool_names)` prompts OllamaClient with a system prompt showing the BaseTool interface; strips markdown fences; validates syntax via `ast.parse`; retries up to 3× with error message injected; raises ValueError after max retries. 15 new smoke tests; 185 total pass, 18 skipped.
+**Next task:** Phase 5 — `server/tool_creator/sandbox.py` — subprocess runner with resource limits and import allowlist.
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware; Android TV and Spotify integration tests skip until real devices/credentials configured.
+
 ### 2026-05-14 (session 49)
 **Status:** Phase 4 complete. Created `tests/test_spotify_integration.py` — two integration tests: Owner "Play jazz" (verifies owner account, search→playlist, start_playback with TV device ID) and Emily "Play my Discover Weekly" (verifies emily account, user playlist lookup, start_playback with correct URI); both skip when credentials are CHANGE_ME; 170 smoke pass, 2 new skipped. Also fixed pytest environment (pyyaml + httpx).
 **Next task:** Phase 5 — Autonomous Tool Creation — `server/tool_creator/generator.py`.

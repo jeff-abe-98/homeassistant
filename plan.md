@@ -116,7 +116,7 @@
 ## Phase 5 — Autonomous Tool Creation
 *Goal: Assistant can build new tools when asked to do something it can't do.*
 
-- [ ] `server/tool_creator/generator.py` — LLM prompt to generate a `BaseTool` Python implementation
+- [x] `server/tool_creator/generator.py` — LLM prompt to generate a `BaseTool` Python implementation — `ToolGenerator.generate(intent, existing_tool_names)` uses OllamaClient with a strict system prompt; strips markdown fences; validates syntax via `ast.parse`; retries up to 3×; raises ValueError after max retries; 15 smoke tests pass; 185 total pass
 - [ ] `server/tool_creator/sandbox.py` — subprocess runner with resource limits and import allowlist
 - [ ] `server/tool_creator/validator.py` — run generated tool with test inputs, check for errors
 - [ ] `server/tool_creator/installer.py` — write validated tool to `tools/generated/`, register it
