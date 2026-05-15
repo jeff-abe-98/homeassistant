@@ -130,7 +130,7 @@
 ## Phase 6 — Hardening & Quality
 *Goal: Reliable, always-on operation.*
 
-- [ ] Systemd service for server (auto-start, auto-restart)
+- [x] Systemd service for server (auto-start, auto-restart) — `deploy/homeassistant-server.service` (Type=simple, Restart=on-failure, RestartSec=5s, StartLimitBurst=5); `deploy/install-server-service.sh` creates service user, copies project, creates venv, installs requirements, writes unit file (path + user substituted), enables + starts service
 - [ ] Systemd service for Pi client (auto-start on boot)
 - [ ] Error handling: graceful recovery from LLM timeout, API failures, network drop
 - [ ] Logging: structured logs to file with rotation

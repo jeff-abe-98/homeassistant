@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-15 (session 56)
+**Status:** Phase 6 in progress. Created `deploy/homeassistant-server.service` — systemd unit (Type=simple, User=homeassistant, WorkingDirectory, uvicorn ExecStart, Restart=on-failure, RestartSec=5s, StartLimitBurst=5, journald logging); `deploy/install-server-service.sh` — creates system user, rsyncs project, creates venv + installs requirements, substitutes install path + user into unit file, enables + starts service.
+**Next task:** Phase 6 — Systemd service for Pi client (auto-start on boot).
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware; Android TV and Spotify integration tests skip until real devices/credentials configured.
+
 ### 2026-05-15 (session 55)
 **Status:** Phase 5 complete. Wrote `tests/test_tool_creator_e2e.py` — end-to-end test: novel request returns "I don't know how to do that yet" immediately; background pipeline (generator→validator subprocess→installer) completes; tool appears in registry + file on disk + WebSocket "I can do that now" notification sent; second request routed to new tool returns its output; 1 new test, 55 tool-creator tests pass total.
 **Next task:** Phase 6 — Systemd service for server (auto-start, auto-restart).

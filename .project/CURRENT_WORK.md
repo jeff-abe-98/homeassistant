@@ -1,16 +1,19 @@
 # Current Work
 
 **Last updated:** 2026-05-15  
-**Phase:** Phase 5 complete → Phase 6 next
+**Phase:** Phase 6 — Hardening & Quality (in progress)
 
 ---
 
 ## Status
 
-Phase 5 complete. All autonomous tool creation tasks done:
-- `tests/test_tool_creator_e2e.py` — end-to-end test; mocks generator to return pre-written valid tool; runs real validator (subprocess) + real installer (file write); verifies first response is "I don't know…"; tool appears in registry + file on disk + WebSocket completion notification sent; second request routed to new tool returns its response; 1 test passes (55 tool-creator tests total pass)
+Phase 6 in progress.
 
-Next: Phase 6 — Hardening & Quality — first item: Systemd service for server.
+Done this session:
+- `deploy/homeassistant-server.service` — systemd unit (Type=simple, User=homeassistant, WorkingDirectory=/opt/homeassistant, uvicorn ExecStart, Restart=on-failure, RestartSec=5s, StartLimitBurst=5, journals via SyslogIdentifier)
+- `deploy/install-server-service.sh` — install script: creates service user, rsyncs project to install dir, creates venv + installs requirements, substitutes paths/user into unit file, `systemctl enable + restart`
+
+Next: Phase 6 — Systemd service for Pi client (auto-start on boot).
 
 ## Documents
 

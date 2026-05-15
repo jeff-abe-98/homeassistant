@@ -1,0 +1,29 @@
+[Unit]
+Description=Home Assistant Server
+Documentation=https://github.com/jeff-abe-98/homeassistant
+After=network.target
+
+[Service]
+Type=simple
+User=homeassistant
+Group=homeassistant
+WorkingDirectory=/opt/homeassistant
+Environment=PYTHONUNBUFFERED=1
+Environment=SETTINGS_PATH=/opt/homeassistant/config/settings.yaml
+ExecStart=/opt/homeassistant/venv/bin/uvicorn server.main:app \
+    --host 0.0.0.0 \
+    --port 8000 \
+    --workers 1 \
+    --log-level info
+
+Restart=on-failure
+RestartSec=5s
+StartLimitIntervalSec=60s
+StartLimitBurst=5
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=homeassistant-server
+
+[Install]
+WantedBy=multi-user.target

@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-15 03:00 UTC]
+**Completed:** Phase 6 — Systemd service for server; `deploy/homeassistant-server.service` (Type=simple, Restart=on-failure, RestartSec=5s, StartLimitBurst=5, SyslogIdentifier=homeassistant-server); `deploy/install-server-service.sh` (creates service user, rsyncs project, creates venv, installs requirements, substitutes paths, enables + starts service)
+**Files changed:** deploy/homeassistant-server.service, deploy/install-server-service.sh, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 6 — Systemd service for Pi client (auto-start on boot)
+**Blockers:** None
+
+---
+
 ## [2026-05-15 02:00 UTC]
 **Completed:** Phase 5 complete — `tests/test_tool_creator_e2e.py`; end-to-end test: novel request → "I don't know yet" + background generator→validator→installer; asserts tool in registry, file on disk, WebSocket completion notification; second request routed to new tool returns its output; 1 new test, 55 tool-creator tests pass
 **Files changed:** tests/test_tool_creator_e2e.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
