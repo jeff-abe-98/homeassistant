@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-15 00:00 UTC]
+**Completed:** Phase 5 — `server/tool_creator/installer.py`: `InstallResult` dataclass; `_safe_module_name` sanitises to snake_case; `install(source, tool_name, registry)` writes to `server/tools/generated/<name>.py`, imports/force-reloads module, finds concrete BaseTool subclass, calls `registry.register()`; handles overwrite + reload; 15 smoke tests pass
+**Files changed:** server/tool_creator/installer.py, tests/test_tool_creator_installer.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 5 — Integrate tool creator into main request flow: if no tool matches intent → trigger tool creator
+**Blockers:** None
+
+---
+
 ## [2026-05-14 04:00 UTC]
 **Completed:** Phase 5 — `server/tool_creator/validator.py`: `ValidationResult` dataclass; `validate(source, timeout)` does static import check then spawns subprocess that loads the tool, instantiates it, verifies name/description/parameters, calls `run({}, "test_user")`, confirms str return; tools returning error strings count as valid; 11 smoke tests; 214 total pass
 **Files changed:** server/tool_creator/validator.py, tests/test_tool_creator_validator.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

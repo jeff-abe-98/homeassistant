@@ -7,13 +7,13 @@
 
 ## Status
 
-Phase 5 in progress. Implemented `server/tool_creator/validator.py`:
-- `ValidationResult` — dataclass with `success`, `tool_name`, `tool_description`, `error`
-- `validate(source, timeout)` — (1) static import allowlist check via `check_imports()`; (2) subprocess test that loads the tool module, finds the concrete BaseTool subclass, verifies `name`/`description`/`parameters` attributes, calls `run({}, "test_user")` via `asyncio.run`, and confirms str return; parses `OK:<name>:<description>` from stdout; returns ValidationResult
-- Tools returning error strings (e.g. "API key not configured") count as valid — they ran without raising
-- `tests/test_tool_creator_validator.py` — 11 smoke tests; 214 total pass
+Phase 5 in progress. Implemented `server/tool_creator/installer.py`:
+- `InstallResult` — dataclass with `success`, `tool_name`, `path`, `error`
+- `_safe_module_name(tool_name)` — sanitises to snake_case Python module name
+- `install(source, tool_name, registry)` — writes source to `server/tools/generated/<name>.py`, imports (or force-reloads) the module, finds the concrete BaseTool subclass, calls `registry.register(tool)`; handles overwrite; returns `InstallResult`
+- `tests/test_tool_creator_installer.py` — 15 smoke tests pass
 
-Next: Phase 5 — `server/tool_creator/installer.py` — write validated tool to `tools/generated/`, register it.
+Next: Phase 5 — Integrate into main request flow: if no tool matches intent → trigger tool creator.
 
 ## Documents
 

@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-15 (session 53)
+**Status:** Phase 5 in progress. Created `server/tool_creator/installer.py` — `InstallResult` dataclass; `_safe_module_name` sanitises tool name to snake_case module filename; `install(source, tool_name, registry)` writes source to `server/tools/generated/<name>.py`, force-reloads module if previously imported, finds concrete BaseTool subclass, calls `registry.register(tool)`; handles overwrite; 15 smoke tests pass.
+**Next task:** Phase 5 — Integrate tool creator into main request flow (if no tool matches intent → trigger tool creator).
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware; Android TV and Spotify integration tests skip until real devices/credentials configured.
+
 ### 2026-05-14 (session 52)
 **Status:** Phase 5 in progress. Created `server/tool_creator/validator.py` — `ValidationResult` dataclass; `validate(source, timeout)` static-import-checks then spawns subprocess that loads the tool, instantiates it, verifies name/description/parameters, calls `run({}, "test_user")`, confirms str return; tools returning error strings (e.g. "API key not configured") are valid. 11 smoke tests; 214 total pass.
 **Next task:** Phase 5 — `server/tool_creator/installer.py` — write validated tool to `tools/generated/`, register it.
