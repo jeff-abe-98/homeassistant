@@ -15,6 +15,9 @@ from server.llm.prompts import build_system_prompt
 from server.llm.router import ToolRouter
 from server.stt.transcriber import WhisperTranscriber
 from server.tools.base import ToolRegistry
+from server.tool_creator.generator import ToolGenerator
+from server.tool_creator.validator import validate
+from server.tool_creator.installer import install
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -24,12 +27,20 @@ _llm: OllamaClient | None = None
 _stt: WhisperTranscriber | None = None
 _registry: ToolRegistry | None = None
 _router: ToolRouter | None = None
+_generator: ToolGenerator | None = None
 _audio_buffers: dict[str, list[AudioChunk]] = {}
+
+_NEEDS_TOOL_SYSTEM = (
+    "You classify user requests. "
+    "Reply with exactly 'yes' if the request requires any external capability "
+    "(data lookup, device control, API call, home automation, media control, etc.). "
+    "Reply with exactly 'no' if it is purely conversational (chat, math, general knowledge)."
+)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global _config, _llm, _stt, _registry, _router
+    global _config, _llm, _stt, _registry, _router, _generator
     _config = cfg_module.load()
     _llm = OllamaClient(_config.ollama)
     _stt = WhisperTranscriber(
@@ -40,6 +51,7 @@ async def lifespan(app: FastAPI):
     _registry = ToolRegistry()
     _registry.load()
     _router = ToolRouter(_llm, _registry)
+    _generator = ToolGenerator(_llm)
     logger.info(
         "Server ready — LLM: %s  STT: %s  tools: %d",
         _config.ollama.model,
@@ -67,7 +79,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 if result is not None:
                     await websocket.send_text(result.model_dump_json())
             elif "text" in msg:
-                result = await _handle_transcript(Transcript.model_validate(msg))
+                result = await _handle_transcript(Transcript.model_validate(msg), websocket)
                 if result is not None:
                     await websocket.send_text(result.model_dump_json())
 
@@ -90,7 +102,43 @@ async def _handle_audio_chunk(chunk: AudioChunk) -> Transcript | None:
     return Transcript(session_id=chunk.session_id, text=text)
 
 
-async def _handle_transcript(transcript: Transcript) -> AssistantResponse | None:
+async def _needs_new_tool(text: str) -> bool:
+    """Ask the LLM whether the request requires an external capability not yet available."""
+    reply = await _llm.complete(_NEEDS_TOOL_SYSTEM, text)
+    return reply.strip().lower().startswith("yes")
+
+
+async def _create_and_notify(transcript: Transcript, websocket: WebSocket) -> None:
+    """Background task: generate → validate → install a new tool, then notify the user."""
+    try:
+        existing_names = [t.name for t in _registry.all()]
+        source = await _generator.generate(transcript.text, existing_names)
+        result = await validate(source)
+        if not result.success:
+            logger.warning(
+                "Tool creation validation failed for %r: %s", transcript.text, result.error
+            )
+            return
+        inst = install(source, result.tool_name, _registry)
+        if not inst.success:
+            logger.warning(
+                "Tool creation install failed for %r: %s", transcript.text, inst.error
+            )
+            return
+        logger.info("New tool installed: %s at %s", inst.tool_name, inst.path)
+        notification = AssistantResponse(
+            session_id=transcript.session_id,
+            text="I can do that now — want to try?",
+        )
+        try:
+            await websocket.send_text(notification.model_dump_json())
+        except Exception:
+            logger.warning("Could not send tool-ready notification — WebSocket may be closed")
+    except Exception:
+        logger.exception("Background tool creation failed for intent %r", transcript.text)
+
+
+async def _handle_transcript(transcript: Transcript, websocket: WebSocket) -> AssistantResponse | None:
     tool_call = await _router.route(transcript)
 
     if tool_call is not None:
@@ -101,6 +149,15 @@ async def _handle_transcript(transcript: Transcript) -> AssistantResponse | None
             logger.info("Tool result [%s]: %r", transcript.session_id, reply)
             return AssistantResponse(session_id=transcript.session_id, text=reply)
         logger.warning("Tool %r selected but not found in registry", tool_call.tool_name)
+
+    # No existing tool matched. Check if this request needs a new tool to be created.
+    if await _needs_new_tool(transcript.text):
+        logger.info("Triggering tool creation for intent: %r", transcript.text)
+        asyncio.create_task(_create_and_notify(transcript, websocket))
+        return AssistantResponse(
+            session_id=transcript.session_id,
+            text="I don't know how to do that yet, but I'll figure it out. I'll let you know when I can.",
+        )
 
     system_prompt = build_system_prompt(transcript.user)
     reply = await _llm.complete(system_prompt, transcript.text)

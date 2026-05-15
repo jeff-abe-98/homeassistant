@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-15 (session 54)
+**Status:** Phase 5 in progress. Integrated tool creator into `server/main.py` — `_needs_new_tool(text)` LLM binary classifier; `_create_and_notify(transcript, websocket)` background task (generate → validate → install → send "I can do that now"); `_handle_transcript` updated with websocket param; user notification returned immediately when new tool is needed; completion notification sent via WebSocket after install; 13 smoke tests pass. Also checked off user + completion notification plan items as they were implemented in the same change.
+**Next task:** Phase 5 — Test: ask for something novel → tool is created and works on second request.
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware; Android TV and Spotify integration tests skip until real devices/credentials configured.
+
 ### 2026-05-15 (session 53)
 **Status:** Phase 5 in progress. Created `server/tool_creator/installer.py` — `InstallResult` dataclass; `_safe_module_name` sanitises tool name to snake_case module filename; `install(source, tool_name, registry)` writes source to `server/tools/generated/<name>.py`, force-reloads module if previously imported, finds concrete BaseTool subclass, calls `registry.register(tool)`; handles overwrite; 15 smoke tests pass.
 **Next task:** Phase 5 — Integrate tool creator into main request flow (if no tool matches intent → trigger tool creator).

@@ -120,9 +120,9 @@
 - [x] `server/tool_creator/sandbox.py` — subprocess runner with resource limits and import allowlist — `ALLOWED_IMPORTS` frozenset; `check_imports(source)` static AST walk; `SandboxResult` dataclass; `run_in_sandbox(source, timeout)` writes to temp file, spawns subprocess with CPU+memory limits via `preexec_fn` (`resource.setrlimit`), wall-clock timeout via `asyncio.wait_for`; 18 new smoke tests; 203 total pass
 - [x] `server/tool_creator/validator.py` — run generated tool with test inputs, check for errors — `ValidationResult` dataclass (success, tool_name, tool_description, error); `validate(source, timeout)` static-import-checks then spawns subprocess that loads the tool, instantiates it, verifies name/description/parameters attrs, calls `run({}, "test_user")`, confirms str return; 11 smoke tests; 214 total pass
 - [x] `server/tool_creator/installer.py` — write validated tool to `tools/generated/`, register it — `InstallResult` dataclass; `install(source, tool_name, registry)` sanitises name→snake_case module, writes to `server/tools/generated/<name>.py`, imports/reloads module, finds concrete BaseTool subclass, calls `registry.register(tool)`; handles overwrite + reload; 15 smoke tests pass
-- [ ] Integrate into main request flow: if no tool matches intent → trigger tool creator
-- [ ] User notification: "I don't know how to do that yet, but I'll figure it out. I'll let you know when I can."
-- [ ] Completion notification: "I can do that now — want to try?"
+- [x] Integrate into main request flow: if no tool matches intent → trigger tool creator — `_needs_new_tool(text)` LLM binary classifier; `_create_and_notify(transcript, websocket)` background coroutine (generate → validate → install); `_handle_transcript` takes websocket param; `_generator` initialized in lifespan; 13 smoke tests pass
+- [x] User notification: "I don't know how to do that yet, but I'll figure it out. I'll let you know when I can." — returned immediately when `_needs_new_tool` is True, before background creation starts
+- [x] Completion notification: "I can do that now — want to try?" — sent via `websocket.send_text` by `_create_and_notify` after successful install; WebSocket send errors are suppressed with a warning
 - [ ] Test: ask for something novel → tool is created and works on second request
 
 ---

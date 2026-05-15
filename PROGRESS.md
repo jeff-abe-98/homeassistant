@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-15 01:00 UTC]
+**Completed:** Phase 5 — Integrate tool creator into main request flow; `_needs_new_tool(text)` LLM binary classifier (yes/no external-capability check); `_create_and_notify(transcript, websocket)` background task (generate → validate → install, then sends "I can do that now — want to try?" over WebSocket); `_handle_transcript` updated with websocket param — if router returns None and `_needs_new_tool` → returns "I don't know how to do that yet, but I'll figure it out." and fires background creation; `_generator` global initialized in lifespan; 13 smoke tests pass
+**Files changed:** server/main.py, tests/test_main_tool_creator.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 5 — User notification: "I don't know how to do that yet, but I'll figure it out. I'll let you know when I can." (already implemented as part of integration)
+**Blockers:** None
+
+---
+
 ## [2026-05-15 00:00 UTC]
 **Completed:** Phase 5 — `server/tool_creator/installer.py`: `InstallResult` dataclass; `_safe_module_name` sanitises to snake_case; `install(source, tool_name, registry)` writes to `server/tools/generated/<name>.py`, imports/force-reloads module, finds concrete BaseTool subclass, calls `registry.register()`; handles overwrite + reload; 15 smoke tests pass
 **Files changed:** server/tool_creator/installer.py, tests/test_tool_creator_installer.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

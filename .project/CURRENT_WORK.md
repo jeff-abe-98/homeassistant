@@ -1,19 +1,20 @@
 # Current Work
 
-**Last updated:** 2026-05-14  
+**Last updated:** 2026-05-15  
 **Phase:** Phase 5 — Autonomous Tool Creation
 
 ---
 
 ## Status
 
-Phase 5 in progress. Implemented `server/tool_creator/installer.py`:
-- `InstallResult` — dataclass with `success`, `tool_name`, `path`, `error`
-- `_safe_module_name(tool_name)` — sanitises to snake_case Python module name
-- `install(source, tool_name, registry)` — writes source to `server/tools/generated/<name>.py`, imports (or force-reloads) the module, finds the concrete BaseTool subclass, calls `registry.register(tool)`; handles overwrite; returns `InstallResult`
-- `tests/test_tool_creator_installer.py` — 15 smoke tests pass
+Phase 5 in progress. Integrated tool creator into `server/main.py`:
+- `_needs_new_tool(text)` — LLM binary classifier: sends the request to the LLM with a system prompt asking if external capability is required; returns True only if reply starts with "yes"
+- `_create_and_notify(transcript, websocket)` — background coroutine: runs generate → validate → install pipeline; sends "I can do that now — want to try?" over WebSocket on success; suppresses WebSocket errors if connection already closed
+- `_handle_transcript(transcript, websocket)` — updated signature (now takes websocket); when router returns None and `_needs_new_tool` is True, returns immediate "I don't know how to do that yet…" response and fires `_create_and_notify` as a background asyncio task; falls back to plain LLM for conversational requests
+- `_generator` global initialized in lifespan
+- `tests/test_main_tool_creator.py` — 13 smoke tests pass
 
-Next: Phase 5 — Integrate into main request flow: if no tool matches intent → trigger tool creator.
+Next: Phase 5 — Test: ask for something novel → tool is created and works on second request.
 
 ## Documents
 
