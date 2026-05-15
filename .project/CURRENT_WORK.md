@@ -1,20 +1,16 @@
 # Current Work
 
 **Last updated:** 2026-05-15  
-**Phase:** Phase 5 — Autonomous Tool Creation
+**Phase:** Phase 5 complete → Phase 6 next
 
 ---
 
 ## Status
 
-Phase 5 in progress. Integrated tool creator into `server/main.py`:
-- `_needs_new_tool(text)` — LLM binary classifier: sends the request to the LLM with a system prompt asking if external capability is required; returns True only if reply starts with "yes"
-- `_create_and_notify(transcript, websocket)` — background coroutine: runs generate → validate → install pipeline; sends "I can do that now — want to try?" over WebSocket on success; suppresses WebSocket errors if connection already closed
-- `_handle_transcript(transcript, websocket)` — updated signature (now takes websocket); when router returns None and `_needs_new_tool` is True, returns immediate "I don't know how to do that yet…" response and fires `_create_and_notify` as a background asyncio task; falls back to plain LLM for conversational requests
-- `_generator` global initialized in lifespan
-- `tests/test_main_tool_creator.py` — 13 smoke tests pass
+Phase 5 complete. All autonomous tool creation tasks done:
+- `tests/test_tool_creator_e2e.py` — end-to-end test; mocks generator to return pre-written valid tool; runs real validator (subprocess) + real installer (file write); verifies first response is "I don't know…"; tool appears in registry + file on disk + WebSocket completion notification sent; second request routed to new tool returns its response; 1 test passes (55 tool-creator tests total pass)
 
-Next: Phase 5 — Test: ask for something novel → tool is created and works on second request.
+Next: Phase 6 — Hardening & Quality — first item: Systemd service for server.
 
 ## Documents
 

@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-15 02:00 UTC]
+**Completed:** Phase 5 complete — `tests/test_tool_creator_e2e.py`; end-to-end test: novel request → "I don't know yet" + background generator→validator→installer; asserts tool in registry, file on disk, WebSocket completion notification; second request routed to new tool returns its output; 1 new test, 55 tool-creator tests pass
+**Files changed:** tests/test_tool_creator_e2e.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 6 — Systemd service for server (auto-start, auto-restart)
+**Blockers:** None
+
+---
+
 ## [2026-05-15 01:00 UTC]
 **Completed:** Phase 5 — Integrate tool creator into main request flow; `_needs_new_tool(text)` LLM binary classifier (yes/no external-capability check); `_create_and_notify(transcript, websocket)` background task (generate → validate → install, then sends "I can do that now — want to try?" over WebSocket); `_handle_transcript` updated with websocket param — if router returns None and `_needs_new_tool` → returns "I don't know how to do that yet, but I'll figure it out." and fires background creation; `_generator` global initialized in lifespan; 13 smoke tests pass
 **Files changed:** server/main.py, tests/test_main_tool_creator.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

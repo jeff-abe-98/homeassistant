@@ -123,7 +123,7 @@
 - [x] Integrate into main request flow: if no tool matches intent → trigger tool creator — `_needs_new_tool(text)` LLM binary classifier; `_create_and_notify(transcript, websocket)` background coroutine (generate → validate → install); `_handle_transcript` takes websocket param; `_generator` initialized in lifespan; 13 smoke tests pass
 - [x] User notification: "I don't know how to do that yet, but I'll figure it out. I'll let you know when I can." — returned immediately when `_needs_new_tool` is True, before background creation starts
 - [x] Completion notification: "I can do that now — want to try?" — sent via `websocket.send_text` by `_create_and_notify` after successful install; WebSocket send errors are suppressed with a warning
-- [ ] Test: ask for something novel → tool is created and works on second request
+- [x] Test: ask for something novel → tool is created and works on second request — `tests/test_tool_creator_e2e.py`; mocks generator to return pre-written valid tool source; runs real validator (subprocess) + real installer (file write); asserts first response is "I don't know…"; asserts tool appears in registry + file on disk + WebSocket completion notification; second request routed to new tool returns expected string; 1 new test, 55 tool-creator tests pass
 
 ---
 
