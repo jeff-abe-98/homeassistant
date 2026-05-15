@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-15 04:00 UTC]
+**Completed:** Phase 6 — Systemd service for Pi client; `deploy/homeassistant-pi.service` (Type=simple, After=network-online.target sound.target, Restart=on-failure, RestartSec=5s, StartLimitBurst=5, SyslogIdentifier=homeassistant-pi, entry point `python -m pi.main`); `deploy/install-pi-service.sh` (creates service user, adds to audio group for PyAudio mic + sounddevice output, rsyncs project, creates venv, installs requirements-pi.txt, substitutes paths + user, enables + starts service)
+**Files changed:** deploy/homeassistant-pi.service, deploy/install-pi-service.sh, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 6 — Error handling: graceful recovery from LLM timeout, API failures, network drop
+**Blockers:** None
+
+---
+
 ## [2026-05-15 03:00 UTC]
 **Completed:** Phase 6 — Systemd service for server; `deploy/homeassistant-server.service` (Type=simple, Restart=on-failure, RestartSec=5s, StartLimitBurst=5, SyslogIdentifier=homeassistant-server); `deploy/install-server-service.sh` (creates service user, rsyncs project, creates venv, installs requirements, substitutes paths, enables + starts service)
 **Files changed:** deploy/homeassistant-server.service, deploy/install-server-service.sh, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

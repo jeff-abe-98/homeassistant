@@ -10,10 +10,10 @@
 Phase 6 in progress.
 
 Done this session:
-- `deploy/homeassistant-server.service` — systemd unit (Type=simple, User=homeassistant, WorkingDirectory=/opt/homeassistant, uvicorn ExecStart, Restart=on-failure, RestartSec=5s, StartLimitBurst=5, journals via SyslogIdentifier)
-- `deploy/install-server-service.sh` — install script: creates service user, rsyncs project to install dir, creates venv + installs requirements, substitutes paths/user into unit file, `systemctl enable + restart`
+- `deploy/homeassistant-pi.service` — systemd unit (Type=simple, After=network-online.target sound.target, Restart=on-failure, RestartSec=5s, StartLimitBurst=5, SyslogIdentifier=homeassistant-pi); entry point is `python -m pi.main`
+- `deploy/install-pi-service.sh` — install script: creates service user, adds it to the `audio` group (required for PyAudio mic + sounddevice output), rsyncs project, creates venv + installs `requirements-pi.txt`, substitutes install path + user into unit file, `systemctl enable + restart`
 
-Next: Phase 6 — Systemd service for Pi client (auto-start on boot).
+Next: Phase 6 — Error handling: graceful recovery from LLM timeout, API failures, network drop.
 
 ## Documents
 

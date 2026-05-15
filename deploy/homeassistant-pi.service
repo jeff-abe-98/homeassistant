@@ -1,0 +1,26 @@
+[Unit]
+Description=Home Assistant Pi Client
+Documentation=https://github.com/jeff-abe-98/homeassistant
+After=network-online.target sound.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=homeassistant
+Group=homeassistant
+WorkingDirectory=/opt/homeassistant
+Environment=PYTHONUNBUFFERED=1
+Environment=SETTINGS_PATH=/opt/homeassistant/config/settings.yaml
+ExecStart=/opt/homeassistant/venv/bin/python -m pi.main
+
+Restart=on-failure
+RestartSec=5s
+StartLimitIntervalSec=60s
+StartLimitBurst=5
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=homeassistant-pi
+
+[Install]
+WantedBy=multi-user.target

@@ -131,7 +131,7 @@
 *Goal: Reliable, always-on operation.*
 
 - [x] Systemd service for server (auto-start, auto-restart) — `deploy/homeassistant-server.service` (Type=simple, Restart=on-failure, RestartSec=5s, StartLimitBurst=5); `deploy/install-server-service.sh` creates service user, copies project, creates venv, installs requirements, writes unit file (path + user substituted), enables + starts service
-- [ ] Systemd service for Pi client (auto-start on boot)
+- [x] Systemd service for Pi client (auto-start on boot) — `deploy/homeassistant-pi.service` (Type=simple, After=network-online.target sound.target, Restart=on-failure, RestartSec=5s, StartLimitBurst=5, journald logging); `deploy/install-pi-service.sh` creates service user, adds it to the audio group (PyAudio/sounddevice access), rsyncs project, creates venv + installs requirements-pi.txt, substitutes install path + user into unit file, enables + starts service
 - [ ] Error handling: graceful recovery from LLM timeout, API failures, network drop
 - [ ] Logging: structured logs to file with rotation
 - [ ] Wake word false positive rate — tune sensitivity
