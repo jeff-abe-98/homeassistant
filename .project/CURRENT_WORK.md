@@ -10,12 +10,11 @@
 Phase 6 in progress.
 
 Done this session:
-- `shared/config.py` — `WakeWordConfig` gains `min_activation_count: int = 3` and `cooldown_seconds: float = 2.0`; `load()` parses both fields
-- `pi/wake_word/detector.py` — `_listen()` tracks consecutive above-threshold frames; fires only after `min_activation_count` consecutive frames; suppresses re-trigger within `cooldown_seconds`; resets consecutive counter after cooldown-suppressed detection or a below-threshold frame
-- `config/settings.yaml` — `wake_word:` section updated with both new fields + explanatory comments
-- `tests/test_wake_word_sensitivity.py` — 14 smoke tests (config defaults, YAML loading, min_activation_count boundary cases, cooldown suppression/expiry); 281 total pass
+- `server/llm/router.py` — `ToolRouter.route()` now returns `tuple[ToolCall | None, str]`; when no tool is selected, `message.content` from `chat_with_tools` is returned as fallback text; when no schemas registered, calls `_llm.complete()` and returns the content
+- `server/main.py` — added `import time`; removed `_NEEDS_TOOL_SYSTEM` and `_needs_new_tool()` LLM classifier; added `_CANNOT_HELP_PHRASES` frozenset and `_heuristic_needs_tool(text)` keyword check; `_handle_transcript` uses single LLM call (router), reuses fallback text for conversational reply, falls back to direct `_llm.complete` only when router raises; `time.perf_counter()` timing logs added for STT, routing, and tool steps
+- Tests updated: `test_main_tool_creator.py` (heuristic tests replace `_needs_new_tool` LLM tests; router mocks updated to return tuples), `test_error_handling.py` (LLM failure tests updated for new flow; all tool tests return tuples), `test_tool_creator_e2e.py` (router mocks updated to tuple form); 282 total pass
 
-Next: Phase 6 — Latency profiling — identify and fix slow spots in the pipeline.
+Next: Phase 6 — Agent startup check-in (last unchecked Phase 6 item).
 
 ## Documents
 

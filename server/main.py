@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import time
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -29,15 +30,23 @@ _router: ToolRouter | None = None
 _generator: ToolGenerator | None = None
 _audio_buffers: dict[str, list[AudioChunk]] = {}
 
-_NEEDS_TOOL_SYSTEM = (
-    "You classify user requests. "
-    "Reply with exactly 'yes' if the request requires any external capability "
-    "(data lookup, device control, API call, home automation, media control, etc.). "
-    "Reply with exactly 'no' if it is purely conversational (chat, math, general knowledge)."
-)
+# Phrases that suggest the LLM cannot fulfil the request with its built-in knowledge.
+# When matched in the router's fallback text, we trigger background tool creation.
+_CANNOT_HELP_PHRASES = frozenset({
+    "i don't have", "i do not have", "i can't", "i cannot", "unable to",
+    "don't have access", "do not have access", "i'm not able", "i am not able",
+    "not capable", "no tool", "don't know how", "can't help with that",
+    "not something i can", "not able to", "don't support", "no capability",
+})
 
 _LLM_ERROR_MSG = "Sorry, I'm having trouble connecting right now. Please try again in a moment."
 _TOOL_ERROR_MSG = "Sorry, I ran into a problem with that. Please try again."
+
+
+def _heuristic_needs_tool(text: str) -> bool:
+    """Return True if the LLM response indicates an unmet capability."""
+    lower = text.lower()
+    return any(phrase in lower for phrase in _CANNOT_HELP_PHRASES)
 
 
 @asynccontextmanager
@@ -112,6 +121,7 @@ async def _handle_audio_chunk(chunk: AudioChunk) -> Transcript | None:
     chunks.sort(key=lambda c: c.sequence)
     combined = b"".join(c.audio_bytes for c in chunks)
     sample_rate = chunks[0].sample_rate
+    t0 = time.perf_counter()
     try:
         text = await asyncio.get_event_loop().run_in_executor(
             None, _stt.transcribe, combined, sample_rate
@@ -119,14 +129,8 @@ async def _handle_audio_chunk(chunk: AudioChunk) -> Transcript | None:
     except Exception:
         logger.exception("STT failed for session [%s] — dropping chunk", chunk.session_id)
         return None
-    logger.info("STT [%s]: %r", chunk.session_id, text)
+    logger.info("STT [%s] %.2fs: %r", chunk.session_id, time.perf_counter() - t0, text)
     return Transcript(session_id=chunk.session_id, text=text)
-
-
-async def _needs_new_tool(text: str) -> bool:
-    """Ask the LLM whether the request requires an external capability not yet available."""
-    reply = await _llm.complete(_NEEDS_TOOL_SYSTEM, text)
-    return reply.strip().lower().startswith("yes")
 
 
 async def _create_and_notify(transcript: Transcript, websocket: WebSocket) -> None:
@@ -160,17 +164,32 @@ async def _create_and_notify(transcript: Transcript, websocket: WebSocket) -> No
 
 
 async def _handle_transcript(transcript: Transcript, websocket: WebSocket) -> AssistantResponse | None:
-    # Route to a registered tool via LLM function calling.
-    try:
-        tool_call = await _router.route(transcript)
-    except Exception:
-        logger.exception("Tool router failed for [%s] — falling back to LLM", transcript.session_id)
-        tool_call = None
+    t0 = time.perf_counter()
+    tool_call: object = None
+    fallback_text = ""
 
+    # Single LLM call: route to an existing tool OR get a conversational response.
+    try:
+        tool_call, fallback_text = await _router.route(transcript)
+        logger.info(
+            "Route [%s] %.2fs — %s",
+            transcript.session_id,
+            time.perf_counter() - t0,
+            f"tool={tool_call.tool_name}" if tool_call else "no tool",
+        )
+    except Exception:
+        logger.exception(
+            "Tool router failed for [%s] — falling back to direct LLM", transcript.session_id
+        )
+
+    # --- Existing tool matched ---
     if tool_call is not None:
         tool = _registry.get(tool_call.tool_name)
         if tool is not None:
-            logger.info("Tool [%s]: %s %s", transcript.session_id, tool_call.tool_name, tool_call.params)
+            logger.info(
+                "Tool [%s]: %s %s", transcript.session_id, tool_call.tool_name, tool_call.params
+            )
+            t1 = time.perf_counter()
             try:
                 reply = await tool.run(tool_call.params, transcript.user)
             except Exception:
@@ -178,32 +197,36 @@ async def _handle_transcript(transcript: Transcript, websocket: WebSocket) -> As
                     "Tool %r raised an error for [%s]", tool_call.tool_name, transcript.session_id
                 )
                 return AssistantResponse(session_id=transcript.session_id, text=_TOOL_ERROR_MSG)
-            logger.info("Tool result [%s]: %r", transcript.session_id, reply)
+            logger.info(
+                "Tool [%s] %.2fs: %r", transcript.session_id, time.perf_counter() - t1, reply
+            )
             return AssistantResponse(session_id=transcript.session_id, text=reply)
         logger.warning("Tool %r selected but not found in registry", tool_call.tool_name)
 
-    # No existing tool matched — check whether a new tool should be created.
-    try:
-        needs_tool = await _needs_new_tool(transcript.text)
-    except Exception:
-        logger.exception("_needs_new_tool check failed for [%s] — skipping tool creation", transcript.session_id)
-        needs_tool = False
-
-    if needs_tool:
-        logger.info("Triggering tool creation for intent: %r", transcript.text)
-        asyncio.create_task(_create_and_notify(transcript, websocket))
-        return AssistantResponse(
-            session_id=transcript.session_id,
-            text="I don't know how to do that yet, but I'll figure it out. I'll let you know when I can.",
+    # --- No existing tool: use the LLM's conversational response from the router call ---
+    if fallback_text:
+        if _heuristic_needs_tool(fallback_text):
+            logger.info("Triggering tool creation for intent: %r", transcript.text)
+            asyncio.create_task(_create_and_notify(transcript, websocket))
+            return AssistantResponse(
+                session_id=transcript.session_id,
+                text="I don't know how to do that yet, but I'll figure it out. I'll let you know when I can.",
+            )
+        logger.info(
+            "LLM [%s] %.2fs: %r", transcript.session_id, time.perf_counter() - t0, fallback_text
         )
+        return AssistantResponse(session_id=transcript.session_id, text=fallback_text)
 
-    # Plain conversational response.
+    # --- Router failed entirely: direct LLM call as last resort ---
     try:
+        t1 = time.perf_counter()
         system_prompt = build_system_prompt(transcript.user)
         reply = await _llm.complete(system_prompt, transcript.text)
+        logger.info(
+            "LLM fallback [%s] %.2fs: %r", transcript.session_id, time.perf_counter() - t1, reply
+        )
     except Exception:
         logger.exception("LLM completion failed for [%s]", transcript.session_id)
         return AssistantResponse(session_id=transcript.session_id, text=_LLM_ERROR_MSG)
 
-    logger.info("LLM [%s]: %r", transcript.session_id, reply)
     return AssistantResponse(session_id=transcript.session_id, text=reply)

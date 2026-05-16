@@ -96,20 +96,17 @@ async def test_novel_request_creates_tool_and_works_on_second_request():
     mock_generator = MagicMock()
     mock_generator.generate = AsyncMock(return_value=_TOOL_SOURCE)
 
-    # LLM mock: _needs_new_tool asks the LLM and expects "yes" / "no".
-    mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(return_value="yes")
-
-    # Router returns None → no existing tool matched.
+    # Router returns no tool + a response indicating unmet capability → heuristic triggers.
     mock_router_no_match = MagicMock()
-    mock_router_no_match.route = AsyncMock(return_value=None)
+    mock_router_no_match.route = AsyncMock(
+        return_value=(None, "I don't have access to air quality data.")
+    )
 
     # ------------------------------------------------------------------ #
     # First request: novel intent
     # ------------------------------------------------------------------ #
     with (
         patch("server.main._router", mock_router_no_match),
-        patch("server.main._llm", mock_llm),
         patch("server.main._generator", mock_generator),
         patch("server.main._registry", registry),
     ):
@@ -156,7 +153,7 @@ async def test_novel_request_creates_tool_and_works_on_second_request():
     # ------------------------------------------------------------------ #
     mock_router_with_tool = MagicMock()
     mock_router_with_tool.route = AsyncMock(
-        return_value=MagicMock(tool_name=_TOOL_NAME, params={})
+        return_value=(MagicMock(tool_name=_TOOL_NAME, params={}), "")
     )
 
     with (

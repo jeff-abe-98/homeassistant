@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-16 (session 61)
+**Status:** Phase 6 in progress. Latency profiling — eliminated 3-LLM-call-per-conversational-request bottleneck: `ToolRouter.route()` now returns `(ToolCall | None, str)` — the fallback text from `chat_with_tools` is reused directly as the conversational reply (no separate `_llm.complete` call); replaced `_needs_new_tool` LLM classifier with `_heuristic_needs_tool()` keyword check; added `time.perf_counter()` timing logs for STT, routing, and tool steps; result: conversational requests go from 3 LLM calls → 1; tool requests unchanged; 282 tests pass (18 skipped).
+**Next task:** Phase 6 — Agent startup check-in (last unchecked Phase 6 item).
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware; Android TV and Spotify integration tests skip until real devices/credentials configured.
+
 ### 2026-05-16 (session 60)
 **Status:** Phase 6 in progress. Tuned wake word sensitivity: added `min_activation_count` (consecutive 80ms frames required before trigger; default 3 ≈ 240ms) and `cooldown_seconds` (suppress re-trigger; default 2.0) to `WakeWordConfig`; updated detector and `config/settings.yaml`; 14 new tests pass, 281 total.
 **Next task:** Phase 6 — Latency profiling — identify and fix slow spots in the pipeline.

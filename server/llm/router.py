@@ -20,23 +20,29 @@ class ToolCall:
 class ToolRouter:
     """Routes a Transcript to a registered tool using Ollama function calling.
 
-    Returns a ToolCall when the LLM picks a tool, or None when the request is
-    conversational and should fall through to a plain chat completion.
+    Returns (ToolCall, fallback_text) in a single LLM call:
+    - Tool selected: (ToolCall, "")
+    - No tool: (None, llm_response_text) — reuse the LLM's reply directly.
     """
 
     def __init__(self, llm: OllamaClient, registry: ToolRegistry) -> None:
         self._llm = llm
         self._registry = registry
 
-    async def route(self, transcript: Transcript) -> ToolCall | None:
-        """Ask the LLM to select a tool and extract parameters.
+    async def route(self, transcript: Transcript) -> tuple[ToolCall | None, str]:
+        """Ask the LLM to select a tool or respond conversationally.
 
-        Returns None if no tools are registered or the LLM determines no tool
-        is needed for this request.
+        Returns (tool_call, fallback_text).  Exactly one branch is meaningful:
+        tool_call is not None when a registered tool was selected;
+        fallback_text is non-empty when the LLM responded directly (no tool).
         """
         schemas = self._registry.function_schemas()
         if not schemas:
-            return None
+            # No tools registered — plain chat, return response as fallback.
+            content = await self._llm.complete(
+                build_system_prompt(transcript.user), transcript.text
+            )
+            return None, content
 
         messages = [
             {"role": "system", "content": build_system_prompt(transcript.user)},
@@ -45,11 +51,12 @@ class ToolRouter:
 
         message = await self._llm.chat_with_tools(messages, schemas)
 
-        if not message.tool_calls:
-            return None
+        if message.tool_calls:
+            first = message.tool_calls[0]
+            return ToolCall(
+                tool_name=first.function.name,
+                params=dict(first.function.arguments),
+            ), ""
 
-        first = message.tool_calls[0]
-        return ToolCall(
-            tool_name=first.function.name,
-            params=dict(first.function.arguments),
-        )
+        # LLM responded conversationally — return its text as fallback.
+        return None, message.content or ""

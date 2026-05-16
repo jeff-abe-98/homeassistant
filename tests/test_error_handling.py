@@ -103,12 +103,12 @@ def test_handle_transcript_llm_timeout_returns_friendly_message():
     transcript = _transcript("tell me a joke")
     ws = _mock_websocket()
 
+    # Router fails (LLM unreachable), then direct-LLM fallback also times out.
     mock_router = MagicMock()
-    mock_router.route = AsyncMock(return_value=None)
+    mock_router.route = AsyncMock(side_effect=RuntimeError("LLM unavailable"))
 
     mock_llm = AsyncMock()
-    # _needs_new_tool → "no", then llm.complete times out
-    mock_llm.complete = AsyncMock(side_effect=["no", asyncio.TimeoutError()])
+    mock_llm.complete = AsyncMock(side_effect=asyncio.TimeoutError())
 
     with (
         patch("server.main._router", mock_router),
@@ -125,13 +125,12 @@ def test_handle_transcript_llm_connection_error_returns_friendly_message():
     transcript = _transcript("tell me a joke")
     ws = _mock_websocket()
 
+    # Router fails, then direct-LLM fallback also fails with connection error.
     mock_router = MagicMock()
-    mock_router.route = AsyncMock(return_value=None)
+    mock_router.route = AsyncMock(side_effect=RuntimeError("LLM unavailable"))
 
     mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(
-        side_effect=["no", ConnectionRefusedError("Ollama not running")]
-    )
+    mock_llm.complete = AsyncMock(side_effect=ConnectionRefusedError("Ollama not running"))
 
     with (
         patch("server.main._router", mock_router),
@@ -149,11 +148,12 @@ def test_handle_transcript_llm_error_message_is_informative():
     transcript = _transcript("what is 2 + 2?")
     ws = _mock_websocket()
 
+    # Router fails, then direct-LLM fallback also raises an unexpected error.
     mock_router = MagicMock()
-    mock_router.route = AsyncMock(return_value=None)
+    mock_router.route = AsyncMock(side_effect=RuntimeError("LLM unavailable"))
 
     mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(side_effect=["no", RuntimeError("model crash")])
+    mock_llm.complete = AsyncMock(side_effect=RuntimeError("model crash"))
 
     with (
         patch("server.main._router", mock_router),
@@ -179,7 +179,7 @@ def test_handle_transcript_tool_api_failure_returns_friendly_message():
 
     mock_router = MagicMock()
     mock_router.route = AsyncMock(
-        return_value=MagicMock(tool_name="weather", params={})
+        return_value=(MagicMock(tool_name="weather", params={}), "")
     )
 
     mock_registry = MagicMock()
@@ -205,7 +205,7 @@ def test_handle_transcript_tool_timeout_returns_friendly_message():
 
     mock_router = MagicMock()
     mock_router.route = AsyncMock(
-        return_value=MagicMock(tool_name="weather", params={})
+        return_value=(MagicMock(tool_name="weather", params={}), "")
     )
 
     mock_registry = MagicMock()
@@ -231,7 +231,7 @@ def test_handle_transcript_tool_error_message_does_not_expose_internals():
 
     mock_router = MagicMock()
     mock_router.route = AsyncMock(
-        return_value=MagicMock(tool_name="weather", params={})
+        return_value=(MagicMock(tool_name="weather", params={}), "")
     )
 
     mock_registry = MagicMock()
@@ -260,7 +260,8 @@ def test_handle_transcript_router_failure_falls_through_to_llm():
     mock_router.route = AsyncMock(side_effect=RuntimeError("Ollama model not loaded"))
 
     mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(side_effect=["no", "Four."])
+    # Router failed → no fallback_text → one direct LLM call as last resort.
+    mock_llm.complete = AsyncMock(return_value="Four.")
 
     with (
         patch("server.main._router", mock_router),
@@ -281,7 +282,8 @@ def test_handle_transcript_router_timeout_falls_through_to_llm():
     mock_router.route = AsyncMock(side_effect=asyncio.TimeoutError())
 
     mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(side_effect=["no", "Paris."])
+    # Router failed → no fallback_text → one direct LLM call as last resort.
+    mock_llm.complete = AsyncMock(return_value="Paris.")
 
     with (
         patch("server.main._router", mock_router),
@@ -295,25 +297,19 @@ def test_handle_transcript_router_timeout_falls_through_to_llm():
 
 
 # ---------------------------------------------------------------------------
-# _handle_transcript — _needs_new_tool failure → skip tool creation, use LLM
+# _handle_transcript — router fallback text used directly for conversation
 # ---------------------------------------------------------------------------
 
-def test_handle_transcript_needs_new_tool_failure_falls_back_to_llm():
+def test_handle_transcript_router_fallback_text_used_as_reply():
     transcript = _transcript("what is 2 plus 2?")
     ws = _mock_websocket()
 
+    # Router returns no tool and the LLM's conversational reply inline (1 LLM call total).
     mock_router = MagicMock()
-    mock_router.route = AsyncMock(return_value=None)
-
-    mock_llm = AsyncMock()
-    # _needs_new_tool call raises; then plain LLM works
-    mock_llm.complete = AsyncMock(
-        side_effect=[ConnectionRefusedError("Ollama not running"), "Four."]
-    )
+    mock_router.route = AsyncMock(return_value=(None, "Two plus two is four."))
 
     with (
         patch("server.main._router", mock_router),
-        patch("server.main._llm", mock_llm),
     ):
         from server.main import _handle_transcript
         response = asyncio.run(_handle_transcript(transcript, ws))

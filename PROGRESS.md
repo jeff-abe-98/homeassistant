@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-16 03:00 UTC]
+**Completed:** Phase 6 — Latency profiling: identified 3-LLM-call bottleneck per conversational request; fixed by returning `(ToolCall | None, str)` from `ToolRouter.route()` and reusing the LLM's fallback text directly (conversational requests: 3 calls → 1); replaced `_needs_new_tool` LLM classifier with `_heuristic_needs_tool()` keyword check; added `time.perf_counter()` timing logs for STT, routing, and tool steps; 282 tests pass (18 skipped)
+**Files changed:** server/llm/router.py, server/main.py, tests/test_main_tool_creator.py, tests/test_error_handling.py, tests/test_tool_creator_e2e.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 6 — Agent startup check-in (write status to INBOX.md at session start)
+**Blockers:** None
+
+---
+
 ## [2026-05-16 02:00 UTC]
 **Completed:** Phase 6 — Wake word sensitivity tuning: `min_activation_count` (require N consecutive 80ms frames above threshold, default 3) and `cooldown_seconds` (suppress re-trigger for N seconds, default 2.0) added to `WakeWordConfig`; detector updated; `config/settings.yaml` documented; 14 new tests pass (281 total, 18 skipped)
 **Files changed:** shared/config.py, pi/wake_word/detector.py, config/settings.yaml, tests/test_wake_word_sensitivity.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

@@ -31,52 +31,32 @@ def _mock_websocket() -> MagicMock:
 
 
 # ---------------------------------------------------------------------------
-# _needs_new_tool
+# _heuristic_needs_tool
 # ---------------------------------------------------------------------------
 
-def test_needs_new_tool_returns_true_when_llm_says_yes():
-    mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(return_value="yes")
-    with patch("server.main._llm", mock_llm):
-        from server.main import _needs_new_tool
-        result = asyncio.run(_needs_new_tool("turn off the sprinklers"))
-    assert result is True
+def test_heuristic_needs_tool_true_for_cannot_phrases():
+    from server.main import _heuristic_needs_tool
+    assert _heuristic_needs_tool("I don't have access to that capability.") is True
 
 
-def test_needs_new_tool_returns_true_for_yes_with_trailing_text():
-    mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(return_value="yes, this requires an external API")
-    with patch("server.main._llm", mock_llm):
-        from server.main import _needs_new_tool
-        result = asyncio.run(_needs_new_tool("turn off the sprinklers"))
-    assert result is True
+def test_heuristic_needs_tool_true_for_cannot():
+    from server.main import _heuristic_needs_tool
+    assert _heuristic_needs_tool("I cannot do that.") is True
 
 
-def test_needs_new_tool_returns_false_when_llm_says_no():
-    mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(return_value="no")
-    with patch("server.main._llm", mock_llm):
-        from server.main import _needs_new_tool
-        result = asyncio.run(_needs_new_tool("what is 2 plus 2?"))
-    assert result is False
+def test_heuristic_needs_tool_false_for_regular_response():
+    from server.main import _heuristic_needs_tool
+    assert _heuristic_needs_tool("Two plus two equals four.") is False
 
 
-def test_needs_new_tool_returns_false_for_other_llm_response():
-    mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(return_value="Two plus two equals four.")
-    with patch("server.main._llm", mock_llm):
-        from server.main import _needs_new_tool
-        result = asyncio.run(_needs_new_tool("what is 2 plus 2?"))
-    assert result is False
+def test_heuristic_needs_tool_case_insensitive():
+    from server.main import _heuristic_needs_tool
+    assert _heuristic_needs_tool("I CAN'T help with that.") is True
 
 
-def test_needs_new_tool_case_insensitive():
-    mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(return_value="YES")
-    with patch("server.main._llm", mock_llm):
-        from server.main import _needs_new_tool
-        result = asyncio.run(_needs_new_tool("dim the kitchen lights"))
-    assert result is True
+def test_heuristic_needs_tool_false_for_unrelated_text():
+    from server.main import _heuristic_needs_tool
+    assert _heuristic_needs_tool("The weather in Chicago is 72 degrees and sunny.") is False
 
 
 # ---------------------------------------------------------------------------
@@ -91,7 +71,7 @@ def test_handle_transcript_runs_existing_tool_when_router_matches():
     mock_tool.run = AsyncMock(return_value="Sunny, 72°F.")
 
     mock_router = MagicMock()
-    mock_router.route = AsyncMock(return_value=MagicMock(tool_name="weather", params={}))
+    mock_router.route = AsyncMock(return_value=(MagicMock(tool_name="weather", params={}), ""))
 
     mock_registry = MagicMock()
     mock_registry.get.return_value = mock_tool
@@ -115,11 +95,11 @@ def test_handle_transcript_returns_notification_when_needs_new_tool():
     transcript = _transcript("turn off the sprinklers")
     ws = _mock_websocket()
 
+    # Router returns no tool and a response indicating the LLM can't help.
     mock_router = MagicMock()
-    mock_router.route = AsyncMock(return_value=None)
-
-    mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(return_value="yes")
+    mock_router.route = AsyncMock(
+        return_value=(None, "I don't have access to sprinkler controls.")
+    )
 
     mock_generator = MagicMock()
     mock_generator.generate = AsyncMock(return_value="# tool source")
@@ -130,14 +110,12 @@ def test_handle_transcript_returns_notification_when_needs_new_tool():
     async def _run():
         with (
             patch("server.main._router", mock_router),
-            patch("server.main._llm", mock_llm),
             patch("server.main._generator", mock_generator),
             patch("server.main._registry", mock_registry),
             patch("server.main.validate", AsyncMock(return_value=MagicMock(success=False, error="test"))),
         ):
             from server.main import _handle_transcript
             response = await _handle_transcript(transcript, ws)
-            # Let background task settle
             await asyncio.sleep(0)
             return response
 
@@ -153,10 +131,9 @@ def test_handle_transcript_notification_text_exact():
     ws = _mock_websocket()
 
     mock_router = MagicMock()
-    mock_router.route = AsyncMock(return_value=None)
-
-    mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(return_value="yes")
+    mock_router.route = AsyncMock(
+        return_value=(None, "I'm not able to control lights, I don't have that capability.")
+    )
 
     mock_registry = MagicMock()
     mock_registry.all.return_value = []
@@ -164,7 +141,6 @@ def test_handle_transcript_notification_text_exact():
     async def _run():
         with (
             patch("server.main._router", mock_router),
-            patch("server.main._llm", mock_llm),
             patch("server.main._registry", mock_registry),
             patch("server.main._generator", AsyncMock()),
             patch("server.main.validate", AsyncMock(return_value=MagicMock(success=False, error="x"))),
@@ -186,16 +162,12 @@ def test_handle_transcript_falls_back_to_llm_for_conversation():
     transcript = _transcript("what is 2 plus 2?")
     ws = _mock_websocket()
 
+    # Router returns no tool and provides the LLM's conversational reply directly.
     mock_router = MagicMock()
-    mock_router.route = AsyncMock(return_value=None)
-
-    mock_llm = AsyncMock()
-    # First call: _needs_new_tool → "no"; second call: plain LLM → answer
-    mock_llm.complete = AsyncMock(side_effect=["no", "Two plus two equals four."])
+    mock_router.route = AsyncMock(return_value=(None, "Two plus two equals four."))
 
     with (
         patch("server.main._router", mock_router),
-        patch("server.main._llm", mock_llm),
     ):
         from server.main import _handle_transcript
         response = asyncio.run(_handle_transcript(transcript, ws))
