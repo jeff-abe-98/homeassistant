@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-16 01:00 UTC]
+**Completed:** Phase 6 — Logging: `LoggingConfig` dataclass in `shared/config.py`; `server/logging_config.py` with `setup_logging(cfg)` — RotatingFileHandler (10 MB / 5 backups) + StreamHandler with consistent `timestamp | LEVEL | logger_name | message` format; wired into `server/main.py` lifespan; `logging:` section added to `config/settings.yaml`; 9 smoke tests pass (266 total, 18 skipped)
+**Files changed:** shared/config.py, server/logging_config.py, server/main.py, config/settings.yaml, tests/test_logging_config.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 6 — Wake word false positive rate — tune sensitivity
+**Blockers:** None
+
+---
+
 ## [2026-05-16 00:00 UTC]
 **Completed:** Phase 6 — Error handling: `LLMTimeoutError`/`LLMError` in OllamaClient (asyncio.wait_for, 30s timeout); server/main.py wraps router, tool.run(), _needs_new_tool, and llm.complete() in try/except with friendly responses; STT failure returns None; WebSocket loop handles JSONDecodeError and cleans up orphaned audio buffers on disconnect; 15 new tests pass
 **Files changed:** server/llm/client.py, shared/config.py, server/main.py, tests/test_error_handling.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

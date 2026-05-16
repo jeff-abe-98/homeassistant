@@ -86,6 +86,15 @@ class PiperConfig:
 
 
 @dataclass
+class LoggingConfig:
+    log_dir: str = "logs"
+    log_file: str = "homeassistant.log"
+    max_bytes: int = 10 * 1024 * 1024  # 10 MB
+    backup_count: int = 5
+    level: str = "INFO"
+
+
+@dataclass
 class AppConfig:
     server: ServerConfig = field(default_factory=ServerConfig)
     ollama: OllamaConfig = field(default_factory=OllamaConfig)
@@ -97,6 +106,7 @@ class AppConfig:
     androidtv: AndroidTvConfig = field(default_factory=AndroidTvConfig)
     wake_word: WakeWordConfig = field(default_factory=WakeWordConfig)
     tts: PiperConfig = field(default_factory=PiperConfig)
+    logging: LoggingConfig = field(default_factory=LoggingConfig)
 
 
 def _spotify_user(d: dict, token_file: str = "", default_redirect: str = "http://localhost:8888/callback") -> SpotifyUserConfig:
@@ -131,6 +141,7 @@ def load(path: str | None = None) -> AppConfig:
     atv = raw.get("androidtv", {})
     wkw = raw.get("wake_word", {})
     tts = raw.get("tts", {})
+    log = raw.get("logging", {})
     users_raw = raw.get("users", {})
 
     return AppConfig(
@@ -195,5 +206,12 @@ def load(path: str | None = None) -> AppConfig:
         tts=PiperConfig(
             model_path=tts.get("model_path", "pi/tts/models/en_US-lessac-medium.onnx"),
             use_cuda=bool(tts.get("use_cuda", False)),
+        ),
+        logging=LoggingConfig(
+            log_dir=log.get("log_dir", "logs"),
+            log_file=log.get("log_file", "homeassistant.log"),
+            max_bytes=int(log.get("max_bytes", 10 * 1024 * 1024)),
+            backup_count=int(log.get("backup_count", 5)),
+            level=log.get("level", "INFO"),
         ),
     )

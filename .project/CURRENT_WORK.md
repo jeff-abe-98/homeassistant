@@ -10,12 +10,13 @@
 Phase 6 in progress.
 
 Done this session:
-- `server/llm/client.py` — `LLMError`/`LLMTimeoutError` exception types; `OllamaClient` wraps all `_client.chat()` calls in `asyncio.wait_for` (default 30s, configurable via `ollama.timeout`); raises `LLMTimeoutError` on timeout, `LLMError` on connection errors
-- `shared/config.py` — `OllamaConfig.timeout: float = 30.0` added, wired through `load()`
-- `server/main.py` — all critical paths now wrapped in try/except: router failure → falls back to LLM; tool.run() failure → friendly "ran into a problem" message; LLM timeout/error → friendly "trouble connecting" message; STT failure → returns None; WebSocket loop handles JSONDecodeError; active session tracking cleans up orphaned audio buffers on disconnect
-- `tests/test_error_handling.py` — 15 new tests covering all error paths (LLM timeout, connection error, tool API failure, router failure, STT failure, buffer cleanup)
+- `shared/config.py` — `LoggingConfig` dataclass (log_dir, log_file, max_bytes, backup_count, level) added; wired into `AppConfig` and `load()`
+- `server/logging_config.py` — `setup_logging(cfg)` configures root logger: `RotatingFileHandler` (10 MB / 5 backups by default) + `StreamHandler`; consistent format: `timestamp | LEVEL | logger_name | message`
+- `server/main.py` — `setup_logging(_config)` called first in lifespan (before OllamaClient init); removed bare `logging.basicConfig` call
+- `config/settings.yaml` — `logging:` section added with all four fields
+- `tests/test_logging_config.py` — 9 smoke tests (dir creation, file handler, stream handler, message written, format, level, debug suppression, rotation backup, config-file wiring)
 
-Next: Phase 6 — Logging: structured logs to file with rotation.
+Next: Phase 6 — Wake word false positive rate (tune sensitivity).
 
 ## Documents
 

@@ -82,3 +82,10 @@ tts:
 
 voice_profiles:
   directory: config/voice_profiles/
+
+logging:
+  log_dir: logs
+  log_file: homeassistant.log
+  max_bytes: 10485760   # 10 MB per file
+  backup_count: 5       # keep up to 5 rotated files
+  level: INFO

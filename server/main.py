@@ -13,13 +13,12 @@ from shared.models import AssistantResponse, AudioChunk, Transcript
 from server.llm.client import OllamaClient
 from server.llm.prompts import build_system_prompt
 from server.llm.router import ToolRouter
+from server.logging_config import setup_logging
 from server.stt.transcriber import WhisperTranscriber
 from server.tools.base import ToolRegistry
 from server.tool_creator.generator import ToolGenerator
 from server.tool_creator.validator import validate
 from server.tool_creator.installer import install
-
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 _config: AppConfig | None = None
@@ -45,6 +44,7 @@ _TOOL_ERROR_MSG = "Sorry, I ran into a problem with that. Please try again."
 async def lifespan(app: FastAPI):
     global _config, _llm, _stt, _registry, _router, _generator
     _config = cfg_module.load()
+    setup_logging(_config)
     _llm = OllamaClient(_config.ollama)
     _stt = WhisperTranscriber(
         model=_config.whisper.model,
