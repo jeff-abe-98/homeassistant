@@ -1,6 +1,6 @@
 # Current Work
 
-**Last updated:** 2026-05-15  
+**Last updated:** 2026-05-16  
 **Phase:** Phase 6 — Hardening & Quality (in progress)
 
 ---
@@ -10,10 +10,12 @@
 Phase 6 in progress.
 
 Done this session:
-- `deploy/homeassistant-pi.service` — systemd unit (Type=simple, After=network-online.target sound.target, Restart=on-failure, RestartSec=5s, StartLimitBurst=5, SyslogIdentifier=homeassistant-pi); entry point is `python -m pi.main`
-- `deploy/install-pi-service.sh` — install script: creates service user, adds it to the `audio` group (required for PyAudio mic + sounddevice output), rsyncs project, creates venv + installs `requirements-pi.txt`, substitutes install path + user into unit file, `systemctl enable + restart`
+- `server/llm/client.py` — `LLMError`/`LLMTimeoutError` exception types; `OllamaClient` wraps all `_client.chat()` calls in `asyncio.wait_for` (default 30s, configurable via `ollama.timeout`); raises `LLMTimeoutError` on timeout, `LLMError` on connection errors
+- `shared/config.py` — `OllamaConfig.timeout: float = 30.0` added, wired through `load()`
+- `server/main.py` — all critical paths now wrapped in try/except: router failure → falls back to LLM; tool.run() failure → friendly "ran into a problem" message; LLM timeout/error → friendly "trouble connecting" message; STT failure → returns None; WebSocket loop handles JSONDecodeError; active session tracking cleans up orphaned audio buffers on disconnect
+- `tests/test_error_handling.py` — 15 new tests covering all error paths (LLM timeout, connection error, tool API failure, router failure, STT failure, buffer cleanup)
 
-Next: Phase 6 — Error handling: graceful recovery from LLM timeout, API failures, network drop.
+Next: Phase 6 — Logging: structured logs to file with rotation.
 
 ## Documents
 

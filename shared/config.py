@@ -17,6 +17,7 @@ class ServerConfig:
 class OllamaConfig:
     host: str = "http://localhost:11434"
     model: str = "llama3.1:8b-instruct-q4_K_M"
+    timeout: float = 30.0
 
 
 @dataclass
@@ -140,6 +141,7 @@ def load(path: str | None = None) -> AppConfig:
         ollama=OllamaConfig(
             host=oll.get("host", "http://localhost:11434"),
             model=oll.get("model", "llama3.1:8b-instruct-q4_K_M"),
+            timeout=float(oll.get("timeout", 30.0)),
         ),
         whisper=WhisperConfig(
             model=whi.get("model", "large-v3"),

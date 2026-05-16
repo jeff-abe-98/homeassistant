@@ -4,6 +4,14 @@ Most recent run at top.
 
 ---
 
+## [2026-05-16 00:00 UTC]
+**Completed:** Phase 6 — Error handling: `LLMTimeoutError`/`LLMError` in OllamaClient (asyncio.wait_for, 30s timeout); server/main.py wraps router, tool.run(), _needs_new_tool, and llm.complete() in try/except with friendly responses; STT failure returns None; WebSocket loop handles JSONDecodeError and cleans up orphaned audio buffers on disconnect; 15 new tests pass
+**Files changed:** server/llm/client.py, shared/config.py, server/main.py, tests/test_error_handling.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 6 — Logging: structured logs to file with rotation
+**Blockers:** None
+
+---
+
 ## [2026-05-15 04:00 UTC]
 **Completed:** Phase 6 — Systemd service for Pi client; `deploy/homeassistant-pi.service` (Type=simple, After=network-online.target sound.target, Restart=on-failure, RestartSec=5s, StartLimitBurst=5, SyslogIdentifier=homeassistant-pi, entry point `python -m pi.main`); `deploy/install-pi-service.sh` (creates service user, adds to audio group for PyAudio mic + sounddevice output, rsyncs project, creates venv, installs requirements-pi.txt, substitutes paths + user, enables + starts service)
 **Files changed:** deploy/homeassistant-pi.service, deploy/install-pi-service.sh, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

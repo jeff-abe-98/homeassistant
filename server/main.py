@@ -37,6 +37,9 @@ _NEEDS_TOOL_SYSTEM = (
     "Reply with exactly 'no' if it is purely conversational (chat, math, general knowledge)."
 )
 
+_LLM_ERROR_MSG = "Sorry, I'm having trouble connecting right now. Please try again in a moment."
+_TOOL_ERROR_MSG = "Sorry, I ran into a problem with that. Please try again."
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -69,14 +72,22 @@ app = FastAPI(title="Home Assistant Server", lifespan=lifespan)
 async def websocket_endpoint(websocket: WebSocket) -> None:
     await websocket.accept()
     logger.info("Client connected: %s", websocket.client)
+    active_sessions: set[str] = set()
     try:
         while True:
             raw = await websocket.receive_text()
-            msg = json.loads(raw)
+            try:
+                msg = json.loads(raw)
+            except json.JSONDecodeError:
+                logger.warning("Ignoring malformed JSON from client: %r", raw[:200])
+                continue
 
             if "audio_bytes" in msg:
-                result = await _handle_audio_chunk(AudioChunk.model_validate(msg))
+                chunk = AudioChunk.model_validate(msg)
+                active_sessions.add(chunk.session_id)
+                result = await _handle_audio_chunk(chunk)
                 if result is not None:
+                    active_sessions.discard(result.session_id)
                     await websocket.send_text(result.model_dump_json())
             elif "text" in msg:
                 result = await _handle_transcript(Transcript.model_validate(msg), websocket)
@@ -85,6 +96,12 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
 
     except WebSocketDisconnect:
         logger.info("Client disconnected: %s", websocket.client)
+    finally:
+        # Clean up audio buffers orphaned by a mid-stream disconnect
+        for sid in active_sessions:
+            _audio_buffers.pop(sid, None)
+        if active_sessions:
+            logger.info("Cleaned up %d orphaned audio buffer(s)", len(active_sessions))
 
 
 async def _handle_audio_chunk(chunk: AudioChunk) -> Transcript | None:
@@ -95,9 +112,13 @@ async def _handle_audio_chunk(chunk: AudioChunk) -> Transcript | None:
     chunks.sort(key=lambda c: c.sequence)
     combined = b"".join(c.audio_bytes for c in chunks)
     sample_rate = chunks[0].sample_rate
-    text = await asyncio.get_event_loop().run_in_executor(
-        None, _stt.transcribe, combined, sample_rate
-    )
+    try:
+        text = await asyncio.get_event_loop().run_in_executor(
+            None, _stt.transcribe, combined, sample_rate
+        )
+    except Exception:
+        logger.exception("STT failed for session [%s] — dropping chunk", chunk.session_id)
+        return None
     logger.info("STT [%s]: %r", chunk.session_id, text)
     return Transcript(session_id=chunk.session_id, text=text)
 
@@ -139,19 +160,36 @@ async def _create_and_notify(transcript: Transcript, websocket: WebSocket) -> No
 
 
 async def _handle_transcript(transcript: Transcript, websocket: WebSocket) -> AssistantResponse | None:
-    tool_call = await _router.route(transcript)
+    # Route to a registered tool via LLM function calling.
+    try:
+        tool_call = await _router.route(transcript)
+    except Exception:
+        logger.exception("Tool router failed for [%s] — falling back to LLM", transcript.session_id)
+        tool_call = None
 
     if tool_call is not None:
         tool = _registry.get(tool_call.tool_name)
         if tool is not None:
             logger.info("Tool [%s]: %s %s", transcript.session_id, tool_call.tool_name, tool_call.params)
-            reply = await tool.run(tool_call.params, transcript.user)
+            try:
+                reply = await tool.run(tool_call.params, transcript.user)
+            except Exception:
+                logger.exception(
+                    "Tool %r raised an error for [%s]", tool_call.tool_name, transcript.session_id
+                )
+                return AssistantResponse(session_id=transcript.session_id, text=_TOOL_ERROR_MSG)
             logger.info("Tool result [%s]: %r", transcript.session_id, reply)
             return AssistantResponse(session_id=transcript.session_id, text=reply)
         logger.warning("Tool %r selected but not found in registry", tool_call.tool_name)
 
-    # No existing tool matched. Check if this request needs a new tool to be created.
-    if await _needs_new_tool(transcript.text):
+    # No existing tool matched — check whether a new tool should be created.
+    try:
+        needs_tool = await _needs_new_tool(transcript.text)
+    except Exception:
+        logger.exception("_needs_new_tool check failed for [%s] — skipping tool creation", transcript.session_id)
+        needs_tool = False
+
+    if needs_tool:
         logger.info("Triggering tool creation for intent: %r", transcript.text)
         asyncio.create_task(_create_and_notify(transcript, websocket))
         return AssistantResponse(
@@ -159,7 +197,13 @@ async def _handle_transcript(transcript: Transcript, websocket: WebSocket) -> As
             text="I don't know how to do that yet, but I'll figure it out. I'll let you know when I can.",
         )
 
-    system_prompt = build_system_prompt(transcript.user)
-    reply = await _llm.complete(system_prompt, transcript.text)
+    # Plain conversational response.
+    try:
+        system_prompt = build_system_prompt(transcript.user)
+        reply = await _llm.complete(system_prompt, transcript.text)
+    except Exception:
+        logger.exception("LLM completion failed for [%s]", transcript.session_id)
+        return AssistantResponse(session_id=transcript.session_id, text=_LLM_ERROR_MSG)
+
     logger.info("LLM [%s]: %r", transcript.session_id, reply)
     return AssistantResponse(session_id=transcript.session_id, text=reply)

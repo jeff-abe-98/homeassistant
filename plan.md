@@ -132,7 +132,7 @@
 
 - [x] Systemd service for server (auto-start, auto-restart) — `deploy/homeassistant-server.service` (Type=simple, Restart=on-failure, RestartSec=5s, StartLimitBurst=5); `deploy/install-server-service.sh` creates service user, copies project, creates venv, installs requirements, writes unit file (path + user substituted), enables + starts service
 - [x] Systemd service for Pi client (auto-start on boot) — `deploy/homeassistant-pi.service` (Type=simple, After=network-online.target sound.target, Restart=on-failure, RestartSec=5s, StartLimitBurst=5, journald logging); `deploy/install-pi-service.sh` creates service user, adds it to the audio group (PyAudio/sounddevice access), rsyncs project, creates venv + installs requirements-pi.txt, substitutes install path + user into unit file, enables + starts service
-- [ ] Error handling: graceful recovery from LLM timeout, API failures, network drop
+- [x] Error handling: graceful recovery from LLM timeout, API failures, network drop — `LLMTimeoutError`/`LLMError` in `OllamaClient` (asyncio.wait_for + 30s default timeout, configurable via ollama.timeout in settings); `_handle_transcript` wraps router, tool.run(), _needs_new_tool, and llm.complete() in try/except — returns friendly error strings, never crashes; `_handle_audio_chunk` returns None on STT failure; WebSocket loop handles JSONDecodeError and tracks active sessions for buffer cleanup on disconnect; 15 new tests pass
 - [ ] Logging: structured logs to file with rotation
 - [ ] Wake word false positive rate — tune sensitivity
 - [ ] Latency profiling — identify and fix slow spots in the pipeline

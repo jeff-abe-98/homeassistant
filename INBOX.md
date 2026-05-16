@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-16 (session 58)
+**Status:** Phase 6 in progress. Implemented error handling: `LLMTimeoutError`/`LLMError` in `OllamaClient` (asyncio.wait_for, 30s configurable timeout); `server/main.py` wraps router, `tool.run()`, `_needs_new_tool`, and `_llm.complete()` in try/except — friendly messages returned, server never crashes; STT failure returns None; WebSocket loop handles JSON decode errors; active session tracking cleans up orphaned audio buffers on client disconnect; 15 new tests pass.
+**Next task:** Phase 6 — Logging: structured logs to file with rotation.
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware; Android TV and Spotify integration tests skip until real devices/credentials configured.
+
 ### 2026-05-15 (session 57)
 **Status:** Phase 6 in progress. Created `deploy/homeassistant-pi.service` — systemd unit (Type=simple, After=network-online.target sound.target, Restart=on-failure, RestartSec=5s, StartLimitBurst=5, journald logging, entry point `python -m pi.main`); `deploy/install-pi-service.sh` — creates service user, adds it to audio group (PyAudio mic + sounddevice output), rsyncs project, creates venv + installs requirements-pi.txt, substitutes install path + user into unit file, enables + starts service.
 **Next task:** Phase 6 — Error handling: graceful recovery from LLM timeout, API failures, network drop.
