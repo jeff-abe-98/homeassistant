@@ -77,6 +77,13 @@ class AndroidTvConfig:
 class WakeWordConfig:
     model: str = "hey_jarvis"
     threshold: float = 0.5
+    # Require this many consecutive frames above threshold before firing.
+    # At 80ms/frame, min_activation_count=3 means ~240ms of sustained detection.
+    # Higher values cut false positives; lower values improve responsiveness.
+    min_activation_count: int = 3
+    # Seconds to ignore further detections after one fires.
+    # Prevents double-triggering on the same utterance.
+    cooldown_seconds: float = 2.0
 
 
 @dataclass
@@ -202,6 +209,8 @@ def load(path: str | None = None) -> AppConfig:
         wake_word=WakeWordConfig(
             model=wkw.get("model", "hey_jarvis"),
             threshold=float(wkw.get("threshold", 0.5)),
+            min_activation_count=int(wkw.get("min_activation_count", 3)),
+            cooldown_seconds=float(wkw.get("cooldown_seconds", 2.0)),
         ),
         tts=PiperConfig(
             model_path=tts.get("model_path", "pi/tts/models/en_US-lessac-medium.onnx"),

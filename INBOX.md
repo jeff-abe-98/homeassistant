@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-16 (session 60)
+**Status:** Phase 6 in progress. Tuned wake word sensitivity: added `min_activation_count` (consecutive 80ms frames required before trigger; default 3 ≈ 240ms) and `cooldown_seconds` (suppress re-trigger; default 2.0) to `WakeWordConfig`; updated detector and `config/settings.yaml`; 14 new tests pass, 281 total.
+**Next task:** Phase 6 — Latency profiling — identify and fix slow spots in the pipeline.
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware; Android TV and Spotify integration tests skip until real devices/credentials configured.
+
 ### 2026-05-16 (session 59)
 **Status:** Phase 6 in progress. Implemented logging: `LoggingConfig` in `shared/config.py`; `server/logging_config.py` with `setup_logging(cfg)` (RotatingFileHandler 10 MB/5 backups + StreamHandler, `timestamp | LEVEL | name | message` format); wired into `server/main.py` lifespan; `logging:` section in `config/settings.yaml`; 9 new tests pass, 266 total.
 **Next task:** Phase 6 — Wake word false positive rate — tune sensitivity.

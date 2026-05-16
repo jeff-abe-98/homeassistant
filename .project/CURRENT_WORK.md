@@ -10,13 +10,12 @@
 Phase 6 in progress.
 
 Done this session:
-- `shared/config.py` — `LoggingConfig` dataclass (log_dir, log_file, max_bytes, backup_count, level) added; wired into `AppConfig` and `load()`
-- `server/logging_config.py` — `setup_logging(cfg)` configures root logger: `RotatingFileHandler` (10 MB / 5 backups by default) + `StreamHandler`; consistent format: `timestamp | LEVEL | logger_name | message`
-- `server/main.py` — `setup_logging(_config)` called first in lifespan (before OllamaClient init); removed bare `logging.basicConfig` call
-- `config/settings.yaml` — `logging:` section added with all four fields
-- `tests/test_logging_config.py` — 9 smoke tests (dir creation, file handler, stream handler, message written, format, level, debug suppression, rotation backup, config-file wiring)
+- `shared/config.py` — `WakeWordConfig` gains `min_activation_count: int = 3` and `cooldown_seconds: float = 2.0`; `load()` parses both fields
+- `pi/wake_word/detector.py` — `_listen()` tracks consecutive above-threshold frames; fires only after `min_activation_count` consecutive frames; suppresses re-trigger within `cooldown_seconds`; resets consecutive counter after cooldown-suppressed detection or a below-threshold frame
+- `config/settings.yaml` — `wake_word:` section updated with both new fields + explanatory comments
+- `tests/test_wake_word_sensitivity.py` — 14 smoke tests (config defaults, YAML loading, min_activation_count boundary cases, cooldown suppression/expiry); 281 total pass
 
-Next: Phase 6 — Wake word false positive rate (tune sensitivity).
+Next: Phase 6 — Latency profiling — identify and fix slow spots in the pipeline.
 
 ## Documents
 

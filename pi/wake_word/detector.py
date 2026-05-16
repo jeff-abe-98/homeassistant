@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import threading
+import time
 from typing import Callable
 
 import numpy as np
@@ -16,7 +17,14 @@ _CHUNK_SAMPLES = 1280
 
 
 class WakeWordDetector:
-    """Listens to mic audio continuously; calls on_detection() when wake word is heard."""
+    """Listens to mic audio continuously; calls on_detection() when wake word is heard.
+
+    False-positive reduction:
+      - min_activation_count: requires N consecutive frames above threshold
+        (~80ms each) before the callback fires.
+      - cooldown_seconds: suppresses the callback for this many seconds after
+        a detection so the same utterance cannot trigger twice.
+    """
 
     def __init__(self, config: WakeWordConfig, on_detection: Callable[[], None]) -> None:
         from openwakeword.model import Model  # deferred — not installed on server
@@ -28,11 +36,15 @@ class WakeWordDetector:
         self._stream: pyaudio.Stream | None = None
         self._thread: threading.Thread | None = None
         self._running = False
+        self._consecutive = 0
+        self._last_triggered: float = 0.0
 
     def start(self) -> None:
         if self._running:
             return
         self._running = True
+        self._consecutive = 0
+        self._last_triggered = 0.0
         self._stream = self._pa.open(
             rate=_SAMPLE_RATE,
             channels=_CHANNELS,
@@ -61,11 +73,27 @@ class WakeWordDetector:
                 break
             audio = np.frombuffer(raw, dtype=np.int16)
             scores = self._model.predict(audio)
-            for score in scores.values():
-                if score >= self._config.threshold:
+
+            above_threshold = any(
+                score >= self._config.threshold for score in scores.values()
+            )
+
+            if above_threshold:
+                self._consecutive += 1
+            else:
+                self._consecutive = 0
+
+            if self._consecutive >= self._config.min_activation_count:
+                now = time.monotonic()
+                if now - self._last_triggered >= self._config.cooldown_seconds:
+                    self._consecutive = 0
+                    self._last_triggered = now
                     self._running = False
                     self._on_detection()
                     return
+                else:
+                    # Within cooldown — reset counter so we need N fresh frames
+                    self._consecutive = 0
 
     def __enter__(self) -> "WakeWordDetector":
         self.start()

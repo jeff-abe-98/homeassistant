@@ -21,7 +21,13 @@ whisper:
 wake_word:
   # openWakeWord model name; custom models saved to pi/wake_word/models/
   model: hey_jarvis
-  threshold: 0.5       # 0.0–1.0; higher = fewer false positives
+  threshold: 0.5         # 0.0–1.0; higher = fewer false positives
+  # Require this many consecutive 80ms frames above threshold before triggering.
+  # Increase to reduce false positives (e.g. 5 = ~400ms sustained detection required).
+  min_activation_count: 3
+  # Seconds to suppress the wake-word callback after it fires once.
+  # Prevents the same utterance from triggering twice.
+  cooldown_seconds: 2.0
 
 google:
   credentials_file: config/google_credentials.json
