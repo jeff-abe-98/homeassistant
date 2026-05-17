@@ -10,11 +10,11 @@
 Phase 7 in progress.
 
 Done this session:
-- `server/tools/music_profile.py` created — `init_db` (SQLite plays table + indexes), `record_play` (fetches track metadata + audio features + genres from Spotify, inserts row, silently ignores errors), `record_skip` (updates most recent play within 5 minutes to skipped=1), `build_profile` (recency-weighted affinity scores for genres/artists → `TasteProfile`/`AudioTargets`; cold-start returns default when <5 plays).
-- Wired into `server/tools/spotify.py`: `_search_and_play` calls `record_play` for individual track URIs; skip action calls `record_skip` on the currently-playing track.
-- 18 new tests pass (300 total, 18 skipped).
+- `server/tools/music_recommendations.py` created — `MusicRecommendationTool` (`name="music_recommendation"`); `_recommend` builds TasteProfile → top-3 genre seeds + top-2 artist seeds (resolved to Spotify IDs via search) → `sp.recommendations()` with audio targets → filter last-7-days plays → shuffle → `sp.start_playback(uris=...)` on TV → record each track as `play_source="recommendation"`; cold-start path falls back to `sp.featured_playlists()` with friendly "still learning your taste" message.
+- `recently_played_ids(user, days, db_path)` helper added to `music_profile.py`.
+- 18 new tests pass.
 
-Next: Phase 7 — "Recommendation engine" — implement `server/tools/music_recommendations.py` (`RecommendationTool`).
+Next: Phase 7 — Voice interface: "Play something I'd like" → register `MusicRecommendationTool` with ToolRegistry (it auto-discovers from `server.tools` module scan, so no extra registration needed; the tool description already contains trigger phrases).
 
 ## Documents
 

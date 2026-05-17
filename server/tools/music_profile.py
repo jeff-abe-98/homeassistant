@@ -160,6 +160,27 @@ def record_skip(
         pass
 
 
+def recently_played_ids(
+    user: str,
+    days: int = 7,
+    db_path: Path | str = _DEFAULT_DB,
+) -> set[str]:
+    """Return track URIs played by *user* in the last *days* days."""
+    db_path = Path(db_path)
+    if not db_path.exists():
+        return set()
+    try:
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        with sqlite3.connect(db_path) as conn:
+            rows = conn.execute(
+                "SELECT track_id FROM plays WHERE user = ? AND timestamp >= ?",
+                (user, cutoff),
+            ).fetchall()
+        return {row[0] for row in rows}
+    except Exception:
+        return set()
+
+
 def build_profile(
     user: str,
     db_path: Path | str = _DEFAULT_DB,

@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-17 03:00 UTC]
+**Completed:** Phase 7 — Recommendation engine: `server/tools/music_recommendations.py` (`MusicRecommendationTool`); `_recommend` builds profile → selects top-3 genre seeds + top-2 artist seeds → calls `sp.recommendations()` with audio targets → filters last-7-days plays → shuffles → starts playback on TV → records each track as `play_source="recommendation"`; cold-start falls back to `sp.featured_playlists()`; `recently_played_ids` helper added to `music_profile.py`; 18 new tests pass
+**Files changed:** server/tools/music_recommendations.py, server/tools/music_profile.py, tests/test_music_recommendations.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 7 — Voice interface: "Play something I'd like" → recommendation-driven playlist
+**Blockers:** None
+---
+
 ## [2026-05-17 02:00 UTC]
 **Completed:** Phase 7 — Listening history collection: `server/tools/music_profile.py` with `init_db` (SQLite plays table), `record_play` (inserts track + audio features + genres, silently ignores errors), `record_skip` (marks most-recent play within 5 min as skipped), `build_profile` (recency-weighted genre/artist affinity → TasteProfile/AudioTargets); wired into `spotify.py` (track plays and skips recorded automatically); 18 new tests pass (300 total, 18 skipped)
 **Files changed:** server/tools/music_profile.py, server/tools/spotify.py, tests/test_music_profile.py, tests/test_spotify.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
