@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-17 02:00 UTC]
+**Completed:** Phase 7 — Listening history collection: `server/tools/music_profile.py` with `init_db` (SQLite plays table), `record_play` (inserts track + audio features + genres, silently ignores errors), `record_skip` (marks most-recent play within 5 min as skipped), `build_profile` (recency-weighted genre/artist affinity → TasteProfile/AudioTargets); wired into `spotify.py` (track plays and skips recorded automatically); 18 new tests pass (300 total, 18 skipped)
+**Files changed:** server/tools/music_profile.py, server/tools/spotify.py, tests/test_music_profile.py, tests/test_spotify.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** Phase 7 — Recommendation engine (`server/tools/music_recommendations.py`)
+**Blockers:** None
+---
+
 ## [2026-05-17 01:00 UTC]
 **Completed:** Phase 7 — Design per-user taste model: `docs/music-recommendations.md` created with SQLite plays schema, recency-weighted affinity scoring, Spotify `recommendations()` seed strategy, `TasteProfile`/`AudioTargets` dataclass layout, cold-start flow, skip detection wiring, and privacy notes
 **Files changed:** docs/music-recommendations.md, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

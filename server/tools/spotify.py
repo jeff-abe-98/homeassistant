@@ -198,15 +198,21 @@ def _search_spotify(sp, query: str):
     return None, None, None
 
 
-def _search_and_play(sp, query: str, device_id: str) -> str:
+def _search_and_play(sp, query: str, device_id: str, user: str = "") -> str:
     """Search for query and call sp.start_playback on device_id.
 
     Returns a natural language description of what started playing.
+    Records individual track plays in the listening history when user is provided.
     """
+    from server.tools.music_profile import record_play
+
     context_uri, track_uris, description = _search_spotify(sp, query)
     if context_uri is None and track_uris is None:
         return f"I couldn't find anything on Spotify for \"{query}\"."
     sp.start_playback(device_id=device_id, context_uri=context_uri, uris=track_uris)
+    if user and track_uris:
+        for track_uri in track_uris:
+            record_play(user, track_uri, sp, play_source="request")
     return f"Playing {description} on the TV."
 
 
@@ -267,7 +273,7 @@ class SpotifyTool(BaseTool):
             return f"Couldn't initialize Spotify for {display}: {exc}"
 
         try:
-            return await _run_action(sp, action, params, display, cfg)
+            return await _run_action(sp, action, params, user, display, cfg)
         except Exception as exc:
             err = str(exc)
             if "premium" in err.lower() or "403" in err:
@@ -283,7 +289,7 @@ class SpotifyTool(BaseTool):
             return f"Spotify error: {err}"
 
 
-async def _run_action(sp, action: str, params: dict, display: str, cfg) -> str:
+async def _run_action(sp, action: str, params: dict, user: str, display: str, cfg) -> str:
     if action == "now_playing":
         current = sp.current_playback()
         if not current or not current.get("item"):
@@ -296,13 +302,20 @@ async def _run_action(sp, action: str, params: dict, display: str, cfg) -> str:
         query = (params.get("query") or "").strip()
         if query:
             device_id = await _ensure_tv_ready(sp, cfg)
-            return _search_and_play(sp, query, device_id)
+            return _search_and_play(sp, query, device_id, user=user)
         await _ensure_playing_on_tv(sp, cfg)
         return f"Playing on the TV for {display}."
     elif action == "pause":
         sp.pause_playback()
         return "Paused."
     elif action == "skip":
+        from server.tools.music_profile import record_skip
+
+        current = sp.current_playback()
+        if current and current.get("item"):
+            track_id = current["item"].get("uri", "")
+            if track_id and user:
+                record_skip(user, track_id)
         sp.next_track()
         return "Skipped to the next track."
     elif action == "previous":

@@ -879,7 +879,7 @@ async def test_play_with_query_calls_ensure_tv_ready_and_search_and_play() -> No
         result = await tool.run({"action": "play", "query": "jazz"}, user="owner")
 
     mock_ensure_ready.assert_called_once_with(mock_sp, mock_cfg)
-    mock_search_play.assert_called_once_with(mock_sp, "jazz", "tv-device-id")
+    mock_search_play.assert_called_once_with(mock_sp, "jazz", "tv-device-id", user="owner")
     assert "Jazz Vibes" in result
 
 

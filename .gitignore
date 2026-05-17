@@ -11,6 +11,9 @@ config/*.yaml
 # Voice profiles (personal data)
 config/voice_profiles/
 
+# Listening history (personal data — never commit)
+config/listening_history.db
+
 # Python
 __pycache__/
 *.py[cod]

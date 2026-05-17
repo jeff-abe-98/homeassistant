@@ -144,7 +144,7 @@
 *Per-user recommendation models trained on listening history. Deferred to after core system is stable.*
 
 - [x] Design per-user taste model — `docs/music-recommendations.md`; SQLite plays table (genre/artist/audio features/skip signal); affinity score via recency-weighted sentiment; Spotify `recommendations()` API seeded by top genres+artists; `music_profile.py` + `music_recommendations.py` layout; cold-start + skip detection + privacy documented
-- [ ] Listening history collection from Spotify API
+- [x] Listening history collection from Spotify API — `server/tools/music_profile.py`: `init_db`, `record_play` (fetches track metadata + audio features + genres from Spotify, inserts into SQLite plays table), `record_skip` (marks most recent play within 5 mins as skipped), `build_profile` (recency-weighted affinity scores → `TasteProfile`/`AudioTargets`); wired into `spotify.py` (`_search_and_play` records individual track URIs, skip action calls `record_skip`); 18 new tests pass (300 total, 18 skipped)
 - [ ] Recommendation engine (collaborative filtering or embedding-based)
 - [ ] Voice interface: "Play something I'd like" → recommendation-driven playlist
 

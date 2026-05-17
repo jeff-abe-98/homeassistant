@@ -10,9 +10,11 @@
 Phase 7 in progress.
 
 Done this session:
-- `docs/music-recommendations.md` created — full design for the per-user taste model: SQLite plays table schema (genre/artist/audio features/skip signal), recency-weighted affinity score calculation, Spotify `recommendations()` API integration seeded by top genres+artists, `TasteProfile` + `AudioTargets` dataclasses, `music_profile.py` + `music_recommendations.py` file layout, cold-start flow, skip detection, privacy notes.
+- `server/tools/music_profile.py` created — `init_db` (SQLite plays table + indexes), `record_play` (fetches track metadata + audio features + genres from Spotify, inserts row, silently ignores errors), `record_skip` (updates most recent play within 5 minutes to skipped=1), `build_profile` (recency-weighted affinity scores for genres/artists → `TasteProfile`/`AudioTargets`; cold-start returns default when <5 plays).
+- Wired into `server/tools/spotify.py`: `_search_and_play` calls `record_play` for individual track URIs; skip action calls `record_skip` on the currently-playing track.
+- 18 new tests pass (300 total, 18 skipped).
 
-Next: Phase 7 — "Listening history collection from Spotify API" — implement `server/tools/music_profile.py` (`record_play`, `record_skip`, `build_profile`, SQLite DB).
+Next: Phase 7 — "Recommendation engine" — implement `server/tools/music_recommendations.py` (`RecommendationTool`).
 
 ## Documents
 
