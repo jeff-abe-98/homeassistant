@@ -1,18 +1,18 @@
 # Current Work
 
 **Last updated:** 2026-05-17  
-**Phase:** Phase 6 — Hardening & Quality (COMPLETE)
+**Phase:** Phase 7 — Music Recommendations (in progress)
 
 ---
 
 ## Status
 
-Phase 6 complete.
+Phase 7 in progress.
 
 Done this session:
-- `CLAUDE.md` created — formalizes all agent workflow steps: Step 0 git config, Step 1 read context, Step 2 startup check-in (prepend to INBOX.md Agent Startup Log with session #/status/next/blockers), Step 3 inbox processing, Step 4 plan item implementation, Step 5 PROGRESS.md update, Step 6 commit+push
+- `docs/music-recommendations.md` created — full design for the per-user taste model: SQLite plays table schema (genre/artist/audio features/skip signal), recency-weighted affinity score calculation, Spotify `recommendations()` API integration seeded by top genres+artists, `TasteProfile` + `AudioTargets` dataclasses, `music_profile.py` + `music_recommendations.py` file layout, cold-start flow, skip detection, privacy notes.
 
-Next: Phase 7 (Music Recommendations) — first item: "Design per-user taste model".
+Next: Phase 7 — "Listening history collection from Spotify API" — implement `server/tools/music_profile.py` (`record_play`, `record_skip`, `build_profile`, SQLite DB).
 
 ## Documents
 

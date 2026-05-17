@@ -143,7 +143,7 @@
 ## Future — Phase 7 (Music Recommendations)
 *Per-user recommendation models trained on listening history. Deferred to after core system is stable.*
 
-- [ ] Design per-user taste model
+- [x] Design per-user taste model — `docs/music-recommendations.md`; SQLite plays table (genre/artist/audio features/skip signal); affinity score via recency-weighted sentiment; Spotify `recommendations()` API seeded by top genres+artists; `music_profile.py` + `music_recommendations.py` layout; cold-start + skip detection + privacy documented
 - [ ] Listening history collection from Spotify API
 - [ ] Recommendation engine (collaborative filtering or embedding-based)
 - [ ] Voice interface: "Play something I'd like" → recommendation-driven playlist
