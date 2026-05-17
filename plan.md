@@ -136,7 +136,7 @@
 - [x] Logging: structured logs to file with rotation — `LoggingConfig` added to `shared/config.py` (log_dir, log_file, max_bytes, backup_count, level); `server/logging_config.py` with `setup_logging(cfg)` (RotatingFileHandler + StreamHandler, consistent format); wired into `server/main.py` lifespan before anything else; `logging:` section added to `config/settings.yaml`; 9 smoke tests pass
 - [x] Wake word false positive rate — tune sensitivity — added `min_activation_count` (require N consecutive 80ms frames above threshold; default 3 ≈ 240ms) and `cooldown_seconds` (suppress re-trigger; default 2.0) to `WakeWordConfig`; detector uses both; `config/settings.yaml` updated with comments; 14 new tests pass (281 total)
 - [x] Latency profiling — identify and fix slow spots in the pipeline — root cause: 3 LLM calls per conversational request (router + `_needs_new_tool` + `_llm.complete`); fix: `ToolRouter.route()` now returns `(ToolCall | None, str)` — when no tool is selected, the LLM's `message.content` from `chat_with_tools` is returned as fallback text and used directly (eliminates 2 redundant LLM calls); `_needs_new_tool` LLM classifier replaced with `_heuristic_needs_tool()` keyword check; `time.perf_counter()` timing added to STT, routing, and tool steps; conversational requests now make 1 LLM call instead of 3; 282 tests pass
-- [ ] Agent startup check-in: agent writes a brief status note to `INBOX.md` (Agent Startup Log section) at the start of each session
+- [x] Agent startup check-in: agent writes a brief status note to `INBOX.md` (Agent Startup Log section) at the start of each session — `CLAUDE.md` created; formalizes all agent workflow steps including startup check-in as Step 2 (session number, status, next task, blockers)
 
 ---
 

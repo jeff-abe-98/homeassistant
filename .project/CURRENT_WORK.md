@@ -1,20 +1,18 @@
 # Current Work
 
-**Last updated:** 2026-05-16  
-**Phase:** Phase 6 — Hardening & Quality (in progress)
+**Last updated:** 2026-05-17  
+**Phase:** Phase 6 — Hardening & Quality (COMPLETE)
 
 ---
 
 ## Status
 
-Phase 6 in progress.
+Phase 6 complete.
 
 Done this session:
-- `server/llm/router.py` — `ToolRouter.route()` now returns `tuple[ToolCall | None, str]`; when no tool is selected, `message.content` from `chat_with_tools` is returned as fallback text; when no schemas registered, calls `_llm.complete()` and returns the content
-- `server/main.py` — added `import time`; removed `_NEEDS_TOOL_SYSTEM` and `_needs_new_tool()` LLM classifier; added `_CANNOT_HELP_PHRASES` frozenset and `_heuristic_needs_tool(text)` keyword check; `_handle_transcript` uses single LLM call (router), reuses fallback text for conversational reply, falls back to direct `_llm.complete` only when router raises; `time.perf_counter()` timing logs added for STT, routing, and tool steps
-- Tests updated: `test_main_tool_creator.py` (heuristic tests replace `_needs_new_tool` LLM tests; router mocks updated to return tuples), `test_error_handling.py` (LLM failure tests updated for new flow; all tool tests return tuples), `test_tool_creator_e2e.py` (router mocks updated to tuple form); 282 total pass
+- `CLAUDE.md` created — formalizes all agent workflow steps: Step 0 git config, Step 1 read context, Step 2 startup check-in (prepend to INBOX.md Agent Startup Log with session #/status/next/blockers), Step 3 inbox processing, Step 4 plan item implementation, Step 5 PROGRESS.md update, Step 6 commit+push
 
-Next: Phase 6 — Agent startup check-in (last unchecked Phase 6 item).
+Next: Phase 7 (Music Recommendations) — first item: "Design per-user taste model".
 
 ## Documents
 

@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-17 00:00 UTC]
+**Completed:** Phase 6 — Agent startup check-in: created `CLAUDE.md` formalizing the full agent workflow (git config, context read, startup log write to INBOX.md with session #/status/next/blockers, inbox processing, plan execution, PROGRESS.md update, commit+push); Phase 6 now complete
+**Files changed:** CLAUDE.md, INBOX.md, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
+**Next up:** Phase 7 — Design per-user taste model
+**Blockers:** None
+---
+
 ## [2026-05-16 03:00 UTC]
 **Completed:** Phase 6 — Latency profiling: identified 3-LLM-call bottleneck per conversational request; fixed by returning `(ToolCall | None, str)` from `ToolRouter.route()` and reusing the LLM's fallback text directly (conversational requests: 3 calls → 1); replaced `_needs_new_tool` LLM classifier with `_heuristic_needs_tool()` keyword check; added `time.perf_counter()` timing logs for STT, routing, and tool steps; 282 tests pass (18 skipped)
 **Files changed:** server/llm/router.py, server/main.py, tests/test_main_tool_creator.py, tests/test_error_handling.py, tests/test_tool_creator_e2e.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
