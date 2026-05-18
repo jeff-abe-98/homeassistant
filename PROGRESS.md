@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-18 00:00 UTC]
+**Completed:** Phase 7 — Voice interface: "Play something I'd like" → `MusicRecommendationTool` auto-discovered by ToolRegistry; description contains all trigger phrases; 3 new voice-interface smoke tests added (registry discovery, full recommendation path, cold-start path); 21 total recommendation tests pass; Phase 7 and all phases complete
+**Files changed:** tests/test_music_recommendations.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
+**Next up:** All phases complete — awaiting new user instructions
+**Blockers:** None
+---
+
 ## [2026-05-17 03:00 UTC]
 **Completed:** Phase 7 — Recommendation engine: `server/tools/music_recommendations.py` (`MusicRecommendationTool`); `_recommend` builds profile → selects top-3 genre seeds + top-2 artist seeds → calls `sp.recommendations()` with audio targets → filters last-7-days plays → shuffles → starts playback on TV → records each track as `play_source="recommendation"`; cold-start falls back to `sp.featured_playlists()`; `recently_played_ids` helper added to `music_profile.py`; 18 new tests pass
 **Files changed:** server/tools/music_recommendations.py, server/tools/music_profile.py, tests/test_music_recommendations.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md

@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-05-18 (session 66)
+**Status:** Phase 7 in progress. Last done: recommendation engine (`server/tools/music_recommendations.py` — `MusicRecommendationTool`, `_recommend`, `_cold_start`). Implementing voice interface: "Play something I'd like" → recommendation-driven playlist.
+**Next task:** Phase 7 — Voice interface: "Play something I'd like" → recommendation-driven playlist
+**Blockers:** Google Auth blocked on manual Google Cloud Console setup; CTA/Weather integration tests skip until real API keys set; Phase 2 enrollment needs physical Pi hardware; Android TV and Spotify integration tests skip until real devices/credentials configured.
+
 ### 2026-05-17 (session 65)
 **Status:** Phase 7 in progress. Last done: listening history collection (`server/tools/music_profile.py` — `record_play`, `record_skip`, `build_profile`). Implementing recommendation engine (`server/tools/music_recommendations.py`).
 **Next task:** Phase 7 — Recommendation engine (collaborative filtering or embedding-based)

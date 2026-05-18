@@ -327,3 +327,62 @@ def test_tool_description_contains_trigger_phrases():
     desc = MusicRecommendationTool.description.lower()
     assert "surprise me" in desc
     assert "i'd like" in desc
+
+
+# ---------------------------------------------------------------------------
+# Voice interface — ToolRegistry discovery + end-to-end routing
+# ---------------------------------------------------------------------------
+
+
+def test_music_recommendation_tool_discovered_by_registry():
+    """ToolRegistry.load() must find MusicRecommendationTool automatically."""
+    from server.tools.base import ToolRegistry
+
+    registry = ToolRegistry()
+    registry.load()
+    tool = registry.get("music_recommendation")
+    assert tool is not None
+    assert tool.name == "music_recommendation"
+
+
+def test_voice_play_something_i_would_like_returns_recommendation():
+    """'Play something I'd like' → MusicRecommendationTool.run() → recommendation response."""
+    from server.tools.music_recommendations import MusicRecommendationTool
+
+    sp = _make_sp()
+    cfg = _cfg()
+    profile = _make_profile(has_history=True)
+
+    tool = MusicRecommendationTool()
+
+    with patch("server.tools.music_recommendations.cfg_module.load", return_value=cfg), \
+         patch("server.tools.music_recommendations._is_configured", return_value=True), \
+         patch("server.tools.music_recommendations._get_spotify", return_value=sp), \
+         patch("server.tools.music_recommendations.build_profile", return_value=profile), \
+         patch("server.tools.music_recommendations.recently_played_ids", return_value=set()), \
+         patch("server.tools.music_recommendations.record_play"):
+        result = asyncio.run(tool.run({}, "owner"))
+
+    # Should queue tracks, not cold-start
+    assert "Queuing" in result
+    sp.start_playback.assert_called_once()
+
+
+def test_voice_surprise_me_cold_start_response():
+    """'Surprise me' with no history → friendly 'still learning' message."""
+    from server.tools.music_recommendations import MusicRecommendationTool
+    from server.tools.music_profile import TasteProfile
+
+    sp = _make_sp()
+    cfg = _cfg()
+    empty_profile = TasteProfile(user="owner")
+
+    tool = MusicRecommendationTool()
+
+    with patch("server.tools.music_recommendations.cfg_module.load", return_value=cfg), \
+         patch("server.tools.music_recommendations._is_configured", return_value=True), \
+         patch("server.tools.music_recommendations._get_spotify", return_value=sp), \
+         patch("server.tools.music_recommendations.build_profile", return_value=empty_profile):
+        result = asyncio.run(tool.run({}, "owner"))
+
+    assert "learning your taste" in result or "Featured Mix" in result

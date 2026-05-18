@@ -1,20 +1,27 @@
 # Current Work
 
-**Last updated:** 2026-05-17  
-**Phase:** Phase 7 — Music Recommendations (in progress)
+**Last updated:** 2026-05-18  
+**Phase:** Phase 7 — Music Recommendations (complete)
 
 ---
 
 ## Status
 
-Phase 7 in progress.
+Phase 7 complete.
 
 Done this session:
-- `server/tools/music_recommendations.py` created — `MusicRecommendationTool` (`name="music_recommendation"`); `_recommend` builds TasteProfile → top-3 genre seeds + top-2 artist seeds (resolved to Spotify IDs via search) → `sp.recommendations()` with audio targets → filter last-7-days plays → shuffle → `sp.start_playback(uris=...)` on TV → record each track as `play_source="recommendation"`; cold-start path falls back to `sp.featured_playlists()` with friendly "still learning your taste" message.
-- `recently_played_ids(user, days, db_path)` helper added to `music_profile.py`.
-- 18 new tests pass.
+- Voice interface for music recommendations finalized.
+- `MusicRecommendationTool` is auto-discovered by `ToolRegistry.load()` since it lives in `server/tools/`. No manual registration needed.
+- Description contains trigger phrases: "play something I'd like", "play something good", "surprise me", "play something for me", "play music I like" — the LLM function-calling router picks it up correctly.
+- Added 3 voice-interface smoke tests to `tests/test_music_recommendations.py`:
+  - `test_music_recommendation_tool_discovered_by_registry` — registry finds the tool at load time
+  - `test_voice_play_something_i_would_like_returns_recommendation` — full recommendation path returns "Queuing N tracks" and calls `start_playback`
+  - `test_voice_surprise_me_cold_start_response` — cold-start returns friendly "learning your taste" or featured playlist message
+- 21 total recommendation tests pass.
 
-Next: Phase 7 — Voice interface: "Play something I'd like" → register `MusicRecommendationTool` with ToolRegistry (it auto-discovers from `server.tools` module scan, so no extra registration needed; the tool description already contains trigger phrases).
+Phase 7 is now fully complete.
+
+Next: No unchecked items remain in Phase 7. The project implementation plan is complete. All phases (1–7) are done.
 
 ## Documents
 
