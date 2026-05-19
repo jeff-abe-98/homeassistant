@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-19 02:00 UTC]
+**Completed:** Session check-in (session 73) — all phases 1–7 complete; inbox empty; no actionable plan items; startup log written
+**Files changed:** INBOX.md, PROGRESS.md
+**Next up:** Awaiting new user instructions (Phase 2 hardware items blocked on physical Pi)
+**Blockers:** Phase 2 enrollment/tests require physical Pi + microphone; Google Auth needs manual Cloud Console setup; CTA/Weather integration tests skip until real API keys set
+---
+
 ## [2026-05-19 01:00 UTC]
 **Completed:** Session check-in (session 72) — all phases 1–7 complete; inbox empty; no actionable plan items; startup log written
 **Files changed:** INBOX.md, PROGRESS.md
@@ -67,10 +74,4 @@ Most recent run at top.
 **Blockers:** None
 ---
 
-## [2026-05-17 01:00 UTC]
-**Completed:** Phase 7 — Design per-user taste model: `docs/music-recommendations.md` created with SQLite plays schema, recency-weighted affinity scoring, Spotify `recommendations()` seed strategy, `TasteProfile`/`AudioTargets` dataclass layout, cold-start flow, skip detection wiring, and privacy notes
-**Files changed:** docs/music-recommendations.md, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
-**Next up:** Phase 7 — Listening history collection from Spotify API (`server/tools/music_profile.py`)
-**Blockers:** None
----
 
