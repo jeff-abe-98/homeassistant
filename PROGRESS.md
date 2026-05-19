@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-05-19 01:00 UTC]
+**Completed:** Session check-in (session 72) — all phases 1–7 complete; inbox empty; no actionable plan items; startup log written
+**Files changed:** INBOX.md, PROGRESS.md
+**Next up:** Awaiting new user instructions (Phase 2 hardware items blocked on physical Pi)
+**Blockers:** Phase 2 enrollment/tests require physical Pi + microphone; Google Auth needs manual Cloud Console setup; CTA/Weather integration tests skip until real API keys set
+---
+
 ## [2026-05-19 00:00 UTC]
 **Completed:** Session check-in (session 71) — all phases 1–7 complete; inbox empty; no actionable plan items; startup log written
 **Files changed:** INBOX.md, PROGRESS.md
@@ -67,16 +74,3 @@ Most recent run at top.
 **Blockers:** None
 ---
 
-## [2026-05-17 00:00 UTC]
-**Completed:** Phase 6 — Agent startup check-in: created `CLAUDE.md` formalizing the full agent workflow (git config, context read, startup log write to INBOX.md with session #/status/next/blockers, inbox processing, plan execution, PROGRESS.md update, commit+push); Phase 6 now complete
-**Files changed:** CLAUDE.md, INBOX.md, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
-**Next up:** Phase 7 — Design per-user taste model
-**Blockers:** None
----
-
-## [2026-05-16 03:00 UTC]
-**Completed:** Phase 6 — Latency profiling: identified 3-LLM-call bottleneck per conversational request; fixed by returning `(ToolCall | None, str)` from `ToolRouter.route()` and reusing the LLM's fallback text directly (conversational requests: 3 calls → 1); replaced `_needs_new_tool` LLM classifier with `_heuristic_needs_tool()` keyword check; added `time.perf_counter()` timing logs for STT, routing, and tool steps; 282 tests pass (18 skipped)
-**Files changed:** server/llm/router.py, server/main.py, tests/test_main_tool_creator.py, tests/test_error_handling.py, tests/test_tool_creator_e2e.py, plan.md, .project/CURRENT_WORK.md, PROGRESS.md, INBOX.md
-**Next up:** Phase 6 — Agent startup check-in (write status to INBOX.md at session start)
-**Blockers:** None
----
