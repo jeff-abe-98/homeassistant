@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-06-01 00:00 UTC]
+**Completed:** Session check-in (session 129) — all phases 1–7 complete; inbox empty; no actionable plan items; startup log written
+**Files changed:** INBOX.md, PROGRESS.md
+**Next up:** Awaiting new user instructions (Phase 2 hardware items blocked on physical Pi)
+**Blockers:** Phase 2 enrollment/tests require physical Pi + microphone; Google Auth needs manual Cloud Console setup; CTA/Weather integration tests skip until real API keys set
+---
+
 ## [2026-05-31 21:00 UTC]
 **Completed:** Session check-in (session 128) — all phases 1–7 complete; inbox empty; no actionable plan items; startup log written
 **Files changed:** INBOX.md, PROGRESS.md
@@ -67,10 +74,4 @@ Most recent run at top.
 **Blockers:** Phase 2 enrollment/tests require physical Pi + microphone; Google Auth needs manual Cloud Console setup; CTA/Weather integration tests skip until real API keys set
 ---
 
-## [2026-05-29 24:00 UTC]
-**Completed:** Session check-in (session 119) — all phases 1–7 complete; inbox empty; no actionable plan items; startup log written
-**Files changed:** INBOX.md, PROGRESS.md
-**Next up:** Awaiting new user instructions (Phase 2 hardware items blocked on physical Pi)
-**Blockers:** Phase 2 enrollment/tests require physical Pi + microphone; Google Auth needs manual Cloud Console setup; CTA/Weather integration tests skip until real API keys set
----
 
