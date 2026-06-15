@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-15
-**Phase:** Phase 1 — Documentation & Repo Restructure (pi-only redesign)
+**Phase:** Phase 2 — HailoRT LLM Client (driver install complete, moving to research)
 
 ---
 

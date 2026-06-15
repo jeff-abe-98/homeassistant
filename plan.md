@@ -23,6 +23,7 @@
 ## Phase 2 — HailoRT LLM Client
 *Goal: Replace Ollama with a HailoRT-based LLM client that exposes the same interface.*
 
+- [x] Install Hailo AI HAT+ 2 PCIe driver (`hailo-h10-all`) on Pi; enable PCIe Gen 3 in `/boot/firmware/config.txt` *(done 2026-06-15 — `install-hailo-drivers.sh` created; hardware confirmed detected via lspci)*
 - [ ] Research Hailo GenAI Python API for LLM inference — read Hailo docs/GitHub, document findings in `.project/research/hailo-llm.md`: import path, model loading, chat completion API, streaming support, available compiled models (Llama 3.2 1B/3B, Qwen3 1.7B), recommended model for tool routing on 3B
 - [ ] `pi/llm/hailo_client.py` — `HailoLLMClient` with `async chat(messages: list) -> str` and `async complete(system: str, user: str) -> str` matching the old `OllamaClient` interface; loads Hailo-compiled model from path in config; handles runtime errors gracefully
 - [ ] `pi/llm/router.py` — `ToolRouter` using `HailoLLMClient`; `route(transcript, user) -> tuple[ToolCall | None, str]` returns tool call + fallback text (same contract as existing `server/llm/router.py`); uses tool `function_schemas()` from ToolRegistry
@@ -127,4 +128,4 @@
 |------|-------|---------|--------|
 | 2026-06-07 | Phase 2 | HailoRT Python API details require research before implementation — agent must read Hailo GenAI GitHub before writing hailo_client.py | Pending research |
 | 2026-06-07 | Phase 3 | Hailo Whisper Python API requires research — agent must read hailo-ai/hailo-whisper before writing hailo_transcriber.py | Pending research |
-| 2026-06-07 | All | Physical Pi + AI HAT+ 2 not yet purchased — all Hailo runtime code must be written against mocked HailoRT; real hardware testing deferred | Hardware not yet ordered |
+| 2026-06-07 | All | Physical Pi + AI HAT+ 2 not yet purchased — all Hailo runtime code must be written against mocked HailoRT; real hardware testing deferred | Hardware arrived 2026-06-15; drivers installed (reboot pending) |
