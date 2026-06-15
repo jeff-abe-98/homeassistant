@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-15 (session 131)
+**Status:** Pi-only redesign Phase 1 starting; first unchecked item is updating docs/parts-list.md with new hardware (Pi 5 + AI HAT+ 2, no server).
+**Next task:** Phase 1 item 1 — Update `docs/parts-list.md`.
+**Blockers:** No GitHub PAT in session prompt — git push will need manual push or PAT provided.
+
 ### 2026-06-01 (session 130)
 **Status:** All phases 1–7 complete; inbox empty; no actionable plan items remain (Phase 2 hardware-blocked).
 **Next task:** No unchecked plan items — Phase 2 enrollment/tests require physical Pi + microphone.

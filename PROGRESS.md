@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-06-15 UTC]
+**Completed:** Phase 1 item 1 — updated `docs/parts-list.md` for Pi-only architecture (Pi 5 + AI HAT+ 2 + USB mic, ~$270 total; server section removed; PCIe conflict note + Hailo setup notes added)
+**Files changed:** docs/parts-list.md, plan.md, INBOX.md, .project/CURRENT_WORK.md
+**Next up:** Phase 1 item 2 — Update `docs/technical-stack.md` (HailoRT replaces Ollama + Faster Whisper; remove server stack entries)
+**Blockers:** None
+---
+
 ## [2026-06-01 06:00 UTC]
 **Completed:** Session check-in (session 130) — all phases 1–7 complete; inbox empty; no actionable plan items; startup log written
 **Files changed:** INBOX.md, PROGRESS.md

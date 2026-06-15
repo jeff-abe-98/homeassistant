@@ -1,6 +1,6 @@
 # Current Work
 
-**Last updated:** 2026-06-07
+**Last updated:** 2026-06-15
 **Phase:** Phase 1 — Documentation & Repo Restructure (pi-only redesign)
 
 ---
