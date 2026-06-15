@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-15 UTC]
+**Completed:** Phase 2 complete — HailoRT LLM Client: research doc + hailo_client.py + router.py + prompts.py + 20 smoke tests all passing
+**Files changed:** .project/research/hailo-llm.md, pi/llm/hailo_client.py, pi/llm/router.py, pi/llm/prompts.py, tests/test_hailo_llm.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 3 item 1 — Research Hailo Whisper Python API (hailo-ai/hailo-whisper)
+**Blockers:** None
+---
+
+## [2026-06-15 UTC]
 **Completed:** Phase 2 prerequisite — created `install-hailo-drivers.sh` (installs `hailo-h10-all`, enables PCIe Gen 3); Hailo-10H confirmed detected on PCIe; hardware blocker resolved
 **Files changed:** install-hailo-drivers.sh, plan.md
 **Next up:** Run install script + reboot, then Phase 2 item 1 — Research Hailo GenAI Python API

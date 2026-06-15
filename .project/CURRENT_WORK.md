@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-15
-**Phase:** Phase 2 — HailoRT LLM Client (driver install complete, moving to research)
+**Phase:** Phase 3 — HailoRT STT Client (Phase 2 complete)
 
 ---
 
@@ -12,7 +12,7 @@ Full architectural redesign in progress. The original server+Pi split architectu
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
 
-Phase 1 is next: update docs, restructure repo, set up new directory layout. No implementation code yet.
+Phase 2 (HailoRT LLM Client) is complete. Phase 3 (HailoRT STT Client) is next.
 
 ## Documents
 

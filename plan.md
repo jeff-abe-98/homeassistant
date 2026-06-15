@@ -24,11 +24,11 @@
 *Goal: Replace Ollama with a HailoRT-based LLM client that exposes the same interface.*
 
 - [x] Install Hailo AI HAT+ 2 PCIe driver (`hailo-h10-all`) on Pi; enable PCIe Gen 3 in `/boot/firmware/config.txt` *(done 2026-06-15 — `install-hailo-drivers.sh` created; hardware confirmed detected via lspci)*
-- [ ] Research Hailo GenAI Python API for LLM inference — read Hailo docs/GitHub, document findings in `.project/research/hailo-llm.md`: import path, model loading, chat completion API, streaming support, available compiled models (Llama 3.2 1B/3B, Qwen3 1.7B), recommended model for tool routing on 3B
-- [ ] `pi/llm/hailo_client.py` — `HailoLLMClient` with `async chat(messages: list) -> str` and `async complete(system: str, user: str) -> str` matching the old `OllamaClient` interface; loads Hailo-compiled model from path in config; handles runtime errors gracefully
-- [ ] `pi/llm/router.py` — `ToolRouter` using `HailoLLMClient`; `route(transcript, user) -> tuple[ToolCall | None, str]` returns tool call + fallback text (same contract as existing `server/llm/router.py`); uses tool `function_schemas()` from ToolRegistry
-- [ ] `pi/llm/prompts.py` — `build_system_prompt(user, context_turns, tool_instructions)`: injects speaker name, recent memory turns, and any loaded `_instructions.md` content from generated tools; tuned for 3B model (concise, structured)
-- [ ] Smoke tests for `HailoLLMClient` and `ToolRouter` with mocked HailoRT runtime
+- [x] Research Hailo GenAI Python API for LLM inference — read Hailo docs/GitHub, document findings in `.project/research/hailo-llm.md`: import path, model loading, chat completion API, streaming support, available compiled models (Llama 3.2 1B/3B, Qwen3 1.7B), recommended model for tool routing on 3B *(done 2026-06-15 — `.project/research/hailo-llm.md` written; direct hailo_platform.genai API documented; no 3B model available on Hailo-10H — max is Qwen3-1.7B; Qwen2-1.5B-Instruct-Function-Calling-v1 recommended for tool routing)*
+- [x] `pi/llm/hailo_client.py` — `HailoLLMClient` with `async chat(messages: list) -> str` and `async complete(system: str, user: str) -> str` matching the old `OllamaClient` interface; loads Hailo-compiled model from path in config; handles runtime errors gracefully *(done 2026-06-15 — lazy hailo_platform import; LLMError/LLMTimeoutError; ToolMessage/ToolCallItem/ToolFunction mirror Ollama Message interface; tool schemas injected into system prompt for Qwen2 function-calling format)*
+- [x] `pi/llm/router.py` — `ToolRouter` using `HailoLLMClient`; `route(transcript, user) -> tuple[ToolCall | None, str]` returns tool call + fallback text (same contract as existing `server/llm/router.py`); uses tool `function_schemas()` from ToolRegistry *(done 2026-06-15 — ToolRegistryLike Protocol; accepts optional context_turns for memory injection)*
+- [x] `pi/llm/prompts.py` — `build_system_prompt(user, context_turns, tool_instructions)`: injects speaker name, recent memory turns, and any loaded `_instructions.md` content from generated tools; tuned for 3B model (concise, structured) *(done 2026-06-15 — loads tools/generated/*_instructions.md; concise persona tuned for 1.5B model)*
+- [x] Smoke tests for `HailoLLMClient` and `ToolRouter` with mocked HailoRT runtime *(done 2026-06-15 — 20 tests pass in tests/test_hailo_llm.py)*
 
 ---
 

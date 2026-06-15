@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-15 (session 133)
+**Status:** Phase 1 complete; drivers installed; starting Phase 2 item 1 — research Hailo GenAI Python API for LLM inference
+**Next task:** Phase 2 item 1 — document Hailo GenAI API in `.project/research/hailo-llm.md`
+**Blockers:** None
+
 ### 2026-06-15 (session 132)
 **Status:** Phase 1 complete; hardware arrived — Hailo-10H detected on PCIe; created `install-hailo-drivers.sh` to install `hailo-h10-all` and enable PCIe Gen 3
 **Next task:** Phase 2 item 1 — Research Hailo GenAI Python API (after driver reboot verified)
