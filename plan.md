@@ -10,7 +10,7 @@
 *Goal: Update all docs and restructure the repo before writing new code. No implementation yet.*
 
 - [x] Update `docs/parts-list.md` — replace old hardware list with: Pi 5 8GB (~$80), AI HAT+ 2 (~$130), USB microphone (~$20), A2-rated microSD 64GB (~$15), 27W USB-C PSU + case (~$25); total ~$270; note PCIe conflict prevents ReSpeaker HAT + AI HAT+ 2 simultaneously *(done 2026-06-15 — server section removed, Hailo setup notes added)*
-- [ ] Update `docs/technical-stack.md` — HailoRT replaces Ollama + Faster Whisper; unified Pi process replaces server+client split; remove all server-specific stack entries; add HailoRT, Hailo GenAI suite, Hailo-compiled Whisper base
+- [x] Update `docs/technical-stack.md` — HailoRT replaces Ollama + Faster Whisper; unified Pi process replaces server+client split; remove all server-specific stack entries; add HailoRT, Hailo GenAI suite, Hailo-compiled Whisper base *(done 2026-06-15 — server section removed, HailoRT + remote agent sections added, project structure updated)*
 - [ ] Archive `server/` — move entire `server/` directory to `archive/server/` so existing tool implementations are preserved for reference during migration; update `.gitignore` if needed
 - [ ] Create `pi/llm/`, `pi/stt/`, `pi/memory/`, `pi/tool_requests/`, `pi/scheduler/` directories with `__init__.py` files
 - [ ] Update `requirements-pi.txt` — add `hailort`, `hailo-tappas`, remove `websockets` client dep; keep all tool deps (spotipy, googleapiclient, androidtvremote2, etc.)
