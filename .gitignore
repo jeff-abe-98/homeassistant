@@ -29,7 +29,7 @@ pi/tts/models/
 
 # Whisper models (large binary files)
 pi/stt/models/
-server/stt/models/
+archive/server/stt/models/
 
 # Logs
 *.log

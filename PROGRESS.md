@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-15 UTC]
+**Completed:** Phase 1 item 3 — archived `server/` to `archive/server/` via git mv (history preserved); updated .gitignore
+**Files changed:** archive/server/* (26 files renamed), .gitignore, plan.md
+**Next up:** Phase 1 item 4 — Create `pi/llm/`, `pi/stt/`, `pi/memory/`, `pi/tool_requests/`, `pi/scheduler/` directories with `__init__.py` files
+**Blockers:** None
+---
+
+## [2026-06-15 UTC]
 **Completed:** Phase 1 item 2 — updated `docs/technical-stack.md` for Pi-only architecture (HailoRT + Hailo GenAI replaces Ollama + faster-whisper; server section removed; remote tool-builder agent section added; project structure updated)
 **Files changed:** docs/technical-stack.md, plan.md
 **Next up:** Phase 1 item 3 — Archive `server/` to `archive/server/`
