@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-15 UTC]
+**Completed:** Phase 1 complete — items 6/7/8: shared/config.py (HailoConfig, MemoryConfig, ToolRequestConfig; removed server-only configs), config/settings.yaml (hailo/memory/tool_requests sections; removed server/ollama/whisper), tool_requests/ directories + .gitignore rules
+**Files changed:** shared/config.py, config/settings.yaml, tool_requests/pending/.gitkeep, tool_requests/complete/.gitkeep, .gitignore, plan.md
+**Next up:** Phase 2 item 1 — Research Hailo GenAI Python API for LLM inference
+**Blockers:** Hailo research required before implementation; physical AI HAT+ 2 not yet purchased
+---
+
+## [2026-06-15 UTC]
 **Completed:** Phase 1 item 5 — updated requirements-pi.txt: removed websockets, added hailo runtime entries (commented — not on PyPI), added all tool deps from requirements-server.txt
 **Files changed:** requirements-pi.txt, plan.md
 **Next up:** Phase 1 item 6 — Update `shared/config.py`

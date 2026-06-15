@@ -14,9 +14,9 @@
 - [x] Archive `server/` — move entire `server/` directory to `archive/server/` so existing tool implementations are preserved for reference during migration; update `.gitignore` if needed *(done 2026-06-15 — git mv preserves history; gitignore updated)*
 - [x] Create `pi/llm/`, `pi/stt/`, `pi/memory/`, `pi/tool_requests/`, `pi/scheduler/` directories with `__init__.py` files *(done 2026-06-15)*
 - [x] Update `requirements-pi.txt` — add `hailort`, `hailo-tappas`, remove `websockets` client dep; keep all tool deps (spotipy, googleapiclient, androidtvremote2, etc.) *(done 2026-06-15 — hailo packages noted as comments since not on PyPI; all tool deps added from requirements-server.txt)*
-- [ ] Update `shared/config.py` — remove `WhisperConfig` and any server-only config; add `HailoConfig` (model paths for LLM and STT), `MemoryConfig` (session timeout, context turns), `ToolRequestConfig` (queue db path, github sync interval)
-- [ ] Update `config/settings.yaml` — add `hailo:` section (llm_model_path, stt_model_path), `memory:` section (session_timeout_seconds, context_turns), `tool_requests:` section (db_path, sync_interval_seconds); remove server-only keys
-- [ ] Create `tool_requests/pending/` and `tool_requests/complete/` directories in repo root with `.gitkeep` files; add `tool_requests/pending/*.json` to `.gitignore` except `.gitkeep`
+- [x] Update `shared/config.py` — remove `WhisperConfig` and any server-only config; add `HailoConfig` (model paths for LLM and STT), `MemoryConfig` (session timeout, context turns), `ToolRequestConfig` (queue db path, github sync interval) *(done 2026-06-15 — ServerConfig, OllamaConfig, WhisperConfig removed; HailoConfig, MemoryConfig, ToolRequestConfig added)*
+- [x] Update `config/settings.yaml` — add `hailo:` section (llm_model_path, stt_model_path), `memory:` section (session_timeout_seconds, context_turns), `tool_requests:` section (db_path, sync_interval_seconds); remove server-only keys *(done 2026-06-15)*
+- [x] Create `tool_requests/pending/` and `tool_requests/complete/` directories in repo root with `.gitkeep` files; add `tool_requests/pending/*.json` to `.gitignore` except `.gitkeep` *(done 2026-06-15)*
 
 ---
 

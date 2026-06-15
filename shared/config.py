@@ -8,23 +8,21 @@ import yaml
 
 
 @dataclass
-class ServerConfig:
-    host: str = "0.0.0.0"
-    port: int = 8000
+class HailoConfig:
+    llm_model_path: str = "pi/llm/models/llama3.2-3b.hef"
+    stt_model_path: str = "pi/stt/models/whisper-base.hef"
 
 
 @dataclass
-class OllamaConfig:
-    host: str = "http://localhost:11434"
-    model: str = "llama3.1:8b-instruct-q4_K_M"
-    timeout: float = 30.0
+class MemoryConfig:
+    session_timeout_seconds: int = 30
+    context_turns: int = 6
 
 
 @dataclass
-class WhisperConfig:
-    model: str = "large-v3"
-    device: str = "auto"
-    compute_type: str = "auto"
+class ToolRequestConfig:
+    db_path: str = "tool_requests.db"
+    sync_interval_seconds: int = 300
 
 
 @dataclass
@@ -79,10 +77,8 @@ class WakeWordConfig:
     threshold: float = 0.5
     # Require this many consecutive frames above threshold before firing.
     # At 80ms/frame, min_activation_count=3 means ~240ms of sustained detection.
-    # Higher values cut false positives; lower values improve responsiveness.
     min_activation_count: int = 3
     # Seconds to ignore further detections after one fires.
-    # Prevents double-triggering on the same utterance.
     cooldown_seconds: float = 2.0
 
 
@@ -103,9 +99,9 @@ class LoggingConfig:
 
 @dataclass
 class AppConfig:
-    server: ServerConfig = field(default_factory=ServerConfig)
-    ollama: OllamaConfig = field(default_factory=OllamaConfig)
-    whisper: WhisperConfig = field(default_factory=WhisperConfig)
+    hailo: HailoConfig = field(default_factory=HailoConfig)
+    memory: MemoryConfig = field(default_factory=MemoryConfig)
+    tool_requests: ToolRequestConfig = field(default_factory=ToolRequestConfig)
     google: GoogleConfig = field(default_factory=GoogleConfig)
     spotify: SpotifyConfig = field(default_factory=SpotifyConfig)
     cta: CtaConfig = field(default_factory=CtaConfig)
@@ -138,9 +134,9 @@ def load(path: str | None = None) -> AppConfig:
         with settings_path.open() as f:
             raw = yaml.safe_load(f) or {}
 
-    srv = raw.get("server", {})
-    oll = raw.get("ollama", {})
-    whi = raw.get("whisper", {})
+    hai = raw.get("hailo", {})
+    mem = raw.get("memory", {})
+    trq = raw.get("tool_requests", {})
     goo = raw.get("google", {})
     spo = raw.get("spotify", {})
     cta = raw.get("cta", {})
@@ -152,19 +148,17 @@ def load(path: str | None = None) -> AppConfig:
     users_raw = raw.get("users", {})
 
     return AppConfig(
-        server=ServerConfig(
-            host=srv.get("host", "0.0.0.0"),
-            port=int(srv.get("port", 8000)),
+        hailo=HailoConfig(
+            llm_model_path=hai.get("llm_model_path", "pi/llm/models/llama3.2-3b.hef"),
+            stt_model_path=hai.get("stt_model_path", "pi/stt/models/whisper-base.hef"),
         ),
-        ollama=OllamaConfig(
-            host=oll.get("host", "http://localhost:11434"),
-            model=oll.get("model", "llama3.1:8b-instruct-q4_K_M"),
-            timeout=float(oll.get("timeout", 30.0)),
+        memory=MemoryConfig(
+            session_timeout_seconds=int(mem.get("session_timeout_seconds", 30)),
+            context_turns=int(mem.get("context_turns", 6)),
         ),
-        whisper=WhisperConfig(
-            model=whi.get("model", "large-v3"),
-            device=whi.get("device", "auto"),
-            compute_type=whi.get("compute_type", "auto"),
+        tool_requests=ToolRequestConfig(
+            db_path=trq.get("db_path", "tool_requests.db"),
+            sync_interval_seconds=int(trq.get("sync_interval_seconds", 300)),
         ),
         google=GoogleConfig(
             credentials_file=goo.get("credentials_file", "config/google_credentials.json"),

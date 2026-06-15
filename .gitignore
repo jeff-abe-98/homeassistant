@@ -31,6 +31,12 @@ pi/tts/models/
 pi/stt/models/
 archive/server/stt/models/
 
+# Tool request JSON files (contain user queries — pushed to GitHub manually by Pi)
+tool_requests/pending/*.json
+!tool_requests/pending/.gitkeep
+tool_requests/complete/*.json
+!tool_requests/complete/.gitkeep
+
 # Logs
 *.log
 logs/

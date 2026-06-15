@@ -2,31 +2,31 @@
 # All secrets stay in this file — never commit real values.
 # Replace every placeholder (CHANGE_ME / x.x.x.x) before first run.
 
-server:
-  host: 0.0.0.0
-  port: 8000
+hailo:
+  # Paths to Hailo-compiled model files (.hef) on the Pi filesystem.
+  # Download from Hailo Model Zoo after installing HailoRT.
+  llm_model_path: pi/llm/models/llama3.2-3b.hef
+  stt_model_path: pi/stt/models/whisper-base.hef
 
-ollama:
-  host: http://localhost:11434
-  # Pre-GPU: llama3.1:8b-instruct-q4_K_M
-  # Post-GPU (RTX 4060 Ti 16GB): llama3.1:13b-instruct-q4_K_M
-  model: llama3.1:8b-instruct-q4_K_M
+memory:
+  # Seconds of silence before a session is considered ended.
+  session_timeout_seconds: 30
+  # Number of recent conversation turns to inject into the LLM prompt.
+  context_turns: 6
 
-whisper:
-  # Model used for STT on the server; "large-v3" recommended for accuracy
-  model: large-v3
-  device: cpu          # set to "cuda" after GPU upgrade
-  compute_type: int8   # use "float16" on GPU
+tool_requests:
+  # SQLite DB for the local tool request queue (survives reboots).
+  db_path: tool_requests.db
+  # How often (seconds) to attempt pushing pending requests to GitHub.
+  sync_interval_seconds: 300
 
 wake_word:
   # openWakeWord model name; custom models saved to pi/wake_word/models/
   model: hey_jarvis
   threshold: 0.5         # 0.0–1.0; higher = fewer false positives
   # Require this many consecutive 80ms frames above threshold before triggering.
-  # Increase to reduce false positives (e.g. 5 = ~400ms sustained detection required).
   min_activation_count: 3
   # Seconds to suppress the wake-word callback after it fires once.
-  # Prevents the same utterance from triggering twice.
   cooldown_seconds: 2.0
 
 google:
@@ -66,7 +66,6 @@ androidtv:
   # TLS cert pair generated automatically on first run (stored locally, never committed)
   cert_file: config/androidtv_cert.pem
   key_file: config/androidtv_key.pem
-  # Supported apps (package names)
   apps:
     spotify: com.spotify.tv.android
     netflix: com.netflix.ninja
@@ -84,7 +83,7 @@ tts:
   # Download voice models from: https://github.com/rhasspy/piper/blob/master/VOICES.md
   # Place .onnx + .onnx.json files in pi/tts/models/
   model_path: pi/tts/models/en_US-lessac-medium.onnx
-  use_cuda: false  # set true only if Pi has a compatible CUDA device (rare)
+  use_cuda: false
 
 voice_profiles:
   directory: config/voice_profiles/
