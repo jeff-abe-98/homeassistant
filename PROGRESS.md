@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-15 UTC]
+**Completed:** Phase 1 item 5 — updated requirements-pi.txt: removed websockets, added hailo runtime entries (commented — not on PyPI), added all tool deps from requirements-server.txt
+**Files changed:** requirements-pi.txt, plan.md
+**Next up:** Phase 1 item 6 — Update `shared/config.py`
+**Blockers:** None
+---
+
+## [2026-06-15 UTC]
 **Completed:** Phase 1 item 4 — created pi/llm/, pi/stt/, pi/memory/, pi/tool_requests/, pi/scheduler/ with __init__.py files
 **Files changed:** pi/llm/__init__.py, pi/stt/__init__.py, pi/memory/__init__.py, pi/tool_requests/__init__.py, pi/scheduler/__init__.py, plan.md
 **Next up:** Phase 1 item 5 — Update `requirements-pi.txt`
