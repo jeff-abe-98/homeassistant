@@ -1,6 +1,6 @@
 # Implementation Plan — Pi-Only Redesign
 
-**Last updated:** 2026-06-07
+**Last updated:** 2026-06-15
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Agent instructions:** Read this file at the start of every session. Find the first unchecked item in the current phase. Implement it. Check it off with a brief note. Stop when the phase is complete or you hit a blocker.
 
@@ -35,19 +35,14 @@
 ## Phase 3 — HailoRT STT Client
 *Goal: Replace Faster Whisper with Hailo-compiled Whisper base.*
 
-- [ ] Research Hailo Whisper Python API — read `hailo-ai/hailo-whisper` GitHub; document in `.project/research/hailo-whisper.md`: import path, model loading, transcribe API, expected input format (16kHz PCM), output format
-- [ ] `pi/stt/hailo_transcriber.py` — `HailoTranscriber` with `transcribe(pcm_bytes: bytes, sample_rate: int) -> str` matching old `WhisperTranscriber` interface; loads Hailo-compiled Whisper base from config path; returns empty string on failure
-- [ ] Smoke tests for `HailoTranscriber` with mocked HailoRT runtime
+- [ ] Research Hailo Whisper Python API (`hailo-ai/hailo-whisper` GitHub) + implement `pi/stt/hailo_transcriber.py` (`HailoTranscriber` with `transcribe(pcm_bytes: bytes, sample_rate: int) -> str`, lazy hailo_platform import, empty string on failure) + smoke tests with mocked HailoRT; document findings in `.project/research/hailo-whisper.md`
 
 ---
 
 ## Phase 4 — Conversation Memory
 *Goal: SQLite-backed session memory with context injection into LLM prompt.*
 
-- [ ] `pi/memory/db.py` — `init_db(path)`: creates `sessions` (id, started_at, ended_at, speaker), `turns` (id, session_id, speaker, transcript, response, timestamp), `activations` (id, timestamp, wake_word) tables; returns connection
-- [ ] `pi/memory/session.py` — `Session` class: `start(speaker)`, `add_turn(transcript, response)`, `end()`, `get_context_turns(n) -> list[dict]`; session ended by silence timeout or explicit call; auto-commits to SQLite
-- [ ] Wire activation logging: every wake word detection writes a row to `activations` table with timestamp
-- [ ] Context injection: `get_context_turns(n)` output formatted as `[{"role": "user", "content": ...}, {"role": "assistant", "content": ...}]` and passed into `build_system_prompt`
+- [ ] `pi/memory/db.py` + `pi/memory/session.py` + activation logging + context injection — `init_db(path)` creates `sessions`, `turns`, `activations` tables; `Session` class with `start(speaker)`, `add_turn(transcript, response)`, `end()`, `get_context_turns(n) -> list[dict]`; activation rows written on every wake word detection; `get_context_turns` output wired into `build_system_prompt`
 - [ ] Smoke tests: session lifecycle (start/turn/end), context retrieval, persistence across simulated restart, activation logging
 
 ---
@@ -55,10 +50,7 @@
 ## Phase 5 — Unified Main Loop
 *Goal: Single `pi/main.py` replaces both old `pi/main.py` and `server/main.py`.*
 
-- [ ] `pi/main.py` — unified async main loop: load config → init HailoRT (LLM + STT) → load ToolRegistry → start WakeWordDetector → on detection: log activation, start session, capture audio (VAD), run STT, load memory context, route via LLM, execute tool or use LLM response, save turn, run TTS + playback → check new-tool announcement queue before responding
-- [ ] New-tool announcement: on each wake word activation, check SQLite for unannounced completed tools; if any, prepend "By the way, I can now [X] — want to try it?" to response
-- [ ] Failed-tool notification: check for failed tool builds; notify user once then mark notified
-- [ ] Remove WebSocket client (`pi/client.py`) — delete or archive
+- [ ] `pi/main.py` — unified async main loop: load config → init HailoRT (LLM + STT) → load ToolRegistry → start WakeWordDetector → on detection: log activation, start session, capture audio (VAD), run STT, load memory context, route via LLM, execute tool or LLM response, save turn, TTS + playback; include new-tool announcement ("By the way, I can now [X]") and failed-tool notification on each activation; delete `pi/client.py`
 - [ ] End-to-end smoke test: mocked STT + LLM + mocked tool → verify full loop runs without error
 
 ---
@@ -66,23 +58,16 @@
 ## Phase 6 — Tool Request Queue
 *Goal: Local SQLite queue for tool creation requests, with GitHub sync and offline resilience.*
 
-- [ ] `pi/tool_requests/models.py` — `ToolRequest` Pydantic model: `id` (UUID), `timestamp` (ISO-8601), `intent` (str), `user_query` (str), `speaker` (str), `priority` (Literal["low","mid","high"]), `status` (Literal["pending","pushed","complete","failed"]), `context` (list[str]), `error` (str | None)
-- [ ] `pi/tool_requests/queue.py` — `ToolRequestQueue`: SQLite-backed; `enqueue(request)`, `get_pending() -> list[ToolRequest]`, `get_highest_priority() -> ToolRequest | None`, `mark_pushed(id)`, `mark_complete(id)`, `mark_failed(id, error)`, `get_unannounced_complete() -> list[ToolRequest]`, `mark_announced(id)`
-- [ ] `pi/tool_requests/github_sync.py` — `sync()`: git pull to check for completed tools, write pending requests as JSON files to `tool_requests/pending/`, git add + commit + push; `is_online() -> bool` (attempt DNS lookup); retry loop for offline state
-- [ ] Integrate into `pi/main.py`: when LLM detects no tool match → check queue for highest priority → ask user relative priority if queue non-empty → `queue.enqueue()` → `sync()` (or defer if offline, set reminder)
-- [ ] User priority dialogue: LLM asks "Is this more or less urgent than [highest priority item description]?" → user responds → set priority accordingly
-- [ ] Offline message: "I'll remember that for when I'm back online" when `is_online()` returns False
-- [ ] Smoke tests: enqueue/dequeue, offline detection, sync logic with mocked git
+- [ ] `pi/tool_requests/models.py` + `pi/tool_requests/queue.py` — `ToolRequest` Pydantic model (id UUID, timestamp, intent, user_query, speaker, priority low/mid/high, status pending/pushed/complete/failed, context list, error); `ToolRequestQueue` SQLite-backed with `enqueue`, `get_pending`, `get_highest_priority`, `mark_pushed/complete/failed`, `get_unannounced_complete`, `mark_announced`
+- [ ] `pi/tool_requests/github_sync.py` + integrate into `pi/main.py` — `sync()` writes pending JSON files, git push; `is_online()` DNS check; wire into main: no-tool-match → priority dialogue ("Is this more or less urgent than [X]?") → enqueue → sync or queue offline reminder ("I'll remember that for when I'm back online")
+- [ ] Smoke tests: enqueue/dequeue, priority ordering, offline detection, sync with mocked git
 
 ---
 
 ## Phase 7 — Usage Heatmap & Schedule System
 *Goal: Pi drives the remote agent's schedule based on real activation history.*
 
-- [ ] `pi/scheduler/heatmap.py` — `build_heatmap(db_path) -> dict`: query `activations` table, aggregate by (day_of_week 0-6, hour 0-23), return count matrix; `find_low_usage_windows(heatmap) -> dict[int, int]`: for each day of week return the hour with lowest activation count (minimum 2h window)
-- [ ] `pi/scheduler/schedule_writer.py` — `write_schedule(windows, repo_path)`: serialise windows to `schedule.json` in repo root, git add + commit + push only if content changed; `has_enough_data(db_path) -> bool`: True if 14+ days of activations exist
-- [ ] Default schedule: if `has_enough_data()` is False, write `schedule.json` with `{"default": true, "hour": 3, "minute": 0}` (3am daily)
-- [ ] Daily cron on Pi: systemd timer or cron job that runs `python -m pi.scheduler.schedule_writer` once per day
+- [ ] `pi/scheduler/heatmap.py` + `pi/scheduler/schedule_writer.py` + default schedule + systemd timer — `build_heatmap` aggregates activations by (day_of_week, hour); `find_low_usage_windows` returns lowest-count hour per day; `write_schedule` serialises to `schedule.json` and git pushes if changed; `has_enough_data` gates on 14+ days; default `{"default": true, "hour": 3, "minute": 0}` before enough data; systemd timer unit runs `python -m pi.scheduler.schedule_writer` daily
 - [ ] Smoke tests: heatmap aggregation, window finding, default before data, schedule.json format
 
 ---
@@ -90,34 +75,17 @@
 ## Phase 8 — Remote Tool Builder Agent
 *Goal: Define the Claude Code scheduled agent that builds tools from queue requests.*
 
-- [ ] Create `.claude/agents/tool-builder.md` — agent definition with full instructions:
-  - Clone/pull repo at start of run
-  - Read `schedule.json`; call CronDelete + CronCreate to reschedule self for next optimal window
-  - Read all JSON files in `tool_requests/pending/` sorted by priority (high→mid→low), FIFO within same priority
-  - For each request: generate `tools/generated/{tool_name}.py` (BaseTool subclass) + `tools/generated/{tool_name}_instructions.md` (when to use, parameters, response style for small LLM)
-  - Mark request complete: move JSON to `tool_requests/complete/`, update status field
-  - On failure: set status=failed + error field, move to `tool_requests/complete/`
-  - git add + commit + push all changes
-- [ ] Instruction prompt format spec in `.claude/agents/tool-builder.md`: each `_instructions.md` MUST include: trigger phrases, required parameters, optional parameters, example user queries, suggested response style (concise spoken language)
-- [ ] `pi/tool_requests/github_sync.py` — add `pull_completed_tools()`: git pull, scan `tools/generated/` for new `.py` files, register with ToolRegistry, add to announcement queue in SQLite
-- [ ] Smoke tests: announcement queue, new file detection, instruction prompt loading into system prompt
+- [ ] `.claude/agents/tool-builder.md` — complete agent definition: pull repo; read `schedule.json` and reschedule self via CronDelete + CronCreate; process `tool_requests/pending/` sorted by priority (high→mid→low, FIFO within priority); for each request generate `tools/generated/{name}.py` (BaseTool subclass) + `tools/generated/{name}_instructions.md` (trigger phrases, required/optional params, example queries, spoken response style); move JSON to `tool_requests/complete/` marking complete or failed; git push all changes
+- [ ] `pi/tool_requests/github_sync.py` — add `pull_completed_tools()`: git pull, scan `tools/generated/` for new `.py` files, register with ToolRegistry, enqueue announcements in SQLite; smoke tests for announcement queue, new file detection, instruction loading into system prompt
 
 ---
 
 ## Phase 9 — Tool Migration & Hardening
 *Goal: All existing tools verified in new architecture; deploy updated.*
 
-- [ ] Copy tools from `archive/server/tools/` to `server/tools/` (or `pi/tools/` — follow whatever path ToolRegistry scans after restructure); verify imports work in new layout
-- [ ] Verify weather tool end-to-end (mocked OpenWeatherMap)
-- [ ] Verify CTA tool end-to-end (mocked CTA API)
-- [ ] Verify Google Calendar tool end-to-end (mocked Google API)
-- [ ] Verify Google Tasks tool end-to-end (mocked Google API)
-- [ ] Verify Android TV tool end-to-end (mocked androidtvremote2)
-- [ ] Verify Spotify tool end-to-end (mocked spotipy)
-- [ ] Verify music recommendations tool end-to-end (mocked Spotify + SQLite)
-- [ ] Update `deploy/homeassistant-pi.service` — point ExecStart to unified `python -m pi.main`; add systemd timer unit for daily schedule writer
-- [ ] Update `deploy/install-pi-service.sh` — remove server install steps; add AI HAT+ 2 driver setup notes; add HailoRT install steps
-- [ ] Update `CLAUDE.md` — revise any workflow steps that reference server/ or old architecture
+- [ ] Copy tools from `archive/server/tools/` into `pi/tools/` (create directory + `__init__.py`); update imports and ToolRegistry scan path; verify all tools import cleanly
+- [ ] Verify all 7 tools end-to-end with mocked external APIs: weather (OpenWeatherMap), CTA, Google Calendar, Google Tasks, Android TV, Spotify, music recommendations — all existing smoke tests must pass under new import paths
+- [ ] Update deploy files: `deploy/homeassistant-pi.service` (ExecStart → `python -m pi.main`; add systemd timer for schedule writer), `deploy/install-pi-service.sh` (remove server steps; add HailoRT + AI HAT+ 2 driver notes), `CLAUDE.md` (remove server/ references)
 - [ ] Full end-to-end smoke test: wake word → STT (mocked) → LLM routing (mocked) → tool execution → TTS (mocked) → all assertions pass
 
 ---
