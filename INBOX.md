@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-16 (session 134)
+**Status:** Phase 2 complete; starting Phase 3 — HailoRT STT Client; first item combines research + implementation + tests in one task
+**Next task:** Phase 3 item 1 — Research Hailo Whisper API + implement `pi/stt/hailo_transcriber.py` + smoke tests
+**Blockers:** None
+
 ### 2026-06-15 (session 133)
 **Status:** Phase 1 complete; drivers installed; starting Phase 2 item 1 — research Hailo GenAI Python API for LLM inference
 **Next task:** Phase 2 item 1 — document Hailo GenAI API in `.project/research/hailo-llm.md`

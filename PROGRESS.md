@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-06-16 UTC]
+**Completed:** Phase 3 — HailoRT STT Client: research doc + hailo_transcriber.py (hailo_platform.genai.Speech2Text; PCM int16→float32; lazy load; empty string on failure) + 17 smoke tests passing
+**Files changed:** .project/research/hailo-whisper.md, pi/stt/hailo_transcriber.py, tests/test_hailo_stt.py, requirements-pi.txt, conftest.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 4 item 1 — pi/memory/db.py + pi/memory/session.py + activation logging + context injection
+**Blockers:** None
+---
+
 ## [2026-06-15 UTC]
 **Completed:** Phase 2 complete — HailoRT LLM Client: research doc + hailo_client.py + router.py + prompts.py + 20 smoke tests all passing
 **Files changed:** .project/research/hailo-llm.md, pi/llm/hailo_client.py, pi/llm/router.py, pi/llm/prompts.py, tests/test_hailo_llm.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md

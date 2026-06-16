@@ -3,7 +3,8 @@ import sys
 from unittest.mock import MagicMock
 
 # Server-side packages that require compiled binaries or large models:
-for _name in ("ollama", "faster_whisper", "numpy"):
+# numpy is now installed (required by HailoTranscriber for PCM conversion)
+for _name in ("ollama", "faster_whisper"):
     sys.modules.setdefault(_name, MagicMock())
 
 # Spotify SDK — not installed in CI test environment:

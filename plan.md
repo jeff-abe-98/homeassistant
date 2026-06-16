@@ -35,7 +35,7 @@
 ## Phase 3 — HailoRT STT Client
 *Goal: Replace Faster Whisper with Hailo-compiled Whisper base.*
 
-- [ ] Research Hailo Whisper Python API (`hailo-ai/hailo-whisper` GitHub) + implement `pi/stt/hailo_transcriber.py` (`HailoTranscriber` with `transcribe(pcm_bytes: bytes, sample_rate: int) -> str`, lazy hailo_platform import, empty string on failure) + smoke tests with mocked HailoRT; document findings in `.project/research/hailo-whisper.md`
+- [x] Research Hailo Whisper Python API (`hailo-ai/hailo-whisper` GitHub) + implement `pi/stt/hailo_transcriber.py` (`HailoTranscriber` with `transcribe(pcm_bytes: bytes, sample_rate: int) -> str`, lazy hailo_platform import, empty string on failure) + smoke tests with mocked HailoRT; document findings in `.project/research/hailo-whisper.md` *(done 2026-06-16 — uses hailo_platform.genai.Speech2Text; lazy VDevice+STT load; PCM int16→float32 via numpy; 17 smoke tests pass; numpy added to requirements-pi.txt; conftest.py updated to allow real numpy)*
 
 ---
 
