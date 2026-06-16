@@ -94,6 +94,6 @@
 
 | Date | Phase | Blocker | Status |
 |------|-------|---------|--------|
-| 2026-06-07 | Phase 2 | HailoRT Python API details require research before implementation — agent must read Hailo GenAI GitHub before writing hailo_client.py | Pending research |
-| 2026-06-07 | Phase 3 | Hailo Whisper Python API requires research — agent must read hailo-ai/hailo-whisper before writing hailo_transcriber.py | Pending research |
-| 2026-06-07 | All | Physical Pi + AI HAT+ 2 not yet purchased — all Hailo runtime code must be written against mocked HailoRT; real hardware testing deferred | Hardware arrived 2026-06-15; drivers installed (reboot pending) |
+| 2026-06-07 | Phase 2 | HailoRT Python API details require research before implementation — agent must read Hailo GenAI GitHub before writing hailo_client.py | Resolved 2026-06-15 — research complete, hailo_client.py implemented |
+| 2026-06-07 | Phase 3 | Hailo Whisper Python API requires research — agent must read hailo-ai/hailo-whisper before writing hailo_transcriber.py | Resolved 2026-06-15 — research complete, hailo_transcriber.py implemented |
+| 2026-06-07 | All | Physical Pi + AI HAT+ 2 not yet purchased — all Hailo runtime code must be written against mocked HailoRT; real hardware testing deferred | Resolved 2026-06-15 — hardware arrived, drivers installed |
