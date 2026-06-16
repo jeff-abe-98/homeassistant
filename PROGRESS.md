@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-16 UTC]
+**Completed:** Phase 4 item 1 — Conversation Memory: init_db() (sessions/turns/activations tables, WAL mode), Session class (start/add_turn/end/get_context_turns), log_activation(); context turns format compatible with ToolRouter.route() context_turns param
+**Files changed:** pi/memory/db.py, pi/memory/session.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 4 item 2 — Smoke tests: session lifecycle, context retrieval, persistence across simulated restart, activation logging
+**Blockers:** None
+---
+
+## [2026-06-16 UTC]
 **Completed:** Phase 3 — HailoRT STT Client: research doc + hailo_transcriber.py (hailo_platform.genai.Speech2Text; PCM int16→float32; lazy load; empty string on failure) + 17 smoke tests passing
 **Files changed:** .project/research/hailo-whisper.md, pi/stt/hailo_transcriber.py, tests/test_hailo_stt.py, requirements-pi.txt, conftest.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
 **Next up:** Phase 4 item 1 — pi/memory/db.py + pi/memory/session.py + activation logging + context injection

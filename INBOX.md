@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-16 (session 135)
+**Status:** Phase 3 complete; starting Phase 4 — Conversation Memory; first item is db.py + session.py + activation logging
+**Next task:** Phase 4 item 1 — `pi/memory/db.py` + `pi/memory/session.py` + activation logging + context injection
+**Blockers:** None
+
 ### 2026-06-16 (session 134)
 **Status:** Phase 2 complete; starting Phase 3 — HailoRT STT Client; first item combines research + implementation + tests in one task
 **Next task:** Phase 3 item 1 — Research Hailo Whisper API + implement `pi/stt/hailo_transcriber.py` + smoke tests
