@@ -50,7 +50,7 @@
 ## Phase 5 — Unified Main Loop
 *Goal: Single `pi/main.py` replaces both old `pi/main.py` and `server/main.py`.*
 
-- [ ] `pi/main.py` — unified async main loop: load config → init HailoRT (LLM + STT) → load ToolRegistry → start WakeWordDetector → on detection: log activation, start session, capture audio (VAD), run STT, load memory context, route via LLM, execute tool or LLM response, save turn, TTS + playback; include new-tool announcement ("By the way, I can now [X]") and failed-tool notification on each activation; delete `pi/client.py`
+- [x] `pi/main.py` — unified async main loop: load config → init HailoRT (LLM + STT) → load ToolRegistry → start WakeWordDetector → on detection: log activation, start session, capture audio (VAD), run STT, load memory context, route via LLM, execute tool or LLM response, save turn, TTS + playback; include new-tool announcement ("By the way, I can now [X]") and failed-tool notification on each activation; delete `pi/client.py` *(done 2026-06-16 — tools/generated/ package created; pi/tools/base.py with BaseTool+ToolRegistry; pi/client.py deleted; 57 tests pass)*
 - [ ] End-to-end smoke test: mocked STT + LLM + mocked tool → verify full loop runs without error
 
 ---

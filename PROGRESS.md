@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-16 UTC]
+**Completed:** Phase 5 item 1 — Unified `pi/main.py`: wake-word loop → capture → STT+speaker_id concurrent → log_activation → Session → LLM route → tool/fallback → new-tool announcement → save turn → TTS+play; `pi/tools/base.py` (BaseTool+ToolRegistry scanning tools.generated); `tools/__init__.py` + `tools/generated/__init__.py` created; `pi/client.py` deleted; 57 tests pass
+**Files changed:** pi/main.py, pi/tools/__init__.py, pi/tools/base.py, tools/__init__.py, tools/generated/__init__.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 5 item 2 — End-to-end smoke test (mocked STT + LLM + tool → full loop)
+**Blockers:** None
+---
+
+## [2026-06-16 UTC]
 **Completed:** Phase 4 item 2 — Smoke tests for memory module: 20 tests covering init_db, WAL mode, Session lifecycle (start/turn/end), get_context_turns ordering/limit/most-recent, persistence across simulated restart, activation logging
 **Files changed:** tests/test_memory.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
 **Next up:** Phase 5 item 1 — `pi/main.py` unified async main loop

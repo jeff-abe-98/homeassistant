@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-16
-**Phase:** Phase 4 complete; Phase 5 — Unified Main Loop next
+**Phase:** Phase 5 — Unified Main Loop (item 1 done, item 2 next)
 
 ---
 
@@ -12,7 +12,15 @@ Full architectural redesign in progress. The original server+Pi split architectu
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
 
-Phase 4 is complete. 20 smoke tests pass for memory (init_db, Session lifecycle, context retrieval, persistence, activation logging). Phase 5 (Unified Main Loop — `pi/main.py`) is next.
+Phase 5 item 1 is complete. `pi/main.py` has been rewritten as the unified async main loop:
+- Loads config + inits HailoTranscriber (STT) + HailoLLMClient (LLM)
+- Opens SQLite memory DB, loads ToolRegistry (scans tools/generated/)
+- Wake word loop: detect → reload tools → capture audio → STT+speaker_id concurrently → log_activation → Session → context turns → LLM route → tool or fallback → announce new tools → save turn → TTS + play
+- `pi/client.py` deleted
+- `tools/generated/` importable package created at repo root
+- `pi/tools/base.py` with BaseTool + ToolRegistry created
+
+Phase 5 item 2 (end-to-end smoke test with mocked STT+LLM+tool) is next.
 
 ## Documents
 
@@ -21,8 +29,8 @@ Phase 4 is complete. 20 smoke tests pass for memory (init_db, Session lifecycle,
 | `requirements.md` | Full project requirements (still valid) |
 | `.project/active/pi-redesign/spec.md` | New architecture spec — read before implementing anything |
 | `plan.md` | New phased implementation plan — agent works from here |
-| `docs/technical-stack.md` | To be updated in Phase 1 |
-| `docs/parts-list.md` | To be updated in Phase 1 |
+| `docs/technical-stack.md` | Updated stack decisions |
+| `docs/parts-list.md` | Updated hardware list |
 
 ## Key Architecture Decisions
 
@@ -52,5 +60,5 @@ None — spec is approved, plan is ready.
 ## Hardware Notes
 
 - Pi 5 8GB + AI HAT+ 2 + USB mic + A2 SD card + PSU/case ≈ $270
-- Hardware not yet ordered — all Hailo runtime code must be written against mocked interfaces
-- Physical Pi + AI HAT+ 2 needed for real hardware testing (enrollment, Hailo inference validation)
+- Hardware arrived 2026-06-15 — Hailo-10H detected on PCIe
+- Physical Pi + AI HAT+ 2 needed for real inference (enrollment, Hailo validation)
