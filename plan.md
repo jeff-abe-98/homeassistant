@@ -69,6 +69,7 @@
 
 - [ ] `pi/scheduler/heatmap.py` + `pi/scheduler/schedule_writer.py` + default schedule + systemd timer — `build_heatmap` aggregates activations by (day_of_week, hour); `find_low_usage_windows` returns lowest-count hour per day; `write_schedule` serialises to `schedule.json` and git pushes if changed; `has_enough_data` gates on 14+ days; default `{"default": true, "hour": 3, "minute": 0}` before enough data; systemd timer unit runs `python -m pi.scheduler.schedule_writer` daily
 - [ ] Smoke tests: heatmap aggregation, window finding, default before data, schedule.json format
+- [ ] `pi/scheduler/prewarm.py` — `PrewarmScheduler` reads `schedule.json` heatmap to identify high-usage windows (top 3 by activation count per day); schedules `asyncio` callbacks to call `HailoLLMClient._ensure_loaded()` and `HailoTranscriber._ensure_loaded()` ~5 minutes before each window so first-interaction latency is negligible; no-op before 14 days of data (defers to lazy load); integrate into `pi/main.py` startup
 
 ---
 
