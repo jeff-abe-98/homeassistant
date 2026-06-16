@@ -51,7 +51,7 @@
 *Goal: Single `pi/main.py` replaces both old `pi/main.py` and `server/main.py`.*
 
 - [x] `pi/main.py` — unified async main loop: load config → init HailoRT (LLM + STT) → load ToolRegistry → start WakeWordDetector → on detection: log activation, start session, capture audio (VAD), run STT, load memory context, route via LLM, execute tool or LLM response, save turn, TTS + playback; include new-tool announcement ("By the way, I can now [X]") and failed-tool notification on each activation; delete `pi/client.py` *(done 2026-06-16 — tools/generated/ package created; pi/tools/base.py with BaseTool+ToolRegistry; pi/client.py deleted; 57 tests pass)*
-- [ ] End-to-end smoke test: mocked STT + LLM + mocked tool → verify full loop runs without error
+- [x] End-to-end smoke test: mocked STT + LLM + mocked tool → verify full loop runs without error *(done 2026-06-16 — 10 tests in tests/test_main_e2e.py cover tool call path, fallback path, empty transcript short-circuit, broken tool recovery, unknown tool fallback, new tool announcement, memory persistence, activation logging, and per-speaker identity; conftest.py updated with pyaudio/webrtcvad/sounddevice/resemblyzer/openwakeword/piper stubs)*
 
 ---
 

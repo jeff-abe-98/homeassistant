@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-16 (session 138)
+**Status:** Phase 5 item 1 done; implementing Phase 5 item 2 — end-to-end smoke tests for unified main loop
+**Next task:** Phase 5 item 2 — End-to-end smoke test (mocked STT + LLM + tool → full loop)
+**Blockers:** None
+
 ### 2026-06-16 (session 137)
 **Status:** Phase 4 complete; starting Phase 5 — unified `pi/main.py` main loop
 **Next task:** Phase 5 item 1 — rewrite `pi/main.py` as unified async loop; create `pi/tools/base.py` ToolRegistry; delete `pi/client.py`

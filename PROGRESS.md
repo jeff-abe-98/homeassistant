@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-16 UTC]
+**Completed:** Phase 5 item 2 — End-to-end smoke tests for unified main loop: 10 tests in `tests/test_main_e2e.py` (tool call, fallback, empty transcript, broken tool, unknown tool, new tool announcement, memory persistence, activation logging, per-speaker identity); `conftest.py` updated with hardware stubs (pyaudio, webrtcvad, sounddevice, resemblyzer, openwakeword, piper) so all Pi modules load without hardware
+**Files changed:** tests/test_main_e2e.py, conftest.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 6 item 1 — `pi/tool_requests/models.py` + `pi/tool_requests/queue.py`
+**Blockers:** None
+---
+
+## [2026-06-16 UTC]
 **Completed:** Phase 5 item 1 — Unified `pi/main.py`: wake-word loop → capture → STT+speaker_id concurrent → log_activation → Session → LLM route → tool/fallback → new-tool announcement → save turn → TTS+play; `pi/tools/base.py` (BaseTool+ToolRegistry scanning tools.generated); `tools/__init__.py` + `tools/generated/__init__.py` created; `pi/client.py` deleted; 57 tests pass
 **Files changed:** pi/main.py, pi/tools/__init__.py, pi/tools/base.py, tools/__init__.py, tools/generated/__init__.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
 **Next up:** Phase 5 item 2 — End-to-end smoke test (mocked STT + LLM + tool → full loop)

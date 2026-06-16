@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-16
-**Phase:** Phase 5 — Unified Main Loop (item 1 done, item 2 next)
+**Phase:** Phase 5 complete — Phase 6 next (Tool Request Queue)
 
 ---
 
@@ -12,15 +12,13 @@ Full architectural redesign in progress. The original server+Pi split architectu
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
 
-Phase 5 item 1 is complete. `pi/main.py` has been rewritten as the unified async main loop:
-- Loads config + inits HailoTranscriber (STT) + HailoLLMClient (LLM)
-- Opens SQLite memory DB, loads ToolRegistry (scans tools/generated/)
-- Wake word loop: detect → reload tools → capture audio → STT+speaker_id concurrently → log_activation → Session → context turns → LLM route → tool or fallback → announce new tools → save turn → TTS + play
-- `pi/client.py` deleted
-- `tools/generated/` importable package created at repo root
-- `pi/tools/base.py` with BaseTool + ToolRegistry created
+Phase 5 is complete. Both items done:
 
-Phase 5 item 2 (end-to-end smoke test with mocked STT+LLM+tool) is next.
+**Item 1:** `pi/main.py` rewritten as unified async main loop (wake word → capture → STT+speaker_id concurrent → memory → LLM route → tool/fallback → TTS+play); `pi/tools/base.py` with BaseTool+ToolRegistry; `tools/generated/` importable package; `pi/client.py` deleted.
+
+**Item 2:** `tests/test_main_e2e.py` — 10 end-to-end smoke tests covering tool call path, fallback path, empty/whitespace transcript short-circuit, broken tool recovery, unknown tool fallback, new tool announcement, memory turn persistence, activation logging, and per-speaker identity. `conftest.py` updated with pyaudio/webrtcvad/sounddevice/resemblyzer/openwakeword/piper stubs so all Pi modules load without hardware.
+
+**Next:** Phase 6 item 1 — `pi/tool_requests/models.py` + `pi/tool_requests/queue.py` (ToolRequest Pydantic model + SQLite-backed queue).
 
 ## Documents
 
