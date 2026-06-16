@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-16 UTC]
+**Completed:** Phase 6 item 1 — `pi/tool_requests/models.py` (ToolRequest Pydantic model: UUID id, timestamp, intent, user_query, speaker, priority, status, context, error) + `pi/tool_requests/queue.py` (ToolRequestQueue: SQLite WAL, enqueue, get_pending priority-sorted, get_highest_priority, mark_pushed/complete/failed, get_unannounced_complete, mark_announced); 20 smoke tests pass
+**Files changed:** pi/tool_requests/models.py, pi/tool_requests/queue.py, tests/test_tool_requests.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 6 item 2 — `pi/tool_requests/github_sync.py` + integrate into `pi/main.py`
+**Blockers:** None
+---
+
+## [2026-06-16 UTC]
 **Completed:** Phase 5 item 2 — End-to-end smoke tests for unified main loop: 10 tests in `tests/test_main_e2e.py` (tool call, fallback, empty transcript, broken tool, unknown tool, new tool announcement, memory persistence, activation logging, per-speaker identity); `conftest.py` updated with hardware stubs (pyaudio, webrtcvad, sounddevice, resemblyzer, openwakeword, piper) so all Pi modules load without hardware
 **Files changed:** tests/test_main_e2e.py, conftest.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
 **Next up:** Phase 6 item 1 — `pi/tool_requests/models.py` + `pi/tool_requests/queue.py`

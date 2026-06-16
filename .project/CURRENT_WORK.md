@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-16
-**Phase:** Phase 5 complete — Phase 6 next (Tool Request Queue)
+**Phase:** Phase 6 in progress — item 1 complete (models + queue)
 
 ---
 
@@ -12,13 +12,11 @@ Full architectural redesign in progress. The original server+Pi split architectu
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
 
-Phase 5 is complete. Both items done:
+Phase 6 item 1 is complete:
 
-**Item 1:** `pi/main.py` rewritten as unified async main loop (wake word → capture → STT+speaker_id concurrent → memory → LLM route → tool/fallback → TTS+play); `pi/tools/base.py` with BaseTool+ToolRegistry; `tools/generated/` importable package; `pi/client.py` deleted.
+**Item 1:** `pi/tool_requests/models.py` — `ToolRequest` Pydantic model (UUID id, timestamp, intent, user_query, speaker, priority low/mid/high, status pending/pushed/complete/failed, context list, error, priority_rank property). `pi/tool_requests/queue.py` — `ToolRequestQueue` SQLite WAL-mode backed with `enqueue`, `get_pending` (priority-sorted), `get_highest_priority`, `mark_pushed/complete/failed`, `get_unannounced_complete`, `mark_announced`, `close`. 20 smoke tests pass in `tests/test_tool_requests.py`.
 
-**Item 2:** `tests/test_main_e2e.py` — 10 end-to-end smoke tests covering tool call path, fallback path, empty/whitespace transcript short-circuit, broken tool recovery, unknown tool fallback, new tool announcement, memory turn persistence, activation logging, and per-speaker identity. `conftest.py` updated with pyaudio/webrtcvad/sounddevice/resemblyzer/openwakeword/piper stubs so all Pi modules load without hardware.
-
-**Next:** Phase 6 item 1 — `pi/tool_requests/models.py` + `pi/tool_requests/queue.py` (ToolRequest Pydantic model + SQLite-backed queue).
+**Next:** Phase 6 item 2 — `pi/tool_requests/github_sync.py` + integrate into `pi/main.py`.
 
 ## Documents
 

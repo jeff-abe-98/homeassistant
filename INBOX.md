@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-16 (session 139)
+**Status:** Phase 5 complete; starting Phase 6 — Tool Request Queue (models + SQLite-backed queue)
+**Next task:** Phase 6 item 1 — `pi/tool_requests/models.py` + `pi/tool_requests/queue.py`
+**Blockers:** None
+
 ### 2026-06-16 (session 138)
 **Status:** Phase 5 item 1 done; implementing Phase 5 item 2 — end-to-end smoke tests for unified main loop
 **Next task:** Phase 5 item 2 — End-to-end smoke test (mocked STT + LLM + tool → full loop)
