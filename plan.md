@@ -43,7 +43,7 @@
 *Goal: SQLite-backed session memory with context injection into LLM prompt.*
 
 - [x] `pi/memory/db.py` + `pi/memory/session.py` + activation logging + context injection — `init_db(path)` creates `sessions`, `turns`, `activations` tables; `Session` class with `start(speaker)`, `add_turn(transcript, response)`, `end()`, `get_context_turns(n) -> list[dict]`; activation rows written on every wake word detection; `get_context_turns` output wired into `build_system_prompt` *(done 2026-06-16 — WAL SQLite; log_activation(); Session lifecycle; get_context_turns returns chronological role/content dicts compatible with ToolRouter.route() context_turns param)*
-- [ ] Smoke tests: session lifecycle (start/turn/end), context retrieval, persistence across simulated restart, activation logging
+- [x] Smoke tests: session lifecycle (start/turn/end), context retrieval, persistence across simulated restart, activation logging *(done 2026-06-16 — 20 tests pass in tests/test_memory.py; covers init_db, WAL, session start/turn/end, context ordering/limit/most-recent, cross-restart persistence, activation logging)*
 
 ---
 

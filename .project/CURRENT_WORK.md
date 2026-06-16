@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-16
-**Phase:** Phase 4 — Conversation Memory (item 1 done; item 2 next)
+**Phase:** Phase 4 complete; Phase 5 — Unified Main Loop next
 
 ---
 
@@ -12,7 +12,7 @@ Full architectural redesign in progress. The original server+Pi split architectu
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
 
-Phase 4 item 1 (Conversation Memory — db + session) is complete. Phase 4 item 2 (smoke tests) is next.
+Phase 4 is complete. 20 smoke tests pass for memory (init_db, Session lifecycle, context retrieval, persistence, activation logging). Phase 5 (Unified Main Loop — `pi/main.py`) is next.
 
 ## Documents
 

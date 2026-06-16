@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-16 (session 136)
+**Status:** Phase 4 complete — implementing Phase 4 item 2 (smoke tests for memory module)
+**Next task:** Phase 5 item 1 — `pi/main.py` unified async main loop
+**Blockers:** None
+
 ### 2026-06-16 (session 135)
 **Status:** Phase 3 complete; starting Phase 4 — Conversation Memory; first item is db.py + session.py + activation logging
 **Next task:** Phase 4 item 1 — `pi/memory/db.py` + `pi/memory/session.py` + activation logging + context injection

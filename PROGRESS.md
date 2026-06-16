@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-16 UTC]
+**Completed:** Phase 4 item 2 — Smoke tests for memory module: 20 tests covering init_db, WAL mode, Session lifecycle (start/turn/end), get_context_turns ordering/limit/most-recent, persistence across simulated restart, activation logging
+**Files changed:** tests/test_memory.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 5 item 1 — `pi/main.py` unified async main loop
+**Blockers:** None
+---
+
+## [2026-06-16 UTC]
 **Completed:** Phase 4 item 1 — Conversation Memory: init_db() (sessions/turns/activations tables, WAL mode), Session class (start/add_turn/end/get_context_turns), log_activation(); context turns format compatible with ToolRouter.route() context_turns param
 **Files changed:** pi/memory/db.py, pi/memory/session.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
 **Next up:** Phase 4 item 2 — Smoke tests: session lifecycle, context retrieval, persistence across simulated restart, activation logging
