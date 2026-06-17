@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-17 UTC]
+**Completed:** Phase 7 item 1 — `pi/scheduler/heatmap.py` (build_heatmap, find_low_usage_windows, has_enough_data) + `pi/scheduler/schedule_writer.py` (write_schedule + _git_push + main entry point) + systemd timer pair (`deploy/homeassistant-scheduler.service` + `deploy/homeassistant-scheduler.timer`)
+**Files changed:** pi/scheduler/heatmap.py, pi/scheduler/schedule_writer.py, deploy/homeassistant-scheduler.service, deploy/homeassistant-scheduler.timer, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 7 item 2 — Smoke tests: heatmap aggregation, window finding, default before data, schedule.json format
+**Blockers:** None
+---
+
+## [2026-06-17 UTC]
 **Completed:** Phase 6 item 3 — smoke tests for offline detection + sync with mocked git (`tests/test_github_sync.py`): 19 tests covering is_online (TCP success/OSError/timeout/custom args) and sync (empty queue, JSON content, marks pushed, count, multiple files, git call ordering, rollback on add/commit/push failure and timeout, pending-only filter); Phase 6 fully complete
 **Files changed:** tests/test_github_sync.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
 **Next up:** Phase 7 item 1 — `pi/scheduler/heatmap.py` + `pi/scheduler/schedule_writer.py` + default schedule + systemd timer

@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-17
-**Phase:** Phase 6 complete — all 3 items done; Phase 7 next
+**Phase:** Phase 7 — item 1 done (heatmap + schedule_writer + systemd timer)
 
 ---
 
@@ -12,15 +12,15 @@ Full architectural redesign in progress. The original server+Pi split architectu
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
 
-Phase 6 is complete (all 3 items done):
+Phase 7 item 1 is complete:
 
-**Item 1:** `pi/tool_requests/models.py` + `pi/tool_requests/queue.py` — ToolRequest Pydantic model and SQLite WAL-backed queue. 20 smoke tests pass.
+**Item 1:** `pi/scheduler/heatmap.py` — `has_enough_data(conn, min_days=14)` counts distinct activation days; `build_heatmap(conn)` groups activations by (day_of_week, hour) using Python weekday convention (0=Mon..6=Sun); `find_low_usage_windows(heatmap)` returns lowest-count hour per day (earliest-hour tie-break).
 
-**Item 2:** `pi/tool_requests/github_sync.py` — `is_online()` TCP DNS check, `sync()` writes JSON files + git push + marks pushed + rollback on failure. `pi/main.py` — capability gap heuristic + priority dialogue + enqueue + sync.
+`pi/scheduler/schedule_writer.py` — `write_schedule(conn, schedule_path, repo_root)` writes default `{"default": True, "hour": 3, "minute": 0}` before 14 days of data; after 14 days writes `{"windows": [...]}` from heatmap; only git-pushes when content changes; `main()` entry point for `python -m pi.scheduler.schedule_writer`.
 
-**Item 3:** `tests/test_github_sync.py` — 19 smoke tests: is_online (success/OSError/timeout/custom args), sync (empty queue, JSON written, content verified, marks pushed, count returned, multiple files, git call order, rollback on add/commit/push failure/timeout, pending-only filter). 39 tests pass total across tool_requests + github_sync.
+`deploy/homeassistant-scheduler.service` + `deploy/homeassistant-scheduler.timer` — oneshot service + daily timer with `Persistent=true` so runs catch up after Pi downtime.
 
-**Next:** Phase 7 item 1 — `pi/scheduler/heatmap.py` + `pi/scheduler/schedule_writer.py` + default schedule + systemd timer.
+**Next:** Phase 7 item 2 — Smoke tests: heatmap aggregation, window finding, default before data, schedule.json format.
 
 ## Documents
 

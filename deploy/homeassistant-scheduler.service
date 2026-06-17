@@ -1,0 +1,18 @@
+[Unit]
+Description=Home Assistant Scheduler — write schedule.json from activation heatmap
+Documentation=https://github.com/jeff-abe-98/homeassistant
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=homeassistant
+Group=homeassistant
+WorkingDirectory=/opt/homeassistant
+Environment=PYTHONUNBUFFERED=1
+Environment=SETTINGS_PATH=/opt/homeassistant/config/settings.yaml
+ExecStart=/opt/homeassistant/venv/bin/python -m pi.scheduler.schedule_writer
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=homeassistant-scheduler

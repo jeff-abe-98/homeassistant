@@ -1,0 +1,11 @@
+[Unit]
+Description=Home Assistant Scheduler — daily heatmap update
+Documentation=https://github.com/jeff-abe-98/homeassistant
+
+[Timer]
+# Run once per day; Persistent=true catches up if the Pi was off at scheduled time.
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
