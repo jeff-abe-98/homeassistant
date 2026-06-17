@@ -15,6 +15,9 @@ from pi.memory.db import init_db
 from pi.memory.session import Session, log_activation
 from pi.speaker_id.identify import identify
 from pi.stt.hailo_transcriber import HailoTranscriber
+from pi.tool_requests import github_sync
+from pi.tool_requests.models import ToolRequest
+from pi.tool_requests.queue import ToolRequestQueue
 from pi.tools.base import ToolRegistry
 from pi.tts.piper import PiperTTS
 from pi.wake_word.detector import WakeWordDetector
@@ -29,6 +32,26 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 _MEMORY_DB_PATH = "memory.db"
+
+_INABILITY_PHRASES = (
+    "don't know how to do that",
+    "not sure how to help",
+    "can't do that",
+    "i'm unable",
+    "unable to do that",
+    "don't have the ability",
+    "not something i can",
+    "i don't know how",
+    "can't help with that",
+    "not able to",
+    "don't know how to",
+)
+
+
+def _is_capability_gap(fallback_text: str) -> bool:
+    """Return True if the LLM response indicates a missing capability."""
+    lower = fallback_text.lower()
+    return any(phrase in lower for phrase in _INABILITY_PHRASES)
 
 
 # ---------------------------------------------------------------------------
@@ -82,6 +105,63 @@ def _reload_tools(registry: ToolRegistry, known_names: set[str]) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# Capability-gap handling (unknown requests → queue → GitHub sync)
+# ---------------------------------------------------------------------------
+
+
+async def _handle_capability_gap(
+    transcript_text: str,
+    user: str,
+    initial_response: str,
+    stt: HailoTranscriber,
+    tts: PiperTTS,
+    player: AudioPlayer,
+    tool_queue: ToolRequestQueue,
+    loop: asyncio.AbstractEventLoop,
+) -> str:
+    """Ask for priority (if queue non-empty), enqueue, sync to GitHub.
+
+    Returns the spoken confirmation text to be synthesised by _handle_activation.
+    """
+    priority = "mid"
+    highest = tool_queue.get_highest_priority()
+
+    if highest:
+        question = (
+            f"{initial_response} "
+            f"Is this more urgent than: {highest.intent}?"
+        )
+        q_audio = await loop.run_in_executor(None, tts.synthesize, question)
+        await loop.run_in_executor(None, player.play, q_audio)
+
+        pcm_bytes, sample_rate = await _capture_utterance()
+        priority_text = await stt.transcribe(pcm_bytes, sample_rate)
+        pt_lower = priority_text.lower()
+
+        if any(kw in pt_lower for kw in ("yes", "more", "urgent", "important", "higher")):
+            priority = "high"
+        elif any(kw in pt_lower for kw in ("no", "less", "later", "lower", "not really")):
+            priority = "low"
+
+    req = ToolRequest(
+        intent=transcript_text,
+        user_query=transcript_text,
+        speaker=user,
+        priority=priority,
+    )
+    tool_queue.enqueue(req)
+    logger.info("Enqueued tool request %s (priority=%s): %r", req.id, priority, transcript_text)
+
+    if github_sync.is_online():
+        pushed = github_sync.sync(tool_queue)
+        if pushed:
+            return "I've added that to my list and sent it off to be worked on."
+        return "I've noted that, but had trouble syncing. I'll send it when I can."
+    else:
+        return "I'll remember that for when I'm back online."
+
+
+# ---------------------------------------------------------------------------
 # Per-activation pipeline
 # ---------------------------------------------------------------------------
 
@@ -95,6 +175,7 @@ async def _handle_activation(
     player: AudioPlayer,
     conn: sqlite3.Connection,
     known_tool_names: set[str],
+    tool_queue: ToolRequestQueue | None = None,
 ) -> None:
     """Process one wake-word activation end-to-end."""
     loop = asyncio.get_running_loop()
@@ -149,7 +230,20 @@ async def _handle_activation(
                     "Sorry, I had trouble completing that. Please try again."
                 )
     else:
-        response_text = fallback_text or "I'm not sure how to help with that."
+        raw_fallback = fallback_text or ""
+        if tool_queue is not None and _is_capability_gap(raw_fallback):
+            response_text = await _handle_capability_gap(
+                transcript_text,
+                user,
+                raw_fallback or "I don't know how to do that yet.",
+                stt,
+                tts,
+                player,
+                tool_queue,
+                loop,
+            )
+        else:
+            response_text = fallback_text or "I'm not sure how to help with that."
 
     # Announce tools that arrived from the remote agent since the last activation
     if new_tool_names:
@@ -176,6 +270,7 @@ async def main() -> None:
     stt = HailoTranscriber(config.hailo)
     llm = HailoLLMClient(config.hailo)
     conn = init_db(_MEMORY_DB_PATH)
+    tool_queue = ToolRequestQueue(config.tool_requests.db_path)
 
     registry = ToolRegistry()
     registry.load()
@@ -209,6 +304,7 @@ async def main() -> None:
                     player,
                     conn,
                     known_tool_names,
+                    tool_queue=tool_queue,
                 )
             except Exception:
                 logger.exception("Activation pipeline failed")
@@ -216,6 +312,7 @@ async def main() -> None:
         llm.close()
         stt.close()
         conn.close()
+        tool_queue.close()
 
 
 if __name__ == "__main__":

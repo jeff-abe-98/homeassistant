@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-06-17 UTC]
+**Completed:** Phase 6 item 2 — `pi/tool_requests/github_sync.py` (is_online() TCP DNS check, sync() writes {id}.json files, git add/commit/push, marks pushed, rolls back on failure) + `pi/main.py` integration (_is_capability_gap() heuristic, _handle_capability_gap() priority dialogue → enqueue → sync/offline reminder, ToolRequestQueue wired into main loop); 30 tests pass
+**Files changed:** pi/tool_requests/github_sync.py, pi/main.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 6 item 3 — Smoke tests: offline detection, sync with mocked git
+**Blockers:** None
+---
+
 ## [2026-06-16 UTC]
 **Completed:** Phase 6 item 1 — `pi/tool_requests/models.py` (ToolRequest Pydantic model: UUID id, timestamp, intent, user_query, speaker, priority, status, context, error) + `pi/tool_requests/queue.py` (ToolRequestQueue: SQLite WAL, enqueue, get_pending priority-sorted, get_highest_priority, mark_pushed/complete/failed, get_unannounced_complete, mark_announced); 20 smoke tests pass
 **Files changed:** pi/tool_requests/models.py, pi/tool_requests/queue.py, tests/test_tool_requests.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md

@@ -1,7 +1,7 @@
 # Current Work
 
-**Last updated:** 2026-06-16
-**Phase:** Phase 6 in progress — item 1 complete (models + queue)
+**Last updated:** 2026-06-17
+**Phase:** Phase 6 in progress — items 1–2 complete (models + queue + github_sync + main.py integration)
 
 ---
 
@@ -12,11 +12,13 @@ Full architectural redesign in progress. The original server+Pi split architectu
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
 
-Phase 6 item 1 is complete:
+Phase 6 items 1–2 are complete:
 
-**Item 1:** `pi/tool_requests/models.py` — `ToolRequest` Pydantic model (UUID id, timestamp, intent, user_query, speaker, priority low/mid/high, status pending/pushed/complete/failed, context list, error, priority_rank property). `pi/tool_requests/queue.py` — `ToolRequestQueue` SQLite WAL-mode backed with `enqueue`, `get_pending` (priority-sorted), `get_highest_priority`, `mark_pushed/complete/failed`, `get_unannounced_complete`, `mark_announced`, `close`. 20 smoke tests pass in `tests/test_tool_requests.py`.
+**Item 1:** `pi/tool_requests/models.py` + `pi/tool_requests/queue.py` — ToolRequest Pydantic model and SQLite WAL-backed queue. 20 smoke tests pass.
 
-**Next:** Phase 6 item 2 — `pi/tool_requests/github_sync.py` + integrate into `pi/main.py`.
+**Item 2:** `pi/tool_requests/github_sync.py` — `is_online()` TCP DNS check (8.8.8.8:53), `sync()` writes `{id}.json` files to `tool_requests/pending/`, runs git add/commit/push, marks pushed in queue, rolls back JSON files on git failure. `pi/main.py` — `_is_capability_gap()` phrase heuristic, `_handle_capability_gap()` priority dialogue (if queue non-empty: speak question, capture STT, interpret yes/no, set high/low/mid priority) → enqueue → sync or offline reminder; `ToolRequestQueue` initialized in `main()`, passed to `_handle_activation` as optional kwarg. All 10 e2e tests + 20 tool_requests tests pass.
+
+**Next:** Phase 6 item 3 — Smoke tests: enqueue/dequeue, priority ordering, offline detection, sync with mocked git.
 
 ## Documents
 

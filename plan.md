@@ -59,7 +59,7 @@
 *Goal: Local SQLite queue for tool creation requests, with GitHub sync and offline resilience.*
 
 - [x] `pi/tool_requests/models.py` + `pi/tool_requests/queue.py` — `ToolRequest` Pydantic model (id UUID, timestamp, intent, user_query, speaker, priority low/mid/high, status pending/pushed/complete/failed, context list, error); `ToolRequestQueue` SQLite-backed with `enqueue`, `get_pending`, `get_highest_priority`, `mark_pushed/complete/failed`, `get_unannounced_complete`, `mark_announced` *(done 2026-06-16 — 20 smoke tests pass in tests/test_tool_requests.py)*
-- [ ] `pi/tool_requests/github_sync.py` + integrate into `pi/main.py` — `sync()` writes pending JSON files, git push; `is_online()` DNS check; wire into main: no-tool-match → priority dialogue ("Is this more or less urgent than [X]?") → enqueue → sync or queue offline reminder ("I'll remember that for when I'm back online")
+- [x] `pi/tool_requests/github_sync.py` + integrate into `pi/main.py` — `sync()` writes pending JSON files, git push; `is_online()` DNS check; wire into main: no-tool-match → priority dialogue ("Is this more or less urgent than [X]?") → enqueue → sync or queue offline reminder ("I'll remember that for when I'm back online") *(done 2026-06-17 — github_sync.py: is_online() TCP DNS check, sync() writes {id}.json + git add/commit/push, marks pushed; main.py: _is_capability_gap() heuristic, _handle_capability_gap() priority dialogue + enqueue + sync, ToolRequestQueue wired into _handle_activation and main())*
 - [ ] Smoke tests: enqueue/dequeue, priority ordering, offline detection, sync with mocked git
 
 ---
