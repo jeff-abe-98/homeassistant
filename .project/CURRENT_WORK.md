@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-17
-**Phase:** Phase 7 — item 1 done (heatmap + schedule_writer + systemd timer)
+**Phase:** Phase 7 — item 2 done (scheduler smoke tests)
 
 ---
 
@@ -12,15 +12,17 @@ Full architectural redesign in progress. The original server+Pi split architectu
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
 
-Phase 7 item 1 is complete:
+Phase 7 item 2 is complete:
 
-**Item 1:** `pi/scheduler/heatmap.py` — `has_enough_data(conn, min_days=14)` counts distinct activation days; `build_heatmap(conn)` groups activations by (day_of_week, hour) using Python weekday convention (0=Mon..6=Sun); `find_low_usage_windows(heatmap)` returns lowest-count hour per day (earliest-hour tie-break).
+**Item 2:** `tests/test_scheduler.py` — 27 smoke tests covering:
+- `has_enough_data`: empty→False, 13 days→False, 14 days→True, many same day→still False, custom min_days
+- `build_heatmap`: empty dict, counts by hour, aggregation across weeks, distinct day-of-week keys, Sunday SQLite %w→Python weekday 6 conversion, only nonempty slots returned
+- `find_low_usage_windows`: always 7 entries, all days 0–6 present, sorted, lowest count hour, earliest-hour tie-break, unobserved default 0, correct dict keys
+- `write_schedule`: default JSON `{"default":True,"hour":3,"minute":0}` before 14 days, windows JSON (7 entries) after 14 days, correct window keys/ranges, True on first write, False when unchanged, git called on change, no git when unchanged
 
-`pi/scheduler/schedule_writer.py` — `write_schedule(conn, schedule_path, repo_root)` writes default `{"default": True, "hour": 3, "minute": 0}` before 14 days of data; after 14 days writes `{"windows": [...]}` from heatmap; only git-pushes when content changes; `main()` entry point for `python -m pi.scheduler.schedule_writer`.
+All 27 tests pass.
 
-`deploy/homeassistant-scheduler.service` + `deploy/homeassistant-scheduler.timer` — oneshot service + daily timer with `Persistent=true` so runs catch up after Pi downtime.
-
-**Next:** Phase 7 item 2 — Smoke tests: heatmap aggregation, window finding, default before data, schedule.json format.
+**Next:** Phase 7 item 3 — `pi/scheduler/prewarm.py` (`PrewarmScheduler` reads `schedule.json`, schedules asyncio callbacks to prewarm HailoLLM + HailoTranscriber before high-usage windows) + integrate into `pi/main.py` startup.
 
 ## Documents
 

@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-17 (session 143)
+**Status:** Phase 7 item 2 done (27 smoke tests for scheduler: heatmap, windows, write_schedule)
+**Next task:** Phase 7 item 3 — `pi/scheduler/prewarm.py` + integrate into `pi/main.py`
+**Blockers:** None
+
 ### 2026-06-17 (session 142)
 **Status:** Phase 6 complete; starting Phase 7 item 1 — heatmap.py + schedule_writer.py + systemd timer
 **Next task:** Phase 7 item 1 — `pi/scheduler/heatmap.py` + `pi/scheduler/schedule_writer.py` + default schedule + systemd timer

@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-17 UTC]
+**Completed:** Phase 7 item 2 — 27 smoke tests for scheduler (`tests/test_scheduler.py`): has_enough_data (5 tests), build_heatmap (6 tests, including SQLite %w → Python weekday conversion), find_low_usage_windows (8 tests, tie-break/sorted/keys), write_schedule (8 tests, default/windows JSON, unchanged skip, git gating); all 27 pass
+**Files changed:** tests/test_scheduler.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 7 item 3 — `pi/scheduler/prewarm.py` + integrate into `pi/main.py` startup
+**Blockers:** None
+---
+
+## [2026-06-17 UTC]
 **Completed:** Phase 7 item 1 — `pi/scheduler/heatmap.py` (build_heatmap, find_low_usage_windows, has_enough_data) + `pi/scheduler/schedule_writer.py` (write_schedule + _git_push + main entry point) + systemd timer pair (`deploy/homeassistant-scheduler.service` + `deploy/homeassistant-scheduler.timer`)
 **Files changed:** pi/scheduler/heatmap.py, pi/scheduler/schedule_writer.py, deploy/homeassistant-scheduler.service, deploy/homeassistant-scheduler.timer, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
 **Next up:** Phase 7 item 2 — Smoke tests: heatmap aggregation, window finding, default before data, schedule.json format
