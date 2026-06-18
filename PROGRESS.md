@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-18 UTC]
+**Completed:** Phase 9 item 3 — update deploy files: pi.service Wants scheduler.timer; install-pi-service.sh adds HailoRT/PCIe prerequisites + write_unit() helper + scheduler timer enable; CLAUDE.md updated to Pi-only + HailoRT description with archive/server/ note
+**Files changed:** deploy/homeassistant-pi.service, deploy/install-pi-service.sh, CLAUDE.md, plan.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 9 item 4 — full end-to-end smoke test (wake word → STT mocked → LLM routing mocked → tool execution → TTS mocked)
+**Blockers:** None
+---
+
+## [2026-06-18 UTC]
 **Completed:** Phase 9 item 2 — verify all 7 tool smoke tests pass under new pi.tools.* import paths; updated 9 test files (server.tools.* → pi.tools.*, OllamaClient → HailoLLMClient in patch targets); fixed calendar_integration + tasks_integration imports; added collect_ignore for 9 archived-server test files in conftest.py; installed httpx/pydantic/numpy; 386 pass, 18 skipped
 **Files changed:** tests/test_weather.py, tests/test_cta.py, tests/test_calendar.py, tests/test_tasks.py, tests/test_androidtv.py, tests/test_spotify.py, tests/test_music_recommendations.py, tests/test_music_profile.py, tests/test_google_auth.py, tests/test_calendar_integration.py, tests/test_tasks_integration.py, conftest.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
 **Next up:** Phase 9 item 3 — update deploy files (homeassistant-pi.service, install-pi-service.sh, CLAUDE.md)

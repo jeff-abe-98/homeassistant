@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
-# Install and enable the homeassistant-pi systemd service on a Raspberry Pi.
+# Install and enable the homeassistant-pi systemd service on a Raspberry Pi 5.
+#
+# Prerequisites (run BEFORE this script):
+#   - HailoRT driver installed for AI HAT+ 2:
+#       sudo apt update && sudo apt install -y hailo-h10-all
+#   - PCIe Gen 3 enabled in /boot/firmware/config.txt:
+#       dtparam=pciex1_gen=3
+#   - Reboot after driver install and config.txt change:
+#       sudo reboot
+#   - Verify AI HAT+ 2 is detected:
+#       hailortcli fw-control identify
 #
 # Usage:
 #   sudo ./install-pi-service.sh [INSTALL_DIR] [SERVICE_USER]
@@ -10,16 +20,18 @@
 #
 # What this script does:
 #   1. Creates the service user (if it doesn't exist) and adds it to the audio group
-#   2. Copies the project to INSTALL_DIR (if not already there)
+#   2. Copies the project to INSTALL_DIR
 #   3. Creates a Python venv and installs Pi requirements
-#   4. Writes the service file to /etc/systemd/system/
-#   5. Reloads systemd, enables and starts the service
+#   4. Writes the main service file + scheduler service + scheduler timer to /etc/systemd/system/
+#   5. Reloads systemd, enables and starts the service and scheduler timer
 
 set -euo pipefail
 
 INSTALL_DIR="${1:-/opt/homeassistant}"
 SERVICE_USER="${2:-homeassistant}"
 SERVICE_FILE="homeassistant-pi.service"
+SCHEDULER_SERVICE="homeassistant-scheduler.service"
+SCHEDULER_TIMER="homeassistant-scheduler.timer"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
@@ -56,25 +68,32 @@ echo "==> Installing Pi requirements"
 "$VENV/bin/pip" install --quiet -r "$INSTALL_DIR/requirements-pi.txt"
 chown -R "$SERVICE_USER:$SERVICE_USER" "$VENV"
 
-# ── 4. Write service file ─────────────────────────────────────────────────────
-SERVICE_SRC="$SCRIPT_DIR/$SERVICE_FILE"
-SERVICE_DEST="/etc/systemd/system/$SERVICE_FILE"
-echo "==> Writing service file to $SERVICE_DEST"
+# ── 4. Write service and timer files ─────────────────────────────────────────
+write_unit() {
+    local src="$SCRIPT_DIR/$1"
+    local dest="/etc/systemd/system/$1"
+    echo "==> Writing $dest"
+    sed "s|/opt/homeassistant|$INSTALL_DIR|g" "$src" \
+        | sed "s|User=homeassistant|User=$SERVICE_USER|g" \
+        | sed "s|Group=homeassistant|Group=$SERVICE_USER|g" \
+        > "$dest"
+    chmod 644 "$dest"
+}
 
-# Substitute the install dir and service user into the unit file.
-sed "s|/opt/homeassistant|$INSTALL_DIR|g" "$SERVICE_SRC" \
-    | sed "s|User=homeassistant|User=$SERVICE_USER|g" \
-    | sed "s|Group=homeassistant|Group=$SERVICE_USER|g" \
-    > "$SERVICE_DEST"
+write_unit "$SERVICE_FILE"
+write_unit "$SCHEDULER_SERVICE"
+write_unit "$SCHEDULER_TIMER"
 
-chmod 644 "$SERVICE_DEST"
-
-# ── 5. Enable and start the service ──────────────────────────────────────────
+# ── 5. Enable and start the service and scheduler timer ──────────────────────
 echo "==> Reloading systemd"
 systemctl daemon-reload
 
 echo "==> Enabling homeassistant-pi to start on boot"
 systemctl enable homeassistant-pi
+
+echo "==> Enabling scheduler timer"
+systemctl enable homeassistant-scheduler.timer
+systemctl start homeassistant-scheduler.timer
 
 echo "==> Starting homeassistant-pi"
 systemctl restart homeassistant-pi
@@ -82,4 +101,5 @@ systemctl restart homeassistant-pi
 echo ""
 echo "Done. Check status with:"
 echo "  systemctl status homeassistant-pi"
+echo "  systemctl status homeassistant-scheduler.timer"
 echo "  journalctl -u homeassistant-pi -f"

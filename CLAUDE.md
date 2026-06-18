@@ -1,6 +1,6 @@
 # Agent Instructions
 
-This project is a home assistant with voice pipeline, speaker ID, tool integrations, and autonomous tool creation. Read `requirements.md` and `docs/technical-stack.md` before writing any code; follow the tech stack exactly.
+This project is a Pi-only home assistant running on a Raspberry Pi 5 with Hailo AI HAT+ 2. It uses HailoRT for on-device LLM and STT inference, with no server component. Read `requirements.md` and `docs/technical-stack.md` before writing any code; follow the tech stack exactly. The `archive/server/` directory contains the old server+client split architecture and should not be modified or referenced.
 
 ## Every Session — In Order
 

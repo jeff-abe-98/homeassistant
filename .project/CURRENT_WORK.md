@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-18
-**Phase:** Phase 9 — item 2 done (all 7 tool smoke tests verified under pi.tools.* imports)
+**Phase:** Phase 9 — item 3 done (deploy files updated)
 
 ---
 
@@ -12,17 +12,14 @@ Full architectural redesign in progress. The original server+Pi split architectu
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
 
-Phase 9 items 1 and 2 are complete.
+Phase 9 items 1–3 are complete.
 
-**Item 2:** Verify all 7 tools end-to-end with mocked external APIs (done 2026-06-18):
-- Updated 9 test files: `server.tools.*` → `pi.tools.*` (imports + patch strings)
-- Replaced `OllamaClient` → `HailoLLMClient` in all patch targets
-- Fixed `test_calendar_integration.py` + `test_tasks_integration.py` imports
-- Added `collect_ignore` to `conftest.py` for 9 archived-server test files
-- Installed missing packages: `httpx`, `pydantic`, `numpy`
-- Result: 386 pass, 18 skipped (hardware/credential-gated)
+**Item 3:** Update deploy files (done 2026-06-18):
+- `deploy/homeassistant-pi.service`: added `Wants=homeassistant-scheduler.timer` to [Unit] section
+- `deploy/install-pi-service.sh`: added HailoRT/PCIe Gen 3 prerequisites block; refactored to `write_unit()` helper that installs all 3 unit files (pi.service, scheduler.service, scheduler.timer); added scheduler timer enable/start step
+- `CLAUDE.md`: updated project description to say Pi-only with HailoRT; added `archive/server/` note
 
-**Next:** Phase 9 item 3 — update deploy files: `deploy/homeassistant-pi.service`, `deploy/install-pi-service.sh`, `CLAUDE.md` — remove server references.
+**Next:** Phase 9 item 4 — full end-to-end smoke test: wake word → STT (mocked) → LLM routing (mocked) → tool execution → TTS (mocked) → all assertions pass.
 
 ## Documents
 

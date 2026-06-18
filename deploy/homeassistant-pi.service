@@ -2,7 +2,7 @@
 Description=Home Assistant Pi Client
 Documentation=https://github.com/jeff-abe-98/homeassistant
 After=network-online.target sound.target
-Wants=network-online.target
+Wants=network-online.target homeassistant-scheduler.timer
 
 [Service]
 Type=simple
