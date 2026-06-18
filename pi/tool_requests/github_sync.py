@@ -5,8 +5,13 @@ import logging
 import socket
 import subprocess
 from pathlib import Path
+from typing import TYPE_CHECKING
 
+from .models import ToolRequest
 from .queue import ToolRequestQueue
+
+if TYPE_CHECKING:
+    from pi.tools.base import ToolRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +96,60 @@ def sync(queue: ToolRequestQueue, repo_root: str = _REPO_ROOT) -> int:
 
     logger.info("Synced %d tool request(s) to GitHub", len(written))
     return len(written)
+
+
+def pull_completed_tools(
+    queue: ToolRequestQueue,
+    registry: "ToolRegistry",
+    repo_root: str = _REPO_ROOT,
+) -> list[str]:
+    """git pull, process tool_requests/complete/ JSONs, reload ToolRegistry.
+
+    Updates local queue status for any requests the remote agent completed or
+    failed, then reloads the registry to pick up new tool .py files.  Returns
+    the sorted names of tools newly registered since the call.  Returns [] on
+    git failure — the caller retries on the next activation.
+    """
+    root = Path(repo_root).resolve()
+
+    try:
+        subprocess.run(
+            ["git", "-C", str(root), "pull", "--ff-only", "origin", "main"],
+            check=True,
+            capture_output=True,
+            timeout=60,
+        )
+    except subprocess.CalledProcessError as exc:
+        logger.warning("git pull failed: %s", exc.stderr.decode(errors="replace").strip())
+        return []
+    except subprocess.TimeoutExpired:
+        logger.warning("git pull timed out")
+        return []
+
+    complete_dir = root / "tool_requests" / "complete"
+    if complete_dir.exists():
+        for json_path in complete_dir.glob("*.json"):
+            try:
+                req = ToolRequest.model_validate_json(json_path.read_text())
+            except Exception:
+                continue
+            try:
+                if req.status == "complete":
+                    queue.mark_complete(req.id)
+                elif req.status == "failed":
+                    queue.mark_failed(req.id, req.error or "unknown error")
+            except Exception:
+                pass
+
+    before = {t.name for t in registry.all()}
+    registry.load()
+    after = {t.name for t in registry.all()}
+    new_names = sorted(after - before)
+
+    if new_names:
+        logger.info("Pulled %d new tool(s): %s", len(new_names), ", ".join(new_names))
+
+    return new_names
 
 
 def _remove_written(written: list[tuple]) -> None:

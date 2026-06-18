@@ -77,7 +77,7 @@
 *Goal: Define the Claude Code scheduled agent that builds tools from queue requests.*
 
 - [x] `.claude/agents/tool-builder.md` — complete agent definition: pull repo; read `schedule.json` and reschedule self via CronDelete + CronCreate; process `tool_requests/pending/` sorted by priority (high→mid→low, FIFO within priority); for each request generate `tools/generated/{name}.py` (BaseTool subclass) + `tools/generated/{name}_instructions.md` (trigger phrases, required/optional params, example queries, spoken response style); move JSON to `tool_requests/complete/` marking complete or failed; git push all changes *(done 2026-06-18 — `.claude/agents/tool-builder.md` created; 5-step run order: git pull → reschedule via CronList/CronDelete/CronCreate from schedule.json → sort pending requests high→mid→low FIFO → generate {name}.py + {name}_instructions.md per request → move JSONs to complete/ → git push)*
-- [ ] `pi/tool_requests/github_sync.py` — add `pull_completed_tools()`: git pull, scan `tools/generated/` for new `.py` files, register with ToolRegistry, enqueue announcements in SQLite; smoke tests for announcement queue, new file detection, instruction loading into system prompt
+- [x] `pi/tool_requests/github_sync.py` — add `pull_completed_tools()`: git pull, scan `tools/generated/` for new `.py` files, register with ToolRegistry, enqueue announcements in SQLite; smoke tests for announcement queue, new file detection, instruction loading into system prompt *(done 2026-06-18 — pull_completed_tools(): git pull --ff-only → scan tool_requests/complete/*.json → mark_complete/failed in queue → registry.load() → return new tool names; 13 new smoke tests, 32 total pass)*
 
 ---
 

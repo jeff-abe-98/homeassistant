@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-18 UTC]
+**Completed:** Phase 8 item 2 — `pull_completed_tools()` in `pi/tool_requests/github_sync.py` (git pull --ff-only, scan tool_requests/complete/*.json, mark_complete/failed in local queue, registry.load() for new .py files, return new tool names; 13 new smoke tests covering git failures, queue updates, new tool detection, announcement queue, instruction loading into system prompt; 32 tests pass total)
+**Files changed:** pi/tool_requests/github_sync.py, tests/test_github_sync.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 9 item 1 — copy tools from archive/server/tools/ into pi/tools/
+**Blockers:** None
+---
+
+## [2026-06-18 UTC]
 **Completed:** Phase 8 item 1 — `.claude/agents/tool-builder.md` agent definition (5-step run order: git pull → reschedule via CronList/CronDelete/CronCreate from schedule.json → sort pending JSONs high→mid→low FIFO → generate {name}.py BaseTool subclass + {name}_instructions.md per request → move to tool_requests/complete/ → git push; includes tool generation reference with BaseTool skeleton, config key guide, error handling rules)
 **Files changed:** .claude/agents/tool-builder.md, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
 **Next up:** Phase 8 item 2 — `pi/tool_requests/github_sync.py` pull_completed_tools()

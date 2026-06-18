@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-18
-**Phase:** Phase 8 — item 1 done (.claude/agents/tool-builder.md)
+**Phase:** Phase 8 — item 2 done (pull_completed_tools() in github_sync.py)
 
 ---
 
@@ -12,16 +12,17 @@ Full architectural redesign in progress. The original server+Pi split architectu
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
 
-Phase 8 item 1 is complete:
+Phase 8 is complete.
 
-**Item 1:** `.claude/agents/tool-builder.md` — remote scheduled agent definition:
-- 5-step run order: git pull → reschedule self → process pending requests → git push
-- **Step 2 (reschedule):** CronList to find existing job, CronDelete it, read `schedule.json` (default: `7 3 * * *`; window-based: pick most-common low-usage hour), CronCreate recurring durable job
-- **Step 3 (sort):** glob `tool_requests/pending/*.json`, sort by priority rank (high→mid→low) then timestamp (FIFO)
-- **Step 4 (generate):** for each request — snake_case tool name from `intent`; read `pi/tools/base.py`; write `tools/generated/{name}.py` (BaseTool subclass, httpx for HTTP, config guards, spoken-English output); write `tools/generated/{name}_instructions.md` (trigger phrases, params, response style); move JSON to `tool_requests/complete/{id}.json` with status=complete or failed
-- Includes full tool generation reference with two skeleton examples and config key guide
+**Item 1:** `.claude/agents/tool-builder.md` — remote scheduled agent definition (done 2026-06-18)
 
-**Next:** Phase 8 item 2 — `pi/tool_requests/github_sync.py` add `pull_completed_tools()`: git pull, scan `tools/generated/` for new `.py` files, register with ToolRegistry, enqueue announcements.
+**Item 2:** `pull_completed_tools()` in `pi/tool_requests/github_sync.py` (done 2026-06-18):
+- `git pull --ff-only origin main`
+- Scans `tool_requests/complete/*.json` — calls `mark_complete()` or `mark_failed()` for each
+- Reloads ToolRegistry; returns sorted list of newly registered tool names
+- 13 new smoke tests; 32 total pass
+
+**Next:** Phase 9 item 1 — copy tools from `archive/server/tools/` into `pi/tools/`, update imports, verify registry scan path.
 
 ## Documents
 
