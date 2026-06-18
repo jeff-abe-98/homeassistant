@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-18
-**Phase:** Phase 8 — item 2 done (pull_completed_tools() in github_sync.py)
+**Phase:** Phase 9 — item 1 done (tools migrated from archive/server/tools/ to pi/tools/)
 
 ---
 
@@ -12,17 +12,17 @@ Full architectural redesign in progress. The original server+Pi split architectu
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
 
-Phase 8 is complete.
+Phase 9 item 1 is complete.
 
-**Item 1:** `.claude/agents/tool-builder.md` — remote scheduled agent definition (done 2026-06-18)
+**Item 1:** Copy tools from `archive/server/tools/` into `pi/tools/` (done 2026-06-18):
+- 9 tool files copied: androidtv.py, calendar.py, cta.py, google_auth.py, music_profile.py, music_recommendations.py, spotify.py, tasks.py, weather.py
+- All `server.tools.*` → `pi.tools.*` imports updated
+- `server.llm.client.OllamaClient` → `pi.llm.hailo_client.HailoLLMClient` (constructor: `cfg.ollama` → `cfg.hailo`)
+- `ToolRegistry.load()` updated to scan `pi.tools` (built-ins) + `tools.generated` (AI-created)
+- `_discover_tools` skips `base` module to prevent reload issues
+- All 10 files parse cleanly; 136 existing tests pass
 
-**Item 2:** `pull_completed_tools()` in `pi/tool_requests/github_sync.py` (done 2026-06-18):
-- `git pull --ff-only origin main`
-- Scans `tool_requests/complete/*.json` — calls `mark_complete()` or `mark_failed()` for each
-- Reloads ToolRegistry; returns sorted list of newly registered tool names
-- 13 new smoke tests; 32 total pass
-
-**Next:** Phase 9 item 1 — copy tools from `archive/server/tools/` into `pi/tools/`, update imports, verify registry scan path.
+**Next:** Phase 9 item 2 — verify all 7 tools end-to-end with mocked external APIs; all smoke tests pass under new import paths.
 
 ## Documents
 

@@ -84,7 +84,7 @@
 ## Phase 9 — Tool Migration & Hardening
 *Goal: All existing tools verified in new architecture; deploy updated.*
 
-- [ ] Copy tools from `archive/server/tools/` into `pi/tools/` (create directory + `__init__.py`); update imports and ToolRegistry scan path; verify all tools import cleanly
+- [x] Copy tools from `archive/server/tools/` into `pi/tools/` (create directory + `__init__.py`); update imports and ToolRegistry scan path; verify all tools import cleanly *(done 2026-06-18 — 9 tool files copied; server.tools.* → pi.tools.*, server.llm.client.OllamaClient → pi.llm.hailo_client.HailoLLMClient, cfg.ollama → cfg.hailo; ToolRegistry.load() updated to scan pi.tools + tools.generated; base module skip added; all 10 files parse cleanly; 136 existing tests pass)*
 - [ ] Verify all 7 tools end-to-end with mocked external APIs: weather (OpenWeatherMap), CTA, Google Calendar, Google Tasks, Android TV, Spotify, music recommendations — all existing smoke tests must pass under new import paths
 - [ ] Update deploy files: `deploy/homeassistant-pi.service` (ExecStart → `python -m pi.main`; add systemd timer for schedule writer), `deploy/install-pi-service.sh` (remove server steps; add HailoRT + AI HAT+ 2 driver notes), `CLAUDE.md` (remove server/ references)
 - [ ] Full end-to-end smoke test: wake word → STT (mocked) → LLM routing (mocked) → tool execution → TTS (mocked) → all assertions pass

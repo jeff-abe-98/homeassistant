@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-18 (session 147)
+**Status:** Phase 8 complete; implementing Phase 9 item 1 — copy tools from archive/server/tools/ into pi/tools/ with updated imports
+**Next task:** Phase 9 item 2 — verify all 7 tools end-to-end with mocked external APIs
+**Blockers:** None
+
 ### 2026-06-18 (session 146)
 **Status:** Phase 8 item 1 done — `.claude/agents/tool-builder.md` agent definition; implementing Phase 8 item 2 — `pull_completed_tools()` in `pi/tool_requests/github_sync.py`
 **Next task:** Phase 8 item 2 — `pull_completed_tools()` + smoke tests

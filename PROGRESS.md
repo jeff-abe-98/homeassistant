@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-18 UTC]
+**Completed:** Phase 9 item 1 — migrate 9 built-in tools from archive/server/tools/ into pi/tools/ with updated imports (server.tools.* → pi.tools.*, OllamaClient → HailoLLMClient, cfg.ollama → cfg.hailo); ToolRegistry.load() updated to scan pi.tools + tools.generated; base module skip added; all 10 files parse cleanly; 136 tests pass
+**Files changed:** pi/tools/androidtv.py, pi/tools/calendar.py, pi/tools/cta.py, pi/tools/google_auth.py, pi/tools/music_profile.py, pi/tools/music_recommendations.py, pi/tools/spotify.py, pi/tools/tasks.py, pi/tools/weather.py, pi/tools/base.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 9 item 2 — verify all 7 tools end-to-end with mocked external APIs under new pi.tools import paths
+**Blockers:** None
+---
+
+## [2026-06-18 UTC]
 **Completed:** Phase 8 item 2 — `pull_completed_tools()` in `pi/tool_requests/github_sync.py` (git pull --ff-only, scan tool_requests/complete/*.json, mark_complete/failed in local queue, registry.load() for new .py files, return new tool names; 13 new smoke tests covering git failures, queue updates, new tool detection, announcement queue, instruction loading into system prompt; 32 tests pass total)
 **Files changed:** pi/tool_requests/github_sync.py, tests/test_github_sync.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
 **Next up:** Phase 9 item 1 — copy tools from archive/server/tools/ into pi/tools/

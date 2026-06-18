@@ -34,6 +34,10 @@ class ToolRegistry:
 
     def load(self) -> None:
         """Scan tool packages and register all concrete BaseTool subclasses."""
+        builtin_pkg = _import_package("pi.tools")
+        if builtin_pkg is not None:
+            for tool in _discover_tools(builtin_pkg):
+                self._tools[tool.name] = tool
         generated_pkg = _import_package("tools.generated")
         if generated_pkg is not None:
             for tool in _discover_tools(generated_pkg):
@@ -83,6 +87,8 @@ def _discover_tools(pkg: ModuleType) -> Iterator[BaseTool]:
         return
 
     for _finder, module_name, _is_pkg in pkgutil.iter_modules(pkg_path):
+        if module_name == "base":
+            continue
         full_name = f"{pkg.__name__}.{module_name}"
 
         if full_name in sys.modules:
