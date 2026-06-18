@@ -1,7 +1,7 @@
 # Current Work
 
-**Last updated:** 2026-06-17
-**Phase:** Phase 7 — item 2 done (scheduler smoke tests)
+**Last updated:** 2026-06-18
+**Phase:** Phase 7 — complete (item 3 done: prewarm.py + main.py integration)
 
 ---
 
@@ -12,17 +12,16 @@ Full architectural redesign in progress. The original server+Pi split architectu
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
 
-Phase 7 item 2 is complete:
+Phase 7 item 3 is complete:
 
-**Item 2:** `tests/test_scheduler.py` — 27 smoke tests covering:
-- `has_enough_data`: empty→False, 13 days→False, 14 days→True, many same day→still False, custom min_days
-- `build_heatmap`: empty dict, counts by hour, aggregation across weeks, distinct day-of-week keys, Sunday SQLite %w→Python weekday 6 conversion, only nonempty slots returned
-- `find_low_usage_windows`: always 7 entries, all days 0–6 present, sorted, lowest count hour, earliest-hour tie-break, unobserved default 0, correct dict keys
-- `write_schedule`: default JSON `{"default":True,"hour":3,"minute":0}` before 14 days, windows JSON (7 entries) after 14 days, correct window keys/ranges, True on first write, False when unchanged, git called on change, no git when unchanged
+**Item 3:** `pi/scheduler/prewarm.py` + `pi/main.py` integration:
+- `PrewarmScheduler`: reads `schedule.json`; no-op if `"default": True` (< 14 days data); builds heatmap from DB; finds top-3 (day_of_week, hour) by activation count; schedules `call_later` callbacks 5 minutes before each high-usage window; `_do_prewarm` calls `_ensure_loaded()` on LLM then STT sequentially, logging but not propagating errors; each fired callback reschedules itself weekly via `call_later(_WEEK_MINUTES * 60, _fire)`; `cancel()` cancels all pending handles
+- `pi/main.py`: retrieves `loop = asyncio.get_running_loop()` once at top of `main()`; creates `PrewarmScheduler(llm, stt, "schedule.json", conn)` and calls `prewarm.start(loop)` before the main while loop; `prewarm.cancel()` added to `finally` block
+- `tests/test_prewarm.py`: 17 smoke tests — `_minutes_until_prewarm` (positive, max one week, hour-0 wrap), `start` (4 no-op cases, 4 active cases), `cancel` (3 cases), `_do_prewarm` (3 cases)
 
-All 27 tests pass.
+All 17 tests pass.
 
-**Next:** Phase 7 item 3 — `pi/scheduler/prewarm.py` (`PrewarmScheduler` reads `schedule.json`, schedules asyncio callbacks to prewarm HailoLLM + HailoTranscriber before high-usage windows) + integrate into `pi/main.py` startup.
+**Next:** Phase 8 item 1 — `.claude/agents/tool-builder.md` agent definition.
 
 ## Documents
 

@@ -13,6 +13,7 @@ from pi.llm.hailo_client import HailoLLMClient
 from pi.llm.router import ToolRouter
 from pi.memory.db import init_db
 from pi.memory.session import Session, log_activation
+from pi.scheduler.prewarm import PrewarmScheduler
 from pi.speaker_id.identify import identify
 from pi.stt.hailo_transcriber import HailoTranscriber
 from pi.tool_requests import github_sync
@@ -266,6 +267,7 @@ async def _handle_activation(
 
 async def main() -> None:
     config: AppConfig = load_config()
+    loop = asyncio.get_running_loop()
 
     stt = HailoTranscriber(config.hailo)
     llm = HailoLLMClient(config.hailo)
@@ -280,10 +282,12 @@ async def main() -> None:
     tts = PiperTTS(config.tts.model_path, use_cuda=config.tts.use_cuda)
     player = AudioPlayer(sample_rate=tts.sample_rate)
 
+    prewarm = PrewarmScheduler(llm, stt, "schedule.json", conn)
+    prewarm.start(loop)
+
     try:
         while True:
             wake_event = asyncio.Event()
-            loop = asyncio.get_running_loop()
             detector = WakeWordDetector(
                 config=config.wake_word,
                 on_detection=lambda: loop.call_soon_threadsafe(wake_event.set),
@@ -309,6 +313,7 @@ async def main() -> None:
             except Exception:
                 logger.exception("Activation pipeline failed")
     finally:
+        prewarm.cancel()
         llm.close()
         stt.close()
         conn.close()
