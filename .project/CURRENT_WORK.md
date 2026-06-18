@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-18
-**Phase:** Phase 7 — complete (item 3 done: prewarm.py + main.py integration)
+**Phase:** Phase 8 — item 1 done (.claude/agents/tool-builder.md)
 
 ---
 
@@ -12,16 +12,16 @@ Full architectural redesign in progress. The original server+Pi split architectu
 **Spec:** `.project/active/pi-redesign/spec.md`
 **Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
 
-Phase 7 item 3 is complete:
+Phase 8 item 1 is complete:
 
-**Item 3:** `pi/scheduler/prewarm.py` + `pi/main.py` integration:
-- `PrewarmScheduler`: reads `schedule.json`; no-op if `"default": True` (< 14 days data); builds heatmap from DB; finds top-3 (day_of_week, hour) by activation count; schedules `call_later` callbacks 5 minutes before each high-usage window; `_do_prewarm` calls `_ensure_loaded()` on LLM then STT sequentially, logging but not propagating errors; each fired callback reschedules itself weekly via `call_later(_WEEK_MINUTES * 60, _fire)`; `cancel()` cancels all pending handles
-- `pi/main.py`: retrieves `loop = asyncio.get_running_loop()` once at top of `main()`; creates `PrewarmScheduler(llm, stt, "schedule.json", conn)` and calls `prewarm.start(loop)` before the main while loop; `prewarm.cancel()` added to `finally` block
-- `tests/test_prewarm.py`: 17 smoke tests — `_minutes_until_prewarm` (positive, max one week, hour-0 wrap), `start` (4 no-op cases, 4 active cases), `cancel` (3 cases), `_do_prewarm` (3 cases)
+**Item 1:** `.claude/agents/tool-builder.md` — remote scheduled agent definition:
+- 5-step run order: git pull → reschedule self → process pending requests → git push
+- **Step 2 (reschedule):** CronList to find existing job, CronDelete it, read `schedule.json` (default: `7 3 * * *`; window-based: pick most-common low-usage hour), CronCreate recurring durable job
+- **Step 3 (sort):** glob `tool_requests/pending/*.json`, sort by priority rank (high→mid→low) then timestamp (FIFO)
+- **Step 4 (generate):** for each request — snake_case tool name from `intent`; read `pi/tools/base.py`; write `tools/generated/{name}.py` (BaseTool subclass, httpx for HTTP, config guards, spoken-English output); write `tools/generated/{name}_instructions.md` (trigger phrases, params, response style); move JSON to `tool_requests/complete/{id}.json` with status=complete or failed
+- Includes full tool generation reference with two skeleton examples and config key guide
 
-All 17 tests pass.
-
-**Next:** Phase 8 item 1 — `.claude/agents/tool-builder.md` agent definition.
+**Next:** Phase 8 item 2 — `pi/tool_requests/github_sync.py` add `pull_completed_tools()`: git pull, scan `tools/generated/` for new `.py` files, register with ToolRegistry, enqueue announcements.
 
 ## Documents
 

@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-18 UTC]
+**Completed:** Phase 8 item 1 — `.claude/agents/tool-builder.md` agent definition (5-step run order: git pull → reschedule via CronList/CronDelete/CronCreate from schedule.json → sort pending JSONs high→mid→low FIFO → generate {name}.py BaseTool subclass + {name}_instructions.md per request → move to tool_requests/complete/ → git push; includes tool generation reference with BaseTool skeleton, config key guide, error handling rules)
+**Files changed:** .claude/agents/tool-builder.md, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** Phase 8 item 2 — `pi/tool_requests/github_sync.py` pull_completed_tools()
+**Blockers:** None
+---
+
+## [2026-06-18 UTC]
 **Completed:** Phase 7 item 3 — `pi/scheduler/prewarm.py` (PrewarmScheduler: reads schedule.json, finds top-3 high-usage windows from heatmap, schedules asyncio call_later callbacks to prewarm HailoLLM + HailoTranscriber 5 min before each window, weekly repeat, graceful error handling, cancel()) + `pi/main.py` integration (loop retrieved at startup, prewarm.start(loop) before while loop, prewarm.cancel() in finally) + 17 smoke tests in `tests/test_prewarm.py`
 **Files changed:** pi/scheduler/prewarm.py, pi/main.py, tests/test_prewarm.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
 **Next up:** Phase 8 item 1 — `.claude/agents/tool-builder.md` agent definition
