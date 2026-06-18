@@ -27,8 +27,10 @@ build/
 # Piper TTS models (large binary files)
 pi/tts/models/
 
-# Whisper models (large binary files)
+# Large binary model files
 pi/stt/models/
+pi/llm/models/
+pi/wake_word/models/
 archive/server/stt/models/
 
 # Tool request JSON files (contain user queries — pushed to GitHub manually by Pi)
