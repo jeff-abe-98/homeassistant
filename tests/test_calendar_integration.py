@@ -16,7 +16,7 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from server.tools.google_auth import is_configured
+from pi.tools.google_auth import is_configured
 
 _CHICAGO_TZ = ZoneInfo("America/Chicago")
 
@@ -34,7 +34,7 @@ _REQUIRES_GOOGLE = pytest.mark.skipif(
 @pytest.mark.asyncio
 async def test_calendar_tomorrow_owner_real_api() -> None:
     """'What do I have tomorrow?' as owner hits the real Google Calendar API; LLM is mocked."""
-    from server.tools.calendar import CalendarTool
+    from pi.tools.calendar import CalendarTool
 
     tool = CalendarTool()
     captured: list[tuple[str, str]] = []
@@ -72,7 +72,7 @@ async def test_calendar_tomorrow_owner_real_api() -> None:
 @pytest.mark.asyncio
 async def test_calendar_tomorrow_emily_real_api() -> None:
     """'What do I have tomorrow?' as Emily — verifies Emily's name is in the LLM system prompt."""
-    from server.tools.calendar import CalendarTool
+    from pi.tools.calendar import CalendarTool
 
     tool = CalendarTool()
     captured: list[tuple[str, str]] = []
@@ -114,7 +114,7 @@ async def test_emily_dentist_appointment_created_as_emily_dentist() -> None:
 
     The Google Calendar insert itself is mocked so no test events are created.
     """
-    from server.tools.calendar import AddCalendarEventTool
+    from pi.tools.calendar import AddCalendarEventTool
 
     inserted_bodies: list[dict] = []
 
@@ -127,7 +127,7 @@ async def test_emily_dentist_appointment_created_as_emily_dentist() -> None:
 
     tool = AddCalendarEventTool()
 
-    with patch("server.tools.calendar.build_service", return_value=mock_service):
+    with patch("pi.tools.calendar.build_service", return_value=mock_service):
         result = await tool.run(
             {"title": "Dentist", "when": "Thursday at 3"},
             user="emily",

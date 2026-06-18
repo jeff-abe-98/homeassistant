@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from server.tools.calendar import (
+from pi.tools.calendar import (
     AddCalendarEventTool,
     CalendarTool,
     _format_events,
@@ -80,7 +80,7 @@ class TestCalendarToolRun:
     @pytest.mark.asyncio
     async def test_not_configured_returns_setup_message(self):
         tool = CalendarTool()
-        with patch("server.tools.calendar.is_configured", return_value=False):
+        with patch("pi.tools.calendar.is_configured", return_value=False):
             result = await tool.run({"query": "what's today", "when": "today"}, "owner")
         assert "set up" in result.lower() or "credentials" in result.lower()
 
@@ -88,8 +88,8 @@ class TestCalendarToolRun:
     async def test_service_none_returns_connection_error(self):
         tool = CalendarTool()
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=None),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=None),
         ):
             result = await tool.run({"query": "what's today", "when": "today"}, "owner")
         assert "couldn't connect" in result.lower()
@@ -100,8 +100,8 @@ class TestCalendarToolRun:
         mock_service.events().list().execute.return_value = {"items": []}
         tool = CalendarTool()
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=mock_service),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=mock_service),
         ):
             result = await tool.run({"query": "what's today", "when": "today"}, "owner")
         assert "don't have anything" in result.lower()
@@ -114,8 +114,8 @@ class TestCalendarToolRun:
         tool = CalendarTool()
         mock_llm_response = "You have a Team standup at nine AM."
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=mock_service),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=mock_service),
             patch.object(tool, "_llm_client") as mock_client_fn,
         ):
             mock_client_fn.return_value.complete = AsyncMock(return_value=mock_llm_response)
@@ -128,8 +128,8 @@ class TestCalendarToolRun:
         mock_service.events().list().execute.side_effect = Exception("network failure")
         tool = CalendarTool()
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=mock_service),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=mock_service),
         ):
             result = await tool.run({"query": "what's today", "when": "today"}, "owner")
         assert "trouble" in result.lower()
@@ -148,8 +148,8 @@ class TestCalendarToolRun:
             return "Emily, you have yoga at seven AM."
 
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=mock_service),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=mock_service),
             patch.object(tool, "_llm_client") as mock_client_fn,
         ):
             mock_client_fn.return_value.complete = AsyncMock(side_effect=_spy)
@@ -172,8 +172,8 @@ class TestCalendarToolRun:
             return "You have a meeting at ten AM."
 
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=mock_service),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=mock_service),
             patch.object(tool, "_llm_client") as mock_client_fn,
         ):
             mock_client_fn.return_value.complete = AsyncMock(side_effect=_spy)
@@ -195,8 +195,8 @@ class TestCalendarToolRun:
         mock_service.events().list.side_effect = fake_list
         tool = CalendarTool()
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=mock_service),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=mock_service),
         ):
             await tool.run({"query": "what's tomorrow", "when": "tomorrow"}, "owner")
 
@@ -229,7 +229,7 @@ class TestAddCalendarEventTool:
     @pytest.mark.asyncio
     async def test_not_configured_returns_setup_message(self):
         tool = AddCalendarEventTool()
-        with patch("server.tools.calendar.is_configured", return_value=False):
+        with patch("pi.tools.calendar.is_configured", return_value=False):
             result = await tool.run({"title": "Dentist", "when": "Thursday at 3pm"}, "owner")
         assert "set up" in result.lower() or "credentials" in result.lower()
 
@@ -237,8 +237,8 @@ class TestAddCalendarEventTool:
     async def test_service_none_returns_connection_error(self):
         tool = AddCalendarEventTool()
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=None),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=None),
         ):
             result = await tool.run({"title": "Dentist", "when": "Thursday at 3pm"}, "owner")
         assert "couldn't connect" in result.lower()
@@ -247,8 +247,8 @@ class TestAddCalendarEventTool:
     async def test_missing_title_returns_error(self):
         tool = AddCalendarEventTool()
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=MagicMock()),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=MagicMock()),
         ):
             result = await tool.run({"title": "", "when": "Thursday at 3pm"}, "owner")
         assert "title" in result.lower()
@@ -257,9 +257,9 @@ class TestAddCalendarEventTool:
     async def test_unparseable_date_returns_friendly_error(self):
         tool = AddCalendarEventTool()
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=MagicMock()),
-            patch("server.tools.calendar._parse_natural_date", return_value=None),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=MagicMock()),
+            patch("pi.tools.calendar._parse_natural_date", return_value=None),
         ):
             result = await tool.run({"title": "Dentist", "when": "blorp"}, "owner")
         assert "couldn't understand" in result.lower()
@@ -272,9 +272,9 @@ class TestAddCalendarEventTool:
         mock_service.events().insert().execute.return_value = {"htmlLink": "https://example.com"}
         tool = AddCalendarEventTool()
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=mock_service),
-            patch("server.tools.calendar._parse_natural_date", return_value=fixed_dt),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=mock_service),
+            patch("pi.tools.calendar._parse_natural_date", return_value=fixed_dt),
         ):
             result = await tool.run({"title": "Dentist", "when": "Thursday at 3pm"}, "owner")
         assert "Dentist" in result
@@ -287,9 +287,9 @@ class TestAddCalendarEventTool:
         mock_service.events().insert().execute.side_effect = Exception("network error")
         tool = AddCalendarEventTool()
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=mock_service),
-            patch("server.tools.calendar._parse_natural_date", return_value=fixed_dt),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=mock_service),
+            patch("pi.tools.calendar._parse_natural_date", return_value=fixed_dt),
         ):
             result = await tool.run({"title": "Dentist", "when": "Thursday at 3pm"}, "owner")
         assert "trouble" in result.lower()
@@ -307,9 +307,9 @@ class TestAddCalendarEventTool:
         mock_service.events().insert.side_effect = fake_insert
         tool = AddCalendarEventTool()
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=mock_service),
-            patch("server.tools.calendar._parse_natural_date", return_value=fixed_dt),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=mock_service),
+            patch("pi.tools.calendar._parse_natural_date", return_value=fixed_dt),
         ):
             result = await tool.run({"title": "Dentist", "when": "Thursday at 3pm"}, "emily")
 
@@ -330,9 +330,9 @@ class TestAddCalendarEventTool:
         mock_service.events().insert.side_effect = fake_insert
         tool = AddCalendarEventTool()
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=mock_service),
-            patch("server.tools.calendar._parse_natural_date", return_value=fixed_dt),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=mock_service),
+            patch("pi.tools.calendar._parse_natural_date", return_value=fixed_dt),
         ):
             await tool.run({"title": "Emily Dentist", "when": "Thursday at 3pm"}, "emily")
 
@@ -352,9 +352,9 @@ class TestAddCalendarEventTool:
         mock_service.events().insert.side_effect = fake_insert
         tool = AddCalendarEventTool()
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=mock_service),
-            patch("server.tools.calendar._parse_natural_date", return_value=fixed_dt),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=mock_service),
+            patch("pi.tools.calendar._parse_natural_date", return_value=fixed_dt),
         ):
             await tool.run({"title": "Dentist", "when": "Thursday at 3pm"}, "owner")
 
@@ -374,9 +374,9 @@ class TestAddCalendarEventTool:
         mock_service.events().insert.side_effect = fake_insert
         tool = AddCalendarEventTool()
         with (
-            patch("server.tools.calendar.is_configured", return_value=True),
-            patch("server.tools.calendar.build_service", return_value=mock_service),
-            patch("server.tools.calendar._parse_natural_date", return_value=fixed_dt),
+            patch("pi.tools.calendar.is_configured", return_value=True),
+            patch("pi.tools.calendar.build_service", return_value=mock_service),
+            patch("pi.tools.calendar._parse_natural_date", return_value=fixed_dt),
         ):
             await tool.run({"title": "Meeting", "when": "2pm", "duration_minutes": 90}, "owner")
 

@@ -3,6 +3,21 @@ import sys
 import types
 from unittest.mock import MagicMock
 
+# Tests for the old server/ architecture (now archived to archive/server/).
+# These reference server.main, server.tool_creator.*, server.logging_config, etc.
+# Excluded from collection since that code no longer lives in the active tree.
+collect_ignore = [
+    "tests/test_e2e.py",
+    "tests/test_logging_config.py",
+    "tests/test_error_handling.py",
+    "tests/test_main_tool_creator.py",
+    "tests/test_tool_creator_e2e.py",
+    "tests/test_tool_creator_generator.py",
+    "tests/test_tool_creator_installer.py",
+    "tests/test_tool_creator_sandbox.py",
+    "tests/test_tool_creator_validator.py",
+]
+
 # Server-side packages that require compiled binaries or large models:
 # numpy is now installed (required by HailoTranscriber for PCM conversion)
 for _name in ("ollama", "faster_whisper"):

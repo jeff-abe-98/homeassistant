@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-18 (session 148)
+**Status:** Phase 9 item 1 done (tools migrated); implementing Phase 9 item 2 — verify all 7 tools smoke tests pass under new pi.tools.* import paths
+**Next task:** Phase 9 item 3 — update deploy files
+**Blockers:** None
+
 ### 2026-06-18 (session 147)
 **Status:** Phase 8 complete; implementing Phase 9 item 1 — copy tools from archive/server/tools/ into pi/tools/ with updated imports
 **Next task:** Phase 9 item 2 — verify all 7 tools end-to-end with mocked external APIs

@@ -42,7 +42,7 @@ def _make_sp(track_name="Test Track", artist_name="Test Artist", artist_id="art1
 
 
 def test_init_db_creates_plays_table(tmp_path):
-    from server.tools.music_profile import init_db
+    from pi.tools.music_profile import init_db
 
     db = tmp_path / "test.db"
     init_db(db)
@@ -57,7 +57,7 @@ def test_init_db_creates_plays_table(tmp_path):
 
 
 def test_init_db_idempotent(tmp_path):
-    from server.tools.music_profile import init_db
+    from pi.tools.music_profile import init_db
 
     db = tmp_path / "test.db"
     init_db(db)
@@ -65,7 +65,7 @@ def test_init_db_idempotent(tmp_path):
 
 
 def test_init_db_creates_parent_dirs(tmp_path):
-    from server.tools.music_profile import init_db
+    from pi.tools.music_profile import init_db
 
     db = tmp_path / "nested" / "dir" / "test.db"
     init_db(db)
@@ -78,7 +78,7 @@ def test_init_db_creates_parent_dirs(tmp_path):
 
 
 def test_record_play_inserts_row(tmp_path):
-    from server.tools.music_profile import init_db, record_play
+    from pi.tools.music_profile import init_db, record_play
 
     db = tmp_path / "h.db"
     init_db(db)
@@ -100,7 +100,7 @@ def test_record_play_inserts_row(tmp_path):
 
 
 def test_record_play_uses_play_source(tmp_path):
-    from server.tools.music_profile import init_db, record_play
+    from pi.tools.music_profile import init_db, record_play
 
     db = tmp_path / "h.db"
     init_db(db)
@@ -114,7 +114,7 @@ def test_record_play_uses_play_source(tmp_path):
 
 
 def test_record_play_silently_ignores_api_errors(tmp_path):
-    from server.tools.music_profile import init_db, record_play
+    from pi.tools.music_profile import init_db, record_play
 
     db = tmp_path / "h.db"
     init_db(db)
@@ -130,7 +130,7 @@ def test_record_play_silently_ignores_api_errors(tmp_path):
 
 
 def test_record_play_tolerates_missing_audio_features(tmp_path):
-    from server.tools.music_profile import init_db, record_play
+    from pi.tools.music_profile import init_db, record_play
 
     db = tmp_path / "h.db"
     init_db(db)
@@ -150,7 +150,7 @@ def test_record_play_tolerates_missing_audio_features(tmp_path):
 
 
 def test_record_skip_marks_recent_play_as_skipped(tmp_path):
-    from server.tools.music_profile import init_db, record_play, record_skip
+    from pi.tools.music_profile import init_db, record_play, record_skip
 
     db = tmp_path / "h.db"
     init_db(db)
@@ -165,7 +165,7 @@ def test_record_skip_marks_recent_play_as_skipped(tmp_path):
 
 
 def test_record_skip_does_not_skip_old_play(tmp_path):
-    from server.tools.music_profile import init_db, record_skip
+    from pi.tools.music_profile import init_db, record_skip
 
     db = tmp_path / "h.db"
     init_db(db)
@@ -186,7 +186,7 @@ def test_record_skip_does_not_skip_old_play(tmp_path):
 
 
 def test_record_skip_silently_ignores_missing_db(tmp_path):
-    from server.tools.music_profile import record_skip
+    from pi.tools.music_profile import record_skip
 
     # DB doesn't exist — must not raise
     record_skip("owner", "spotify:track:abc", db_path=tmp_path / "nope.db")
@@ -210,7 +210,7 @@ def _insert_play(conn, user, track_id, artist, genres, energy=0.7, dance=0.6,
 
 
 def test_build_profile_returns_default_for_missing_db(tmp_path):
-    from server.tools.music_profile import TasteProfile, build_profile
+    from pi.tools.music_profile import TasteProfile, build_profile
 
     profile = build_profile("owner", db_path=tmp_path / "nope.db")
     assert isinstance(profile, TasteProfile)
@@ -219,7 +219,7 @@ def test_build_profile_returns_default_for_missing_db(tmp_path):
 
 
 def test_build_profile_returns_default_for_fewer_than_5_plays(tmp_path):
-    from server.tools.music_profile import build_profile, init_db
+    from pi.tools.music_profile import build_profile, init_db
 
     db = tmp_path / "h.db"
     init_db(db)
@@ -232,7 +232,7 @@ def test_build_profile_returns_default_for_fewer_than_5_plays(tmp_path):
 
 
 def test_build_profile_computes_genre_weights(tmp_path):
-    from server.tools.music_profile import build_profile, init_db
+    from pi.tools.music_profile import build_profile, init_db
 
     db = tmp_path / "h.db"
     init_db(db)
@@ -248,7 +248,7 @@ def test_build_profile_computes_genre_weights(tmp_path):
 
 
 def test_build_profile_skips_reduce_artist_weight(tmp_path):
-    from server.tools.music_profile import build_profile, init_db
+    from pi.tools.music_profile import build_profile, init_db
 
     db = tmp_path / "h.db"
     init_db(db)
@@ -265,7 +265,7 @@ def test_build_profile_skips_reduce_artist_weight(tmp_path):
 
 
 def test_build_profile_audio_targets_are_means_of_completed_plays(tmp_path):
-    from server.tools.music_profile import build_profile, init_db
+    from pi.tools.music_profile import build_profile, init_db
 
     db = tmp_path / "h.db"
     init_db(db)
@@ -282,7 +282,7 @@ def test_build_profile_audio_targets_are_means_of_completed_plays(tmp_path):
 
 
 def test_build_profile_ignores_other_users(tmp_path):
-    from server.tools.music_profile import build_profile, init_db
+    from pi.tools.music_profile import build_profile, init_db
 
     db = tmp_path / "h.db"
     init_db(db)
@@ -306,7 +306,7 @@ def test_search_and_play_calls_record_play_for_track(tmp_path):
 
     sys.modules.setdefault("spotipy", MagicMock())
 
-    from server.tools.spotify import _search_and_play
+    from pi.tools.spotify import _search_and_play
 
     sp = MagicMock()
     sp.search.return_value = {
@@ -314,7 +314,7 @@ def test_search_and_play_calls_record_play_for_track(tmp_path):
         "playlists": {"items": []},
     }
 
-    with patch("server.tools.music_profile.record_play") as mock_record:
+    with patch("pi.tools.music_profile.record_play") as mock_record:
         _search_and_play(sp, "hit song by pop star", "device123", user="owner")
 
     mock_record.assert_called_once()
@@ -330,7 +330,7 @@ def test_search_and_play_skips_record_for_playlist(tmp_path):
 
     sys.modules.setdefault("spotipy", MagicMock())
 
-    from server.tools.spotify import _search_and_play
+    from pi.tools.spotify import _search_and_play
 
     sp = MagicMock()
     sp.search.return_value = {
@@ -338,7 +338,7 @@ def test_search_and_play_skips_record_for_playlist(tmp_path):
         "tracks": {"items": []},
     }
 
-    with patch("server.tools.music_profile.record_play") as mock_record:
+    with patch("pi.tools.music_profile.record_play") as mock_record:
         _search_and_play(sp, "jazz", "device123", user="owner")
 
     mock_record.assert_not_called()

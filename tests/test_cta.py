@@ -47,13 +47,13 @@ def test_cta_config_loaded_from_yaml(tmp_path) -> None:
 
 @pytest.mark.asyncio
 async def test_cta_missing_key_returns_error() -> None:
-    from server.tools.cta import CtaTool
+    from pi.tools.cta import CtaTool
 
     tool = CtaTool()
     mock_cfg = MagicMock()
     mock_cfg.cta.api_key = ""
 
-    with patch("server.tools.cta.cfg_module.load", return_value=mock_cfg):
+    with patch("pi.tools.cta.cfg_module.load", return_value=mock_cfg):
         result = await tool.run({"query": "next Blue Line?"}, user="owner")
 
     assert "set up" in result.lower() or "api key" in result.lower()
@@ -61,13 +61,13 @@ async def test_cta_missing_key_returns_error() -> None:
 
 @pytest.mark.asyncio
 async def test_cta_placeholder_key_returns_error() -> None:
-    from server.tools.cta import CtaTool
+    from pi.tools.cta import CtaTool
 
     tool = CtaTool()
     mock_cfg = MagicMock()
     mock_cfg.cta.api_key = "CHANGE_ME"
 
-    with patch("server.tools.cta.cfg_module.load", return_value=mock_cfg):
+    with patch("pi.tools.cta.cfg_module.load", return_value=mock_cfg):
         result = await tool.run({"query": "when's the next Blue Line?"}, user="owner")
 
     assert "set up" in result.lower() or "api key" in result.lower()
@@ -108,7 +108,7 @@ _FAKE_ETA_RESPONSE = {
 
 @pytest.mark.asyncio
 async def test_cta_happy_path_both_directions() -> None:
-    from server.tools.cta import CtaTool
+    from pi.tools.cta import CtaTool
 
     tool = CtaTool()
 
@@ -135,9 +135,9 @@ async def test_cta_happy_path_both_directions() -> None:
     )
 
     with (
-        patch("server.tools.cta.cfg_module.load", return_value=mock_cfg),
-        patch("server.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
-        patch("server.tools.cta.OllamaClient", return_value=mock_llm),
+        patch("pi.tools.cta.cfg_module.load", return_value=mock_cfg),
+        patch("pi.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
+        patch("pi.tools.cta.HailoLLMClient", return_value=mock_llm),
     ):
         result = await tool.run({"query": "when's the next Blue Line?"}, user="owner")
 
@@ -153,7 +153,7 @@ async def test_cta_happy_path_both_directions() -> None:
 
 @pytest.mark.asyncio
 async def test_cta_happy_path_ohare_direction() -> None:
-    from server.tools.cta import CtaTool
+    from pi.tools.cta import CtaTool
 
     tool = CtaTool()
 
@@ -199,9 +199,9 @@ async def test_cta_happy_path_ohare_direction() -> None:
     )
 
     with (
-        patch("server.tools.cta.cfg_module.load", return_value=mock_cfg),
-        patch("server.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
-        patch("server.tools.cta.OllamaClient", return_value=mock_llm),
+        patch("pi.tools.cta.cfg_module.load", return_value=mock_cfg),
+        patch("pi.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
+        patch("pi.tools.cta.HailoLLMClient", return_value=mock_llm),
     ):
         result = await tool.run(
             {"query": "next train toward O'Hare", "direction": "ohare"}, user="owner"
@@ -215,7 +215,7 @@ async def test_cta_happy_path_ohare_direction() -> None:
 
 @pytest.mark.asyncio
 async def test_cta_happy_path_forest_park_direction() -> None:
-    from server.tools.cta import CtaTool
+    from pi.tools.cta import CtaTool
 
     tool = CtaTool()
 
@@ -261,9 +261,9 @@ async def test_cta_happy_path_forest_park_direction() -> None:
     )
 
     with (
-        patch("server.tools.cta.cfg_module.load", return_value=mock_cfg),
-        patch("server.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
-        patch("server.tools.cta.OllamaClient", return_value=mock_llm),
+        patch("pi.tools.cta.cfg_module.load", return_value=mock_cfg),
+        patch("pi.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
+        patch("pi.tools.cta.HailoLLMClient", return_value=mock_llm),
     ):
         result = await tool.run(
             {"query": "next train toward Forest Park", "direction": "forest_park"},
@@ -284,7 +284,7 @@ async def test_cta_happy_path_forest_park_direction() -> None:
 @pytest.mark.asyncio
 async def test_cta_direction_note_in_system_prompt_ohare() -> None:
     """Direction-specific context must appear in the system prompt sent to the LLM."""
-    from server.tools.cta import CtaTool
+    from pi.tools.cta import CtaTool
 
     tool = CtaTool()
 
@@ -309,9 +309,9 @@ async def test_cta_direction_note_in_system_prompt_ohare() -> None:
     mock_llm.complete = AsyncMock(return_value="Next O'Hare train in 3 minutes.")
 
     with (
-        patch("server.tools.cta.cfg_module.load", return_value=mock_cfg),
-        patch("server.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
-        patch("server.tools.cta.OllamaClient", return_value=mock_llm),
+        patch("pi.tools.cta.cfg_module.load", return_value=mock_cfg),
+        patch("pi.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
+        patch("pi.tools.cta.HailoLLMClient", return_value=mock_llm),
     ):
         await tool.run({"query": "next O'Hare train", "direction": "ohare"}, user="owner")
 
@@ -324,7 +324,7 @@ async def test_cta_direction_note_in_system_prompt_ohare() -> None:
 @pytest.mark.asyncio
 async def test_cta_direction_note_in_system_prompt_both() -> None:
     """When direction is 'both', system prompt should mention grouping by direction."""
-    from server.tools.cta import CtaTool
+    from pi.tools.cta import CtaTool
 
     tool = CtaTool()
 
@@ -349,9 +349,9 @@ async def test_cta_direction_note_in_system_prompt_both() -> None:
     mock_llm.complete = AsyncMock(return_value="O'Hare in 3 min, Forest Park in 6 min.")
 
     with (
-        patch("server.tools.cta.cfg_module.load", return_value=mock_cfg),
-        patch("server.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
-        patch("server.tools.cta.OllamaClient", return_value=mock_llm),
+        patch("pi.tools.cta.cfg_module.load", return_value=mock_cfg),
+        patch("pi.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
+        patch("pi.tools.cta.HailoLLMClient", return_value=mock_llm),
     ):
         await tool.run({"query": "next Blue Line train"}, user="owner")
 
@@ -366,7 +366,7 @@ async def test_cta_direction_note_in_system_prompt_both() -> None:
 
 
 def test_parse_arrivals_empty() -> None:
-    from server.tools.cta import _parse_arrivals
+    from pi.tools.cta import _parse_arrivals
 
     assert _parse_arrivals({}) == []
     assert _parse_arrivals({"ctatt": {}}) == []
@@ -374,7 +374,7 @@ def test_parse_arrivals_empty() -> None:
 
 
 def test_parse_arrivals_fields() -> None:
-    from server.tools.cta import _parse_arrivals
+    from pi.tools.cta import _parse_arrivals
 
     result = _parse_arrivals(_FAKE_ETA_RESPONSE)
     assert len(result) == 2

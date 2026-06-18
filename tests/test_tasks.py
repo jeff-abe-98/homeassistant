@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from server.tools.tasks import (
+from pi.tools.tasks import (
     AddTaskTool,
     CompleteTaskTool,
     ListTasksTool,
@@ -19,7 +19,7 @@ class TestAddTaskTool:
     @pytest.mark.asyncio
     async def test_not_configured_returns_setup_message(self):
         tool = AddTaskTool()
-        with patch("server.tools.tasks.is_configured", return_value=False):
+        with patch("pi.tools.tasks.is_configured", return_value=False):
             result = await tool.run({"item": "oat milk"}, "owner")
         assert "set up" in result.lower() or "credentials" in result.lower()
 
@@ -27,8 +27,8 @@ class TestAddTaskTool:
     async def test_service_none_returns_connection_error(self):
         tool = AddTaskTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=None),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=None),
         ):
             result = await tool.run({"item": "oat milk"}, "owner")
         assert "couldn't connect" in result.lower()
@@ -38,8 +38,8 @@ class TestAddTaskTool:
         tool = AddTaskTool()
         mock_service = MagicMock()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
         ):
             result = await tool.run({"item": ""}, "owner")
         assert "name" in result.lower() or "item" in result.lower()
@@ -50,8 +50,8 @@ class TestAddTaskTool:
         mock_service = MagicMock()
         mock_service.tasklists().list().execute.return_value = {"items": []}
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
         ):
             result = await tool.run({"item": "oat milk"}, "owner")
         assert "couldn't find" in result.lower()
@@ -65,8 +65,8 @@ class TestAddTaskTool:
         mock_service.tasks().insert().execute.return_value = {"id": "task1", "title": "oat milk"}
         tool = AddTaskTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
         ):
             result = await tool.run({"item": "oat milk"}, "owner")
         assert "oat milk" in result
@@ -81,8 +81,8 @@ class TestAddTaskTool:
         mock_service.tasks().insert().execute.side_effect = Exception("quota exceeded")
         tool = AddTaskTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
         ):
             result = await tool.run({"item": "oat milk"}, "owner")
         assert "trouble" in result.lower()
@@ -92,7 +92,7 @@ class TestListTasksTool:
     @pytest.mark.asyncio
     async def test_not_configured_returns_setup_message(self):
         tool = ListTasksTool()
-        with patch("server.tools.tasks.is_configured", return_value=False):
+        with patch("pi.tools.tasks.is_configured", return_value=False):
             result = await tool.run({"query": "what's on my list"}, "owner")
         assert "set up" in result.lower() or "credentials" in result.lower()
 
@@ -100,8 +100,8 @@ class TestListTasksTool:
     async def test_service_none_returns_connection_error(self):
         tool = ListTasksTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=None),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=None),
         ):
             result = await tool.run({"query": "what's on my list"}, "owner")
         assert "couldn't connect" in result.lower()
@@ -115,8 +115,8 @@ class TestListTasksTool:
         mock_service.tasks().list().execute.return_value = {"items": []}
         tool = ListTasksTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
         ):
             result = await tool.run({"query": "what's on my list"}, "owner")
         assert "empty" in result.lower() or "nothing" in result.lower()
@@ -132,8 +132,8 @@ class TestListTasksTool:
         }
         tool = ListTasksTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
             patch.object(tool, "_llm_client") as mock_client_fn,
         ):
             mock_client_fn.return_value.complete = AsyncMock(
@@ -159,8 +159,8 @@ class TestListTasksTool:
             return "Emily, you need to pick up bread."
 
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
             patch.object(tool, "_llm_client") as mock_client_fn,
         ):
             mock_client_fn.return_value.complete = AsyncMock(side_effect=_spy)
@@ -178,8 +178,8 @@ class TestListTasksTool:
         mock_service.tasks().list().execute.side_effect = Exception("network error")
         tool = ListTasksTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
         ):
             result = await tool.run({"query": "what's on my list"}, "owner")
         assert "trouble" in result.lower()
@@ -189,7 +189,7 @@ class TestCompleteTaskTool:
     @pytest.mark.asyncio
     async def test_not_configured_returns_setup_message(self):
         tool = CompleteTaskTool()
-        with patch("server.tools.tasks.is_configured", return_value=False):
+        with patch("pi.tools.tasks.is_configured", return_value=False):
             result = await tool.run({"item": "oat milk"}, "owner")
         assert "set up" in result.lower() or "credentials" in result.lower()
 
@@ -197,8 +197,8 @@ class TestCompleteTaskTool:
     async def test_service_none_returns_connection_error(self):
         tool = CompleteTaskTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=None),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=None),
         ):
             result = await tool.run({"item": "oat milk"}, "owner")
         assert "couldn't connect" in result.lower()
@@ -208,8 +208,8 @@ class TestCompleteTaskTool:
         tool = CompleteTaskTool()
         mock_service = MagicMock()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
         ):
             result = await tool.run({"item": ""}, "owner")
         assert "name" in result.lower() or "item" in result.lower()
@@ -223,8 +223,8 @@ class TestCompleteTaskTool:
         mock_service.tasks().list().execute.return_value = {"items": []}
         tool = CompleteTaskTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
         ):
             result = await tool.run({"item": "oat milk"}, "owner")
         assert "couldn't find" in result.lower()
@@ -246,8 +246,8 @@ class TestCompleteTaskTool:
         }
         tool = CompleteTaskTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
         ):
             result = await tool.run({"item": "oat milk"}, "owner")
         assert "oat milk" in result
@@ -265,8 +265,8 @@ class TestCompleteTaskTool:
         mock_service.tasks().patch().execute.return_value = {"id": "t1", "status": "completed"}
         tool = CompleteTaskTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
         ):
             result = await tool.run({"item": "oat milk"}, "owner")
         assert "done" in result.lower() or "marked" in result.lower() or "complete" in result.lower()
@@ -283,8 +283,8 @@ class TestCompleteTaskTool:
         mock_service.tasks().patch().execute.side_effect = Exception("network error")
         tool = CompleteTaskTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
         ):
             result = await tool.run({"item": "oat milk"}, "owner")
         assert "trouble" in result.lower()
@@ -390,8 +390,8 @@ class TestAddTaskToolPerUserList:
         mock_service.tasks().insert().execute.return_value = {"id": "t1", "title": "eggs"}
         tool = AddTaskTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
         ):
             result = await tool.run({"item": "eggs"}, "owner")
         assert "eggs" in result
@@ -410,8 +410,8 @@ class TestAddTaskToolPerUserList:
         mock_service.tasks().insert().execute.return_value = {"id": "t2", "title": "bread"}
         tool = AddTaskTool()
         with (
-            patch("server.tools.tasks.is_configured", return_value=True),
-            patch("server.tools.tasks.build_service", return_value=mock_service),
+            patch("pi.tools.tasks.is_configured", return_value=True),
+            patch("pi.tools.tasks.build_service", return_value=mock_service),
         ):
             result = await tool.run({"item": "bread"}, "emily")
         assert "bread" in result

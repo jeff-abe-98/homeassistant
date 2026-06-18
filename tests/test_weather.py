@@ -41,7 +41,7 @@ def test_weather_config_loaded_from_yaml(tmp_path) -> None:
 
 @pytest.mark.asyncio
 async def test_weather_missing_key_returns_error() -> None:
-    from server.tools.weather import WeatherTool
+    from pi.tools.weather import WeatherTool
 
     tool = WeatherTool()
     mock_cfg = MagicMock()
@@ -49,7 +49,7 @@ async def test_weather_missing_key_returns_error() -> None:
     mock_cfg.weather.location = "Chicago, IL"
     mock_cfg.weather.units = "imperial"
 
-    with patch("server.tools.weather.cfg_module.load", return_value=mock_cfg):
+    with patch("pi.tools.weather.cfg_module.load", return_value=mock_cfg):
         result = await tool.run({"query": "what's the weather?"}, user="owner")
 
     assert "api key" in result.lower() or "set up" in result.lower()
@@ -57,7 +57,7 @@ async def test_weather_missing_key_returns_error() -> None:
 
 @pytest.mark.asyncio
 async def test_weather_placeholder_key_returns_error() -> None:
-    from server.tools.weather import WeatherTool
+    from pi.tools.weather import WeatherTool
 
     tool = WeatherTool()
     mock_cfg = MagicMock()
@@ -65,7 +65,7 @@ async def test_weather_placeholder_key_returns_error() -> None:
     mock_cfg.weather.location = "Chicago, IL"
     mock_cfg.weather.units = "imperial"
 
-    with patch("server.tools.weather.cfg_module.load", return_value=mock_cfg):
+    with patch("pi.tools.weather.cfg_module.load", return_value=mock_cfg):
         result = await tool.run({"query": "will it rain?"}, user="owner")
 
     assert "set up" in result.lower() or "api key" in result.lower()
@@ -81,7 +81,7 @@ _FAKE_FORECAST = {"list": [{"dt_txt": "2026-05-09 12:00:00", "main": {"temp": 68
 
 @pytest.mark.asyncio
 async def test_weather_happy_path() -> None:
-    from server.tools.weather import WeatherTool
+    from pi.tools.weather import WeatherTool
 
     tool = WeatherTool()
 
@@ -106,9 +106,9 @@ async def test_weather_happy_path() -> None:
     mock_llm.complete = AsyncMock(return_value="It is currently 72 degrees and clear in Chicago.")
 
     with (
-        patch("server.tools.weather.cfg_module.load", return_value=mock_cfg),
-        patch("server.tools.weather.httpx.AsyncClient", return_value=mock_http_ctx),
-        patch("server.tools.weather.OllamaClient", return_value=mock_llm),
+        patch("pi.tools.weather.cfg_module.load", return_value=mock_cfg),
+        patch("pi.tools.weather.httpx.AsyncClient", return_value=mock_http_ctx),
+        patch("pi.tools.weather.HailoLLMClient", return_value=mock_llm),
     ):
         result = await tool.run({"query": "what's the weather today?"}, user="owner")
 

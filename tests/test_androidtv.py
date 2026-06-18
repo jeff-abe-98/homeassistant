@@ -49,13 +49,13 @@ def test_androidtv_config_loaded_from_yaml(tmp_path) -> None:
 
 @pytest.mark.asyncio
 async def test_unconfigured_host_returns_error() -> None:
-    from server.tools.androidtv import AndroidTvTool
+    from pi.tools.androidtv import AndroidTvTool
 
     tool = AndroidTvTool()
     mock_cfg = MagicMock()
     mock_cfg.androidtv.host = ""
 
-    with patch("server.tools.androidtv.cfg_module.load", return_value=mock_cfg):
+    with patch("pi.tools.androidtv.cfg_module.load", return_value=mock_cfg):
         result = await tool.run({"action": "power_on"}, user="owner")
 
     assert "set up" in result.lower() or "ip" in result.lower()
@@ -63,13 +63,13 @@ async def test_unconfigured_host_returns_error() -> None:
 
 @pytest.mark.asyncio
 async def test_placeholder_host_returns_error() -> None:
-    from server.tools.androidtv import AndroidTvTool
+    from pi.tools.androidtv import AndroidTvTool
 
     tool = AndroidTvTool()
     mock_cfg = MagicMock()
     mock_cfg.androidtv.host = "192.168.x.x"
 
-    with patch("server.tools.androidtv.cfg_module.load", return_value=mock_cfg):
+    with patch("pi.tools.androidtv.cfg_module.load", return_value=mock_cfg):
         result = await tool.run({"action": "power_on"}, user="owner")
 
     assert "set up" in result.lower() or "ip" in result.lower()
@@ -82,7 +82,7 @@ async def test_placeholder_host_returns_error() -> None:
 
 @pytest.mark.asyncio
 async def test_cannot_connect_returns_friendly_message() -> None:
-    from server.tools.androidtv import AndroidTvTool
+    from pi.tools.androidtv import AndroidTvTool
 
     tool = AndroidTvTool()
     mock_cfg = MagicMock()
@@ -97,8 +97,8 @@ async def test_cannot_connect_returns_friendly_message() -> None:
     FakeCannotConnect.__name__ = "CannotConnect"
 
     with (
-        patch("server.tools.androidtv.cfg_module.load", return_value=mock_cfg),
-        patch("server.tools.androidtv._connect", side_effect=FakeCannotConnect("refused")),
+        patch("pi.tools.androidtv.cfg_module.load", return_value=mock_cfg),
+        patch("pi.tools.androidtv._connect", side_effect=FakeCannotConnect("refused")),
     ):
         result = await tool.run({"action": "power_on"}, user="owner")
 
@@ -107,7 +107,7 @@ async def test_cannot_connect_returns_friendly_message() -> None:
 
 @pytest.mark.asyncio
 async def test_invalid_auth_returns_pairing_message() -> None:
-    from server.tools.androidtv import AndroidTvTool
+    from pi.tools.androidtv import AndroidTvTool
 
     tool = AndroidTvTool()
     mock_cfg = MagicMock()
@@ -122,8 +122,8 @@ async def test_invalid_auth_returns_pairing_message() -> None:
     FakeInvalidAuth.__name__ = "InvalidAuth"
 
     with (
-        patch("server.tools.androidtv.cfg_module.load", return_value=mock_cfg),
-        patch("server.tools.androidtv._connect", side_effect=FakeInvalidAuth("rejected")),
+        patch("pi.tools.androidtv.cfg_module.load", return_value=mock_cfg),
+        patch("pi.tools.androidtv._connect", side_effect=FakeInvalidAuth("rejected")),
     ):
         result = await tool.run({"action": "power_on"}, user="owner")
 
@@ -153,14 +153,14 @@ def _make_mock_atv() -> MagicMock:
 
 @pytest.mark.asyncio
 async def test_power_on_sends_wakeup_keycode() -> None:
-    from server.tools.androidtv import AndroidTvTool, _KEYCODE_POWER_ON
+    from pi.tools.androidtv import AndroidTvTool, _KEYCODE_POWER_ON
 
     tool = AndroidTvTool()
     mock_atv = _make_mock_atv()
 
     with (
-        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
-        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+        patch("pi.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("pi.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
     ):
         result = await tool.run({"action": "power_on"}, user="owner")
 
@@ -171,14 +171,14 @@ async def test_power_on_sends_wakeup_keycode() -> None:
 
 @pytest.mark.asyncio
 async def test_power_off_sends_sleep_keycode() -> None:
-    from server.tools.androidtv import AndroidTvTool, _KEYCODE_POWER_OFF
+    from pi.tools.androidtv import AndroidTvTool, _KEYCODE_POWER_OFF
 
     tool = AndroidTvTool()
     mock_atv = _make_mock_atv()
 
     with (
-        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
-        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+        patch("pi.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("pi.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
     ):
         result = await tool.run({"action": "power_off"}, user="owner")
 
@@ -190,15 +190,15 @@ async def test_power_off_sends_sleep_keycode() -> None:
 @pytest.mark.asyncio
 async def test_disconnect_called_even_on_send_error() -> None:
     """disconnect() must run in the finally block even if send_key_command raises."""
-    from server.tools.androidtv import AndroidTvTool
+    from pi.tools.androidtv import AndroidTvTool
 
     tool = AndroidTvTool()
     mock_atv = _make_mock_atv()
     mock_atv.send_key_command.side_effect = RuntimeError("send failed")
 
     with (
-        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
-        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+        patch("pi.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("pi.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
     ):
         with pytest.raises(RuntimeError, match="send failed"):
             await tool.run({"action": "power_on"}, user="owner")
@@ -212,32 +212,32 @@ async def test_disconnect_called_even_on_send_error() -> None:
 
 
 def test_resolve_package_friendly_spotify() -> None:
-    from server.tools.androidtv import _resolve_package
+    from pi.tools.androidtv import _resolve_package
 
     assert _resolve_package("spotify") == "com.spotify.tv.android"
 
 
 def test_resolve_package_friendly_netflix() -> None:
-    from server.tools.androidtv import _resolve_package
+    from pi.tools.androidtv import _resolve_package
 
     assert _resolve_package("Netflix") == "com.netflix.ninja"
 
 
 def test_resolve_package_friendly_youtube() -> None:
-    from server.tools.androidtv import _resolve_package
+    from pi.tools.androidtv import _resolve_package
 
     assert _resolve_package("youtube") == "com.google.android.youtube.tv"
 
 
 def test_resolve_package_passthrough_raw_package() -> None:
-    from server.tools.androidtv import _resolve_package
+    from pi.tools.androidtv import _resolve_package
 
     pkg = "com.example.myapp"
     assert _resolve_package(pkg) == pkg
 
 
 def test_resolve_package_unknown_name_raises() -> None:
-    from server.tools.androidtv import _resolve_package
+    from pi.tools.androidtv import _resolve_package
 
     with pytest.raises(ValueError, match="Unknown app"):
         _resolve_package("totallyfakeapp")
@@ -249,7 +249,7 @@ def test_resolve_package_unknown_name_raises() -> None:
 
 
 def test_launch_intent_contains_package() -> None:
-    from server.tools.androidtv import _launch_intent
+    from pi.tools.androidtv import _launch_intent
 
     intent = _launch_intent("com.netflix.ninja")
     assert "com.netflix.ninja" in intent
@@ -264,11 +264,11 @@ def test_launch_intent_contains_package() -> None:
 
 @pytest.mark.asyncio
 async def test_launch_app_no_app_param_returns_prompt() -> None:
-    from server.tools.androidtv import AndroidTvTool
+    from pi.tools.androidtv import AndroidTvTool
 
     tool = AndroidTvTool()
 
-    with patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()):
+    with patch("pi.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()):
         result = await tool.run({"action": "launch_app"}, user="owner")
 
     assert "app" in result.lower() or "open" in result.lower()
@@ -276,11 +276,11 @@ async def test_launch_app_no_app_param_returns_prompt() -> None:
 
 @pytest.mark.asyncio
 async def test_launch_app_unknown_name_returns_error() -> None:
-    from server.tools.androidtv import AndroidTvTool
+    from pi.tools.androidtv import AndroidTvTool
 
     tool = AndroidTvTool()
 
-    with patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()):
+    with patch("pi.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()):
         result = await tool.run({"action": "launch_app", "app": "totallyfakeapp"}, user="owner")
 
     assert "unknown app" in result.lower() or "known apps" in result.lower()
@@ -288,15 +288,15 @@ async def test_launch_app_unknown_name_returns_error() -> None:
 
 @pytest.mark.asyncio
 async def test_launch_app_netflix_calls_send_launch_app() -> None:
-    from server.tools.androidtv import AndroidTvTool
+    from pi.tools.androidtv import AndroidTvTool
 
     tool = AndroidTvTool()
     mock_atv = _make_mock_atv()
     mock_atv.send_launch_app = MagicMock()
 
     with (
-        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
-        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+        patch("pi.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("pi.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
     ):
         result = await tool.run({"action": "launch_app", "app": "netflix"}, user="owner")
 
@@ -309,15 +309,15 @@ async def test_launch_app_netflix_calls_send_launch_app() -> None:
 
 @pytest.mark.asyncio
 async def test_launch_app_raw_package_calls_send_launch_app() -> None:
-    from server.tools.androidtv import AndroidTvTool
+    from pi.tools.androidtv import AndroidTvTool
 
     tool = AndroidTvTool()
     mock_atv = _make_mock_atv()
     mock_atv.send_launch_app = MagicMock()
 
     with (
-        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
-        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+        patch("pi.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("pi.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
     ):
         result = await tool.run(
             {"action": "launch_app", "app": "com.spotify.tv.android"}, user="owner"
@@ -331,15 +331,15 @@ async def test_launch_app_raw_package_calls_send_launch_app() -> None:
 
 @pytest.mark.asyncio
 async def test_launch_app_disconnect_called_on_send_error() -> None:
-    from server.tools.androidtv import AndroidTvTool
+    from pi.tools.androidtv import AndroidTvTool
 
     tool = AndroidTvTool()
     mock_atv = _make_mock_atv()
     mock_atv.send_launch_app = MagicMock(side_effect=RuntimeError("launch failed"))
 
     with (
-        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
-        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+        patch("pi.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("pi.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
     ):
         with pytest.raises(RuntimeError, match="launch failed"):
             await tool.run({"action": "launch_app", "app": "netflix"}, user="owner")
@@ -354,14 +354,14 @@ async def test_launch_app_disconnect_called_on_send_error() -> None:
 
 @pytest.mark.asyncio
 async def test_play_sends_media_play_keycode() -> None:
-    from server.tools.androidtv import AndroidTvTool, _KEYCODE_MEDIA_PLAY
+    from pi.tools.androidtv import AndroidTvTool, _KEYCODE_MEDIA_PLAY
 
     tool = AndroidTvTool()
     mock_atv = _make_mock_atv()
 
     with (
-        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
-        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+        patch("pi.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("pi.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
     ):
         result = await tool.run({"action": "play"}, user="owner")
 
@@ -372,14 +372,14 @@ async def test_play_sends_media_play_keycode() -> None:
 
 @pytest.mark.asyncio
 async def test_pause_sends_media_pause_keycode() -> None:
-    from server.tools.androidtv import AndroidTvTool, _KEYCODE_MEDIA_PAUSE
+    from pi.tools.androidtv import AndroidTvTool, _KEYCODE_MEDIA_PAUSE
 
     tool = AndroidTvTool()
     mock_atv = _make_mock_atv()
 
     with (
-        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
-        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+        patch("pi.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("pi.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
     ):
         result = await tool.run({"action": "pause"}, user="owner")
 
@@ -390,14 +390,14 @@ async def test_pause_sends_media_pause_keycode() -> None:
 
 @pytest.mark.asyncio
 async def test_next_sends_media_next_keycode() -> None:
-    from server.tools.androidtv import AndroidTvTool, _KEYCODE_MEDIA_NEXT
+    from pi.tools.androidtv import AndroidTvTool, _KEYCODE_MEDIA_NEXT
 
     tool = AndroidTvTool()
     mock_atv = _make_mock_atv()
 
     with (
-        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
-        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+        patch("pi.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("pi.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
     ):
         result = await tool.run({"action": "next"}, user="owner")
 
@@ -408,14 +408,14 @@ async def test_next_sends_media_next_keycode() -> None:
 
 @pytest.mark.asyncio
 async def test_previous_sends_media_previous_keycode() -> None:
-    from server.tools.androidtv import AndroidTvTool, _KEYCODE_MEDIA_PREVIOUS
+    from pi.tools.androidtv import AndroidTvTool, _KEYCODE_MEDIA_PREVIOUS
 
     tool = AndroidTvTool()
     mock_atv = _make_mock_atv()
 
     with (
-        patch("server.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
-        patch("server.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
+        patch("pi.tools.androidtv.cfg_module.load", return_value=_make_mock_cfg()),
+        patch("pi.tools.androidtv._connect", new_callable=AsyncMock, return_value=mock_atv),
     ):
         result = await tool.run({"action": "previous"}, user="owner")
 

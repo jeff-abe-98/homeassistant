@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 import shared.config as cfg_module
-from server.tools.google_auth import build_service, get_credentials, is_configured
+from pi.tools.google_auth import build_service, get_credentials, is_configured
 
 
 def _mock_google_cfg(credentials_file: str, token_file: str = "config/google_token.json"):

@@ -37,7 +37,7 @@ def _make_sp(tracks=None, featured_name="Featured Mix"):
 
 
 def _make_profile(has_history=True):
-    from server.tools.music_profile import AudioTargets, TasteProfile
+    from pi.tools.music_profile import AudioTargets, TasteProfile
 
     if not has_history:
         return TasteProfile(user="owner")
@@ -69,7 +69,7 @@ def _cfg():
 
 
 def test_resolve_artist_ids_returns_ids():
-    from server.tools.music_recommendations import _resolve_artist_ids
+    from pi.tools.music_recommendations import _resolve_artist_ids
 
     sp = MagicMock()
     sp.search.return_value = {"artists": {"items": [{"id": "id123"}]}}
@@ -78,7 +78,7 @@ def test_resolve_artist_ids_returns_ids():
 
 
 def test_resolve_artist_ids_skips_empty_results():
-    from server.tools.music_recommendations import _resolve_artist_ids
+    from pi.tools.music_recommendations import _resolve_artist_ids
 
     sp = MagicMock()
     sp.search.return_value = {"artists": {"items": []}}
@@ -87,7 +87,7 @@ def test_resolve_artist_ids_skips_empty_results():
 
 
 def test_resolve_artist_ids_swallows_exceptions():
-    from server.tools.music_recommendations import _resolve_artist_ids
+    from pi.tools.music_recommendations import _resolve_artist_ids
 
     sp = MagicMock()
     sp.search.side_effect = RuntimeError("network error")
@@ -96,7 +96,7 @@ def test_resolve_artist_ids_swallows_exceptions():
 
 
 def test_resolve_artist_ids_multiple():
-    from server.tools.music_recommendations import _resolve_artist_ids
+    from pi.tools.music_recommendations import _resolve_artist_ids
 
     sp = MagicMock()
     sp.search.return_value = {"artists": {"items": [{"id": "some-id"}]}}
@@ -110,7 +110,7 @@ def test_resolve_artist_ids_multiple():
 
 
 def test_cold_start_plays_featured_playlist():
-    from server.tools.music_recommendations import _cold_start
+    from pi.tools.music_recommendations import _cold_start
 
     sp = _make_sp()
     cfg = _cfg()
@@ -124,7 +124,7 @@ def test_cold_start_plays_featured_playlist():
 
 
 def test_cold_start_no_playlists_returns_message():
-    from server.tools.music_recommendations import _cold_start
+    from pi.tools.music_recommendations import _cold_start
 
     sp = _make_sp()
     sp.featured_playlists.return_value = {"playlists": {"items": []}}
@@ -139,7 +139,7 @@ def test_cold_start_no_playlists_returns_message():
 
 
 def test_cold_start_featured_playlists_exception():
-    from server.tools.music_recommendations import _cold_start
+    from pi.tools.music_recommendations import _cold_start
 
     sp = _make_sp()
     sp.featured_playlists.side_effect = RuntimeError("api error")
@@ -158,15 +158,15 @@ def test_cold_start_featured_playlists_exception():
 
 
 def test_recommend_calls_recommendations_with_seeds():
-    from server.tools.music_recommendations import _recommend
+    from pi.tools.music_recommendations import _recommend
 
     sp = _make_sp()
     cfg = _cfg()
     profile = _make_profile(has_history=True)
 
-    with patch("server.tools.music_recommendations.build_profile", return_value=profile), \
-         patch("server.tools.music_recommendations.recently_played_ids", return_value=set()), \
-         patch("server.tools.music_recommendations.record_play"):
+    with patch("pi.tools.music_recommendations.build_profile", return_value=profile), \
+         patch("pi.tools.music_recommendations.recently_played_ids", return_value=set()), \
+         patch("pi.tools.music_recommendations.record_play"):
         result = asyncio.run(_recommend(sp, "owner", "Owner", cfg))
 
     assert "Queuing" in result
@@ -177,7 +177,7 @@ def test_recommend_calls_recommendations_with_seeds():
 
 
 def test_recommend_filters_recently_played():
-    from server.tools.music_recommendations import _recommend
+    from pi.tools.music_recommendations import _recommend
 
     tracks = [{"uri": f"spotify:track:{i}"} for i in range(3)]
     sp = _make_sp(tracks=tracks)
@@ -186,9 +186,9 @@ def test_recommend_filters_recently_played():
     # Filter all but one track as recently played
     recent = {"spotify:track:0", "spotify:track:1"}
 
-    with patch("server.tools.music_recommendations.build_profile", return_value=profile), \
-         patch("server.tools.music_recommendations.recently_played_ids", return_value=recent), \
-         patch("server.tools.music_recommendations.record_play"):
+    with patch("pi.tools.music_recommendations.build_profile", return_value=profile), \
+         patch("pi.tools.music_recommendations.recently_played_ids", return_value=recent), \
+         patch("pi.tools.music_recommendations.record_play"):
         result = asyncio.run(_recommend(sp, "owner", "Owner", cfg))
 
     assert "Queuing 1" in result
@@ -198,14 +198,14 @@ def test_recommend_filters_recently_played():
 
 
 def test_recommend_cold_start_when_no_profile():
-    from server.tools.music_recommendations import _recommend
+    from pi.tools.music_recommendations import _recommend
 
     sp = _make_sp()
     cfg = _cfg()
-    from server.tools.music_profile import TasteProfile
+    from pi.tools.music_profile import TasteProfile
     empty_profile = TasteProfile(user="owner")
 
-    with patch("server.tools.music_recommendations.build_profile", return_value=empty_profile):
+    with patch("pi.tools.music_recommendations.build_profile", return_value=empty_profile):
         result = asyncio.run(_recommend(sp, "owner", "Owner", cfg))
 
     assert "learning your taste" in result
@@ -213,17 +213,17 @@ def test_recommend_cold_start_when_no_profile():
 
 
 def test_recommend_cold_start_when_all_recent():
-    from server.tools.music_recommendations import _recommend
+    from pi.tools.music_recommendations import _recommend
 
     tracks = [{"uri": "spotify:track:x"}]
     sp = _make_sp(tracks=tracks)
     cfg = _cfg()
     profile = _make_profile(has_history=True)
 
-    with patch("server.tools.music_recommendations.build_profile", return_value=profile), \
-         patch("server.tools.music_recommendations.recently_played_ids",
+    with patch("pi.tools.music_recommendations.build_profile", return_value=profile), \
+         patch("pi.tools.music_recommendations.recently_played_ids",
                return_value={"spotify:track:x"}), \
-         patch("server.tools.music_recommendations.record_play"):
+         patch("pi.tools.music_recommendations.record_play"):
         result = asyncio.run(_recommend(sp, "owner", "Owner", cfg))
 
     # Falls through to cold start
@@ -231,30 +231,30 @@ def test_recommend_cold_start_when_all_recent():
 
 
 def test_recommend_cold_start_when_no_tracks_returned():
-    from server.tools.music_recommendations import _recommend
+    from pi.tools.music_recommendations import _recommend
 
     sp = _make_sp(tracks=[])
     cfg = _cfg()
     profile = _make_profile(has_history=True)
 
-    with patch("server.tools.music_recommendations.build_profile", return_value=profile), \
-         patch("server.tools.music_recommendations.recently_played_ids", return_value=set()):
+    with patch("pi.tools.music_recommendations.build_profile", return_value=profile), \
+         patch("pi.tools.music_recommendations.recently_played_ids", return_value=set()):
         result = asyncio.run(_recommend(sp, "owner", "Owner", cfg))
 
     assert "learning your taste" in result
 
 
 def test_recommend_records_plays():
-    from server.tools.music_recommendations import _recommend
+    from pi.tools.music_recommendations import _recommend
 
     tracks = [{"uri": "spotify:track:abc"}]
     sp = _make_sp(tracks=tracks)
     cfg = _cfg()
     profile = _make_profile(has_history=True)
 
-    with patch("server.tools.music_recommendations.build_profile", return_value=profile), \
-         patch("server.tools.music_recommendations.recently_played_ids", return_value=set()), \
-         patch("server.tools.music_recommendations.record_play") as mock_record:
+    with patch("pi.tools.music_recommendations.build_profile", return_value=profile), \
+         patch("pi.tools.music_recommendations.recently_played_ids", return_value=set()), \
+         patch("pi.tools.music_recommendations.record_play") as mock_record:
         asyncio.run(_recommend(sp, "owner", "Owner", cfg))
 
     mock_record.assert_called_once_with("owner", "spotify:track:abc", sp,
@@ -262,15 +262,15 @@ def test_recommend_records_plays():
 
 
 def test_recommend_audio_targets_passed_to_spotify():
-    from server.tools.music_recommendations import _recommend
+    from pi.tools.music_recommendations import _recommend
 
     sp = _make_sp()
     cfg = _cfg()
     profile = _make_profile(has_history=True)
 
-    with patch("server.tools.music_recommendations.build_profile", return_value=profile), \
-         patch("server.tools.music_recommendations.recently_played_ids", return_value=set()), \
-         patch("server.tools.music_recommendations.record_play"):
+    with patch("pi.tools.music_recommendations.build_profile", return_value=profile), \
+         patch("pi.tools.music_recommendations.recently_played_ids", return_value=set()), \
+         patch("pi.tools.music_recommendations.record_play"):
         asyncio.run(_recommend(sp, "owner", "Owner", cfg))
 
     kwargs = sp.recommendations.call_args.kwargs
@@ -286,10 +286,10 @@ def test_recommend_audio_targets_passed_to_spotify():
 
 
 def test_tool_run_unconfigured_returns_message():
-    from server.tools.music_recommendations import MusicRecommendationTool
+    from pi.tools.music_recommendations import MusicRecommendationTool
 
     tool = MusicRecommendationTool()
-    with patch("server.tools.music_recommendations.cfg_module.load") as mock_load:
+    with patch("pi.tools.music_recommendations.cfg_module.load") as mock_load:
         cfg = MagicMock()
         cfg.spotify.owner.client_id = ""
         cfg.spotify.owner.client_secret = ""
@@ -300,13 +300,13 @@ def test_tool_run_unconfigured_returns_message():
 
 
 def test_tool_run_premium_error():
-    from server.tools.music_recommendations import MusicRecommendationTool
+    from pi.tools.music_recommendations import MusicRecommendationTool
 
     tool = MusicRecommendationTool()
-    with patch("server.tools.music_recommendations.cfg_module.load") as mock_load, \
-         patch("server.tools.music_recommendations._get_spotify") as mock_get_sp, \
-         patch("server.tools.music_recommendations._is_configured", return_value=True), \
-         patch("server.tools.music_recommendations._recommend",
+    with patch("pi.tools.music_recommendations.cfg_module.load") as mock_load, \
+         patch("pi.tools.music_recommendations._get_spotify") as mock_get_sp, \
+         patch("pi.tools.music_recommendations._is_configured", return_value=True), \
+         patch("pi.tools.music_recommendations._recommend",
                side_effect=Exception("403 premium required")):
         mock_load.return_value = MagicMock()
         mock_get_sp.return_value = MagicMock()
@@ -316,13 +316,13 @@ def test_tool_run_premium_error():
 
 
 def test_tool_has_correct_name():
-    from server.tools.music_recommendations import MusicRecommendationTool
+    from pi.tools.music_recommendations import MusicRecommendationTool
 
     assert MusicRecommendationTool.name == "music_recommendation"
 
 
 def test_tool_description_contains_trigger_phrases():
-    from server.tools.music_recommendations import MusicRecommendationTool
+    from pi.tools.music_recommendations import MusicRecommendationTool
 
     desc = MusicRecommendationTool.description.lower()
     assert "surprise me" in desc
@@ -336,7 +336,7 @@ def test_tool_description_contains_trigger_phrases():
 
 def test_music_recommendation_tool_discovered_by_registry():
     """ToolRegistry.load() must find MusicRecommendationTool automatically."""
-    from server.tools.base import ToolRegistry
+    from pi.tools.base import ToolRegistry
 
     registry = ToolRegistry()
     registry.load()
@@ -347,7 +347,7 @@ def test_music_recommendation_tool_discovered_by_registry():
 
 def test_voice_play_something_i_would_like_returns_recommendation():
     """'Play something I'd like' → MusicRecommendationTool.run() → recommendation response."""
-    from server.tools.music_recommendations import MusicRecommendationTool
+    from pi.tools.music_recommendations import MusicRecommendationTool
 
     sp = _make_sp()
     cfg = _cfg()
@@ -355,12 +355,12 @@ def test_voice_play_something_i_would_like_returns_recommendation():
 
     tool = MusicRecommendationTool()
 
-    with patch("server.tools.music_recommendations.cfg_module.load", return_value=cfg), \
-         patch("server.tools.music_recommendations._is_configured", return_value=True), \
-         patch("server.tools.music_recommendations._get_spotify", return_value=sp), \
-         patch("server.tools.music_recommendations.build_profile", return_value=profile), \
-         patch("server.tools.music_recommendations.recently_played_ids", return_value=set()), \
-         patch("server.tools.music_recommendations.record_play"):
+    with patch("pi.tools.music_recommendations.cfg_module.load", return_value=cfg), \
+         patch("pi.tools.music_recommendations._is_configured", return_value=True), \
+         patch("pi.tools.music_recommendations._get_spotify", return_value=sp), \
+         patch("pi.tools.music_recommendations.build_profile", return_value=profile), \
+         patch("pi.tools.music_recommendations.recently_played_ids", return_value=set()), \
+         patch("pi.tools.music_recommendations.record_play"):
         result = asyncio.run(tool.run({}, "owner"))
 
     # Should queue tracks, not cold-start
@@ -370,8 +370,8 @@ def test_voice_play_something_i_would_like_returns_recommendation():
 
 def test_voice_surprise_me_cold_start_response():
     """'Surprise me' with no history → friendly 'still learning' message."""
-    from server.tools.music_recommendations import MusicRecommendationTool
-    from server.tools.music_profile import TasteProfile
+    from pi.tools.music_recommendations import MusicRecommendationTool
+    from pi.tools.music_profile import TasteProfile
 
     sp = _make_sp()
     cfg = _cfg()
@@ -379,10 +379,10 @@ def test_voice_surprise_me_cold_start_response():
 
     tool = MusicRecommendationTool()
 
-    with patch("server.tools.music_recommendations.cfg_module.load", return_value=cfg), \
-         patch("server.tools.music_recommendations._is_configured", return_value=True), \
-         patch("server.tools.music_recommendations._get_spotify", return_value=sp), \
-         patch("server.tools.music_recommendations.build_profile", return_value=empty_profile):
+    with patch("pi.tools.music_recommendations.cfg_module.load", return_value=cfg), \
+         patch("pi.tools.music_recommendations._is_configured", return_value=True), \
+         patch("pi.tools.music_recommendations._get_spotify", return_value=sp), \
+         patch("pi.tools.music_recommendations.build_profile", return_value=empty_profile):
         result = asyncio.run(tool.run({}, "owner"))
 
     assert "learning your taste" in result or "Featured Mix" in result

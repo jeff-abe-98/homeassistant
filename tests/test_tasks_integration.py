@@ -14,7 +14,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from server.tools.google_auth import is_configured
+from pi.tools.google_auth import is_configured
 
 _REQUIRES_GOOGLE = pytest.mark.skipif(
     not is_configured(),
@@ -40,7 +40,7 @@ async def test_add_oat_milk_owner_routed_to_owner_list() -> None:
     The Google Tasks insert is mocked so no real tasks are created.
     """
     import server.tools.tasks as tasks_module
-    from server.tools.tasks import AddTaskTool
+    from pi.tools.tasks import AddTaskTool
 
     owner_list_id = "owner_list_id_test"
 
@@ -87,7 +87,7 @@ async def test_add_oat_milk_emily_routed_to_emily_list() -> None:
     Verifies that per-user list routing isolates Emily's tasks from Owner's.
     """
     import server.tools.tasks as tasks_module
-    from server.tools.tasks import AddTaskTool
+    from pi.tools.tasks import AddTaskTool
 
     emily_list_id = "emily_list_id_test"
 
@@ -139,7 +139,7 @@ async def test_list_tasks_owner_reads_from_owner_list() -> None:
     The Google Tasks list call is mocked so no live API requests are made.
     """
     import server.tools.tasks as tasks_module
-    from server.tools.tasks import ListTasksTool
+    from pi.tools.tasks import ListTasksTool
 
     owner_list_id = "owner_list_id_test"
     mock_service = MagicMock()
@@ -193,7 +193,7 @@ async def test_list_tasks_emily_reads_from_emily_list() -> None:
     - showCompleted=False is passed (only incomplete items returned)
     """
     import server.tools.tasks as tasks_module
-    from server.tools.tasks import ListTasksTool
+    from pi.tools.tasks import ListTasksTool
 
     emily_list_id = "emily_list_id_test"
     mock_service = MagicMock()
@@ -250,7 +250,7 @@ async def test_mark_oat_milk_done_owner() -> None:
     The Google Tasks API calls are mocked so no live changes are made.
     """
     import server.tools.tasks as tasks_module
-    from server.tools.tasks import CompleteTaskTool
+    from pi.tools.tasks import CompleteTaskTool
 
     owner_list_id = "owner_list_id_test"
     task_id = "t1"
@@ -318,7 +318,7 @@ async def test_mark_oat_milk_done_emily() -> None:
     - body={"status": "completed"} is passed
     """
     import server.tools.tasks as tasks_module
-    from server.tools.tasks import CompleteTaskTool
+    from pi.tools.tasks import CompleteTaskTool
 
     emily_list_id = "emily_list_id_test"
     task_id = "t2"
