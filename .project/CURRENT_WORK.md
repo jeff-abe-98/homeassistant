@@ -1,25 +1,28 @@
 # Current Work
 
 **Last updated:** 2026-06-18
-**Phase:** Phase 9 — item 3 done (deploy files updated)
+**Phase:** Phase 9 — all items complete
 
 ---
 
 ## Status
 
-Full architectural redesign in progress. The original server+Pi split architecture has been superseded. A new spec and plan have been written for a fully Pi-based system (Pi 5 8GB + AI HAT+ 2).
+Full architectural redesign complete. The original server+Pi split architecture has been superseded. All phases 1–9 are done.
 
 **Spec:** `.project/active/pi-redesign/spec.md`
-**Plan:** `plan.md` (completely replaced — all old phases 1-7 complete and archived)
+**Plan:** `plan.md` (completely replaced — all phases 1-9 complete)
 
-Phase 9 items 1–3 are complete.
+Phase 9 items 1–4 are complete.
 
-**Item 3:** Update deploy files (done 2026-06-18):
-- `deploy/homeassistant-pi.service`: added `Wants=homeassistant-scheduler.timer` to [Unit] section
-- `deploy/install-pi-service.sh`: added HailoRT/PCIe Gen 3 prerequisites block; refactored to `write_unit()` helper that installs all 3 unit files (pi.service, scheduler.service, scheduler.timer); added scheduler timer enable/start step
-- `CLAUDE.md`: updated project description to say Pi-only with HailoRT; added `archive/server/` note
+**Item 4:** Full end-to-end smoke test (done 2026-06-18):
+- `tests/test_phase9_e2e.py` created with 4 tests:
+  - `test_tool_registry_discovers_pi_tools` — all 10 migrated tools found by ToolRegistry.load()
+  - `test_weather_tool_end_to_end` — WeatherTool with mocked httpx + LLM through _handle_activation
+  - `test_cta_tool_end_to_end` — CTATool with mocked httpx + LLM through _handle_activation
+  - `test_main_loop_single_activation` — full main() loop with one-shot WakeWordDetector, all hardware mocked, TTS + player called
+- All 390 tests pass, 18 skipped
 
-**Next:** Phase 9 item 4 — full end-to-end smoke test: wake word → STT (mocked) → LLM routing (mocked) → tool execution → TTS (mocked) → all assertions pass.
+**Next:** All plan items complete. No unchecked items remain. Physical Pi deployment pending.
 
 ## Documents
 

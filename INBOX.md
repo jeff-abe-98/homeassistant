@@ -26,6 +26,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-18 (session 150)
+**Status:** Phase 9 items 1–3 done; implementing Phase 9 item 4 — full end-to-end smoke test
+**Next task:** Phase 9 item 4 — full end-to-end smoke test (this session)
+**Blockers:** None
+
 ### 2026-06-18 (session 149)
 **Status:** Phase 9 items 1–2 done; implementing Phase 9 item 3 — update deploy files (pi.service, install-pi-service.sh) and CLAUDE.md
 **Next task:** Phase 9 item 4 — full end-to-end smoke test

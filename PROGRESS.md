@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-18 UTC]
+**Completed:** Phase 9 item 4 — full end-to-end smoke test: `tests/test_phase9_e2e.py` with 4 tests (ToolRegistry discovers all 10 pi.tools.* tools; WeatherTool + CTATool each run through _handle_activation with mocked httpx + LLM; main() loop single-activation with one-shot WakeWordDetector + all hardware mocked; TTS + player verified called); 390 tests pass, 18 skipped; all Phase 9 items complete
+**Files changed:** tests/test_phase9_e2e.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
+**Next up:** All plan phases complete — physical Pi deployment pending
+**Blockers:** None
+---
+
+## [2026-06-18 UTC]
 **Completed:** Phase 9 item 3 — update deploy files: pi.service Wants scheduler.timer; install-pi-service.sh adds HailoRT/PCIe prerequisites + write_unit() helper + scheduler timer enable; CLAUDE.md updated to Pi-only + HailoRT description with archive/server/ note
 **Files changed:** deploy/homeassistant-pi.service, deploy/install-pi-service.sh, CLAUDE.md, plan.md, .project/CURRENT_WORK.md, INBOX.md
 **Next up:** Phase 9 item 4 — full end-to-end smoke test (wake word → STT mocked → LLM routing mocked → tool execution → TTS mocked)
