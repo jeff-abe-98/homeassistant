@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-19
-**Phase:** Phase 10 — Documentation & Setup (items 1–2 complete)
+**Phase:** Phase 10 — Documentation & Setup (items 1–3 complete)
 
 ---
 
@@ -9,13 +9,16 @@
 
 Full architectural redesign complete (Phases 1–9). Phase 10 in progress.
 
+**Phase 10 item 3 (done 2026-06-19):**
+- Created `docs/api-keys-setup.md`: step-by-step instructions for all 5 external credentials — CTA (registration URL + field mapping), OpenWeatherMap (free tier key, 10-min activation note), Google OAuth (4-part guide: Cloud project → enable APIs → OAuth consent + credentials → first-run token flow), Spotify (create app once, dual-user auth, Emily test-user note), Android TV (IP finding, static DHCP, first-time pairing flow). Credential file summary table at the end.
+
 **Phase 10 item 2 (done 2026-06-19):**
 - Created `docs/setup-guide.md`: 11-step first-time setup covering OS flash, HailoRT driver install + verification, repo clone, pip install, LLM/STT/TTS model downloads, settings.yaml configuration table, Google OAuth first-run flow, voice enrollment for both users (with device-index tip), systemd service install, test phrases, and optional custom wake word training.
 
 **Phase 10 item 1 (done 2026-06-19):**
 - Created `README.md`: project overview, hardware table (~$270 total), quick-start commands, feature table, project structure, doc links, autonomous tool creation walkthrough, config reference.
 
-**Next:** Phase 10 item 3 — `docs/api-keys-setup.md`
+**Next:** Phase 10 item 4 — `scripts/first-run-check.sh`
 
 ## Documents
 

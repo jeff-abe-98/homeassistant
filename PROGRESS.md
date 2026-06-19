@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-19 UTC]
+**Completed:** Phase 10 item 3 — created `docs/api-keys-setup.md`: step-by-step credential setup for CTA, OpenWeatherMap, Google OAuth (4-part Cloud Console walkthrough), Spotify (dual-user, create app once), and Android TV pairing; credential file summary table at end
+**Files changed:** docs/api-keys-setup.md, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
+**Next up:** Phase 10 item 4 — `scripts/first-run-check.sh`
+**Blockers:** None
+---
+
+## [2026-06-19 UTC]
 **Completed:** Phase 10 item 2 — created `docs/setup-guide.md`: 11-step first-time Pi setup (OS flash, HailoRT install, clone, pip, model downloads, settings.yaml config table, Google OAuth, voice enrollment, systemd, test phrases, optional custom wake word)
 **Files changed:** docs/setup-guide.md, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
 **Next up:** Phase 10 item 3 — `docs/api-keys-setup.md`
