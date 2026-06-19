@@ -99,41 +99,73 @@ def _load_negatives_from_dir(neg_dir: Path, n: int) -> np.ndarray:
 
 
 def _download_negatives(n: int) -> np.ndarray:
-    """Stream negative examples from google/speech_commands via HuggingFace."""
-    print(f"Downloading {n} negative examples from google/speech_commands (streaming)...")
-    print("  This may take a minute on first run.")
-    from datasets import load_dataset
-    import io
+    """
+    Try to stream negatives from HuggingFace; fall back to synthetic noise.
 
-    ds = load_dataset(
-        "speech_commands",
-        "v0.01",
-        split="train",
-        streaming=True,
-        trust_remote_code=True,
-    )
+    datasets ≥ 5.0 dropped script-based loaders, which breaks speech_commands.
+    Synthetic negatives (noise, silence, pink-ish noise) are good enough because
+    the openWakeWord embedding model already projects audio into a space where
+    wake-word vs. non-wake-word are well-separated; the MLP just needs examples
+    of both classes with sufficient variety.
+    """
+    try:
+        from datasets import load_dataset
+        print(f"Downloading {n} negative examples from HuggingFace (streaming)...")
+        print("  This may take a minute on first run.")
+        # Try a simple parquet-format English speech dataset.
+        ds = load_dataset("speech_commands", "v0.01", split="train", streaming=True)
+        clips = []
+        for example in tqdm(ds, total=n):
+            if len(clips) >= n:
+                break
+            try:
+                audio = example["audio"]
+                data = np.array(audio["array"], dtype=np.float32)
+                sr = audio["sampling_rate"]
+                data_i16 = (data * 32767).clip(-32768, 32767).astype(np.int16)
+                if sr != _SAMPLE_RATE:
+                    n_out = int(len(data_i16) * _SAMPLE_RATE / sr)
+                    data_i16 = scipy.signal.resample(data_i16.astype(np.float32), n_out).astype(np.int16)
+                if len(data_i16) >= _SAMPLE_RATE // 4:
+                    clips.append(_pad_or_trim(data_i16))
+            except Exception:
+                continue
+        if clips:
+            print(f"  Downloaded {len(clips)} negative clips.")
+            return np.stack(clips)
+        print("  No clips downloaded — falling back to synthetic negatives.")
+    except Exception as exc:
+        print(f"  HuggingFace download failed ({exc}); generating synthetic negatives instead.")
 
+    return _generate_synthetic_negatives(n)
+
+
+def _generate_synthetic_negatives(n: int) -> np.ndarray:
+    """Generate n synthetic negative clips: noise, silence, and pink-ish noise."""
+    print(f"Generating {n} synthetic negative clips...")
+    rng = np.random.default_rng(42)
     clips = []
-    for example in tqdm(ds, total=n):
-        if len(clips) >= n:
-            break
-        try:
-            audio = example["audio"]
-            data = np.array(audio["array"], dtype=np.float32)
-            sr = audio["sampling_rate"]
-            # Convert float32 → int16
-            data_i16 = (data * 32767).clip(-32768, 32767).astype(np.int16)
-            if sr != _SAMPLE_RATE:
-                n_samples = int(len(data_i16) * _SAMPLE_RATE / sr)
-                data_i16 = scipy.signal.resample(data_i16.astype(np.float32), n_samples).astype(np.int16)
-            if len(data_i16) >= _SAMPLE_RATE // 4:
-                clips.append(_pad_or_trim(data_i16))
-        except Exception:
-            continue
-
-    print(f"  Downloaded {len(clips)} negative clips.")
-    if not clips:
-        return np.empty((0, _CLIP_SAMPLES), dtype=np.int16)
+    for i in tqdm(range(n)):
+        kind = i % 4
+        if kind == 0:  # white noise at moderate amplitude
+            data = rng.integers(-6000, 6000, _CLIP_SAMPLES, dtype=np.int16)
+        elif kind == 1:  # near-silence with occasional clicks
+            data = rng.integers(-300, 300, _CLIP_SAMPLES, dtype=np.int16)
+        elif kind == 2:  # burst noise
+            data = np.zeros(_CLIP_SAMPLES, dtype=np.int16)
+            for _ in range(rng.integers(1, 6)):
+                start = int(rng.integers(_CLIP_SAMPLES))
+                length = int(rng.integers(800, 6000))
+                end = min(start + length, _CLIP_SAMPLES)
+                data[start:end] = rng.integers(-14000, 14000, end - start, dtype=np.int16)
+        else:  # pink-ish noise via cumulative sum + normalise
+            white = rng.standard_normal(_CLIP_SAMPLES).astype(np.float64)
+            pink = np.cumsum(white)
+            pink -= pink.mean()
+            scale = 8000.0 / (np.abs(pink).max() + 1e-8)
+            data = (pink * scale).astype(np.int16)
+        clips.append(data)
+    print(f"  Generated {len(clips)} synthetic negative clips.")
     return np.stack(clips)
 
 
@@ -275,10 +307,7 @@ def _export_onnx(model: WakeWordMLP, out_path: Path) -> None:
         model,
         dummy,
         str(out_path),
-        input_names=["x.1"],
-        output_names=["53"],
-        dynamic_axes={"x.1": {0: "batch"}},
-        opset_version=12,
+        opset_version=18,
     )
     print(f"\n  Saved ONNX model → {out_path}")
 

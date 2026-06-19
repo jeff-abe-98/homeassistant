@@ -1,0 +1,13 @@
+# Dependencies for training a custom wake word model (train_model.py / record_samples.py).
+# Not needed at runtime — install only when building a new wake word model.
+#
+# Usage:
+#   pip install -r requirements-wakeword-training.txt
+#   python -m pi.wake_word.record_samples --phrase "hey clanker" --target 150
+#   python -m pi.wake_word.train_model --positives ~/wakeword_samples --name hey_clanker
+torch>=2.0.0
+scipy>=1.11.0
+tqdm>=4.66.0
+onnx>=1.15.0
+onnxscript>=0.1.0
+datasets>=2.0.0    # optional — only needed for HuggingFace negative download; falls back to synthetic
