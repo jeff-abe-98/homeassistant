@@ -15,6 +15,8 @@ The agent reads this at the start of every run.
  - [x] Seeing as we are blocked by getting the pi setup, we sjould do the parts list as the next step. move it from its current spot in phase 6 to the top of the todo list. initially i was rhinking a pi 5 and a ReSpeaker 2-Mic Pi HAT *(moved up in plan.md and implemented — `docs/parts-list.md` created; Pi 5 8 GB + ReSpeaker 2-Mic Pi HAT + accessories ~$130–140; server GPU upgrade RTX 4060 Ti 16 GB + PSU ~$500–550; includes driver notes)*
  - [x] Make sure that when you are reading this at start up, you are also writing here. *(added to plan.md Phase 6)*
  - [x] Add a parts list. this should be split into parts for the Pi, and parts for the server. *(added to plan.md Phase 6)*
+ - [ ] Look through wake word training script and review for bugs
+ - [ ] create a new phase at the end of the plan which will create all of the documentation amd startup processes needed to make this repository easy to setup
 
 ## Notes
 *Anything else — reminders, context, thoughts.*
