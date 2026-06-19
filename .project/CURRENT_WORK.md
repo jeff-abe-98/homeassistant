@@ -1,28 +1,23 @@
 # Current Work
 
-**Last updated:** 2026-06-18
-**Phase:** Phase 9 — all items complete
+**Last updated:** 2026-06-19
+**Phase:** Phase 10 — Documentation & Setup (just added)
 
 ---
 
 ## Status
 
-Full architectural redesign complete. The original server+Pi split architecture has been superseded. All phases 1–9 are done.
+Full architectural redesign complete (Phases 1–9). Session 152 processed inbox:
 
-**Spec:** `.project/active/pi-redesign/spec.md`
-**Plan:** `plan.md` (completely replaced — all phases 1-9 complete)
+**Wake word training script bug fixes (done 2026-06-19):**
+- `_load_positives`: `np.stack([])` would crash before `main()` error check — fixed with empty array guard
+- `_load_negatives_from_dir`: same empty-list crash — fixed
+- `_download_negatives`: same empty-list crash — fixed
+- `_train()`: `best_state=None` if `--epochs 0` — fixed by initializing from model state before the loop
 
-Phase 9 items 1–4 are complete.
+**Phase 10 added to `plan.md`** (5 items: README, setup guide, API keys guide, first-run-check script, troubleshooting guide)
 
-**Item 4:** Full end-to-end smoke test (done 2026-06-18):
-- `tests/test_phase9_e2e.py` created with 4 tests:
-  - `test_tool_registry_discovers_pi_tools` — all 10 migrated tools found by ToolRegistry.load()
-  - `test_weather_tool_end_to_end` — WeatherTool with mocked httpx + LLM through _handle_activation
-  - `test_cta_tool_end_to_end` — CTATool with mocked httpx + LLM through _handle_activation
-  - `test_main_loop_single_activation` — full main() loop with one-shot WakeWordDetector, all hardware mocked, TTS + player called
-- All 390 tests pass, 18 skipped
-
-**Next:** All plan items complete. No unchecked items remain. Physical Pi deployment pending.
+**Next:** Phase 10 item 1 — `README.md`
 
 ## Documents
 

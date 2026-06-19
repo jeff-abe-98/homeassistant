@@ -75,6 +75,8 @@ def _load_positives(pos_dir: Path) -> np.ndarray:
         if data is not None:
             clips.append(_pad_or_trim(data))
     # Keep int16 — embed_clips requires it
+    if not clips:
+        return np.empty((0, _CLIP_SAMPLES), dtype=np.int16)
     arr = np.stack(clips)
     print(f"  Loaded {len(arr)} positive clips.")
     return arr
@@ -91,6 +93,8 @@ def _load_negatives_from_dir(neg_dir: Path, n: int) -> np.ndarray:
         if data is not None and len(data) >= _SAMPLE_RATE // 2:
             clips.append(_pad_or_trim(data))
     print(f"  Loaded {len(clips)} negative clips.")
+    if not clips:
+        return np.empty((0, _CLIP_SAMPLES), dtype=np.int16)
     return np.stack(clips)
 
 
@@ -128,6 +132,8 @@ def _download_negatives(n: int) -> np.ndarray:
             continue
 
     print(f"  Downloaded {len(clips)} negative clips.")
+    if not clips:
+        return np.empty((0, _CLIP_SAMPLES), dtype=np.int16)
     return np.stack(clips)
 
 
@@ -236,7 +242,7 @@ def _train(pos_windows: np.ndarray, neg_windows: np.ndarray, epochs: int = 150) 
     loader = torch.utils.data.DataLoader(dataset, batch_size=64, shuffle=True)
 
     best_loss = float("inf")
-    best_state = None
+    best_state = {k: v.clone() for k, v in model.state_dict().items()}
     for epoch in range(1, epochs + 1):
         model.train()
         total_loss = 0.0

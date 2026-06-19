@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-19 UTC]
+**Completed:** Inbox processing — fixed 4 bugs in wake word training script; added Phase 10 (Documentation & Setup) with 5 items to plan.md
+**Files changed:** pi/wake_word/train_model.py, INBOX.md, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
+**Next up:** Phase 10 item 1 — `README.md`
+**Blockers:** None
+---
+
+## [2026-06-19 UTC]
 **Completed:** Startup check-in only — all phases 1–9 complete, inbox empty, no unchecked plan items
 **Files changed:** INBOX.md, PROGRESS.md
 **Next up:** Physical Pi deployment pending; no code tasks remain
