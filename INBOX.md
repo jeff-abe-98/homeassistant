@@ -28,6 +28,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-19 (session 156)
+**Status:** Phase 10 items 1–3 complete (README.md, setup-guide.md, api-keys-setup.md); implementing Phase 10 item 4 — `scripts/first-run-check.sh`
+**Next task:** Phase 10 item 4 — `scripts/first-run-check.sh` (HailoRT, CHANGE_ME, voice profiles, systemd units)
+**Blockers:** None
+
 ### 2026-06-19 (session 155)
 **Status:** Phase 10 items 1–2 complete (README.md + setup-guide.md); implementing Phase 10 item 3 — `docs/api-keys-setup.md`
 **Next task:** Phase 10 item 3 — `docs/api-keys-setup.md` (CTA, OWM, Google OAuth, Spotify, Android TV)

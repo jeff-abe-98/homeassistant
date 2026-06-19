@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-19 UTC]
+**Completed:** Phase 10 item 4 — created `scripts/first-run-check.sh`: 7-section preflight checklist (HailoRT/PCIe, CHANGE_ME placeholders, model files, Google OAuth, Spotify tokens, voice profiles, systemd units); exits non-zero on any failure with doc links
+**Files changed:** scripts/first-run-check.sh, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
+**Next up:** Phase 10 item 5 — `docs/troubleshooting.md`
+**Blockers:** None
+---
+
+## [2026-06-19 UTC]
 **Completed:** Phase 10 item 3 — created `docs/api-keys-setup.md`: step-by-step credential setup for CTA, OpenWeatherMap, Google OAuth (4-part Cloud Console walkthrough), Spotify (dual-user, create app once), and Android TV pairing; credential file summary table at end
 **Files changed:** docs/api-keys-setup.md, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
 **Next up:** Phase 10 item 4 — `scripts/first-run-check.sh`
