@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-06-19 UTC]
+**Completed:** Startup check-in only — all phases 1–9 complete, inbox empty, no unchecked plan items
+**Files changed:** INBOX.md, PROGRESS.md
+**Next up:** Physical Pi deployment pending; no code tasks remain
+**Blockers:** None
+---
+
 ## [2026-06-18 UTC]
 **Completed:** Phase 9 item 4 — full end-to-end smoke test: `tests/test_phase9_e2e.py` with 4 tests (ToolRegistry discovers all 10 pi.tools.* tools; WeatherTool + CTATool each run through _handle_activation with mocked httpx + LLM; main() loop single-activation with one-shot WakeWordDetector + all hardware mocked; TTS + player verified called); 390 tests pass, 18 skipped; all Phase 9 items complete
 **Files changed:** tests/test_phase9_e2e.py, plan.md, PROGRESS.md, .project/CURRENT_WORK.md, INBOX.md
