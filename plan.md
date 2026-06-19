@@ -94,7 +94,7 @@
 ## Phase 10 — Documentation & Setup
 *Goal: Make the repository easy to set up for a new Pi from scratch.*
 
-- [ ] `README.md` — project overview (what it is, hardware required, quick-start command), links to detailed docs; replace or create top-level README
+- [x] `README.md` — project overview (what it is, hardware required, quick-start command), links to detailed docs; replace or create top-level README *(done 2026-06-19 — created README.md: overview, hardware table, quick-start, feature table, project structure, doc links, autonomous tool creation explainer, config snippet)*
 - [ ] `docs/setup-guide.md` — step-by-step first-time Pi setup: flash OS → run `install-hailo-drivers.sh` → clone repo → `pip install -r requirements-pi.txt` → copy and fill out `config/settings.yaml` → enroll voice profiles → enable systemd services via `install-pi-service.sh`
 - [ ] `docs/api-keys-setup.md` — where to obtain and how to configure each credential: CTA API key, OpenWeatherMap key, Google OAuth (Calendar + Tasks), Spotify app credentials, Android TV pairing
 - [ ] `scripts/first-run-check.sh` — prints a checklist of what's ready vs. missing: HailoRT installed, no CHANGE_ME values in settings.yaml, voice profiles present, systemd units active; exits non-zero if anything is missing

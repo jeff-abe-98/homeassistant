@@ -28,6 +28,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-19 (session 153)
+**Status:** Phases 1–9 complete; starting Phase 10 — implementing item 1: README.md
+**Next task:** Phase 10 item 1 — `README.md` (project overview, hardware, quick-start, doc links)
+**Blockers:** None
+
 ### 2026-06-19 (session 152)
 **Status:** All phases 1–9 complete; processing inbox — reviewing wake word training script for bugs and triaging Phase 10 documentation idea
 **Next task:** Inbox processing (wake word bug review + Phase 10 planning)

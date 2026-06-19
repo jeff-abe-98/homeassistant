@@ -1,23 +1,18 @@
 # Current Work
 
 **Last updated:** 2026-06-19
-**Phase:** Phase 10 — Documentation & Setup (just added)
+**Phase:** Phase 10 — Documentation & Setup (item 1 complete)
 
 ---
 
 ## Status
 
-Full architectural redesign complete (Phases 1–9). Session 152 processed inbox:
+Full architectural redesign complete (Phases 1–9). Phase 10 in progress.
 
-**Wake word training script bug fixes (done 2026-06-19):**
-- `_load_positives`: `np.stack([])` would crash before `main()` error check — fixed with empty array guard
-- `_load_negatives_from_dir`: same empty-list crash — fixed
-- `_download_negatives`: same empty-list crash — fixed
-- `_train()`: `best_state=None` if `--epochs 0` — fixed by initializing from model state before the loop
+**Phase 10 item 1 (done 2026-06-19):**
+- Created `README.md`: project overview, hardware table (~$270 total), quick-start commands, feature table (weather/CTA/calendar/tasks/Spotify/AndroidTV/recommendations/autonomous tools), project structure, doc links, autonomous tool creation walkthrough, config reference
 
-**Phase 10 added to `plan.md`** (5 items: README, setup guide, API keys guide, first-run-check script, troubleshooting guide)
-
-**Next:** Phase 10 item 1 — `README.md`
+**Next:** Phase 10 item 2 — `docs/setup-guide.md`
 
 ## Documents
 

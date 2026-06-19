@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-19 UTC]
+**Completed:** Phase 10 item 1 — created README.md with project overview, hardware table, quick-start commands, feature table, project structure, doc links, autonomous tool creation explanation, and config reference
+**Files changed:** README.md, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
+**Next up:** Phase 10 item 2 — `docs/setup-guide.md`
+**Blockers:** None
+---
+
+## [2026-06-19 UTC]
 **Completed:** Inbox processing — fixed 4 bugs in wake word training script; added Phase 10 (Documentation & Setup) with 5 items to plan.md
 **Files changed:** pi/wake_word/train_model.py, INBOX.md, plan.md, .project/CURRENT_WORK.md, PROGRESS.md
 **Next up:** Phase 10 item 1 — `README.md`
