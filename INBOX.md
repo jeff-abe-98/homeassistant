@@ -28,6 +28,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-19 (session 154)
+**Status:** Phase 10 item 1 (README.md) complete; implementing Phase 10 item 2 — `docs/setup-guide.md`
+**Next task:** Phase 10 item 2 — `docs/setup-guide.md` (step-by-step first-time Pi setup)
+**Blockers:** None
+
 ### 2026-06-19 (session 153)
 **Status:** Phases 1–9 complete; starting Phase 10 — implementing item 1: README.md
 **Next task:** Phase 10 item 1 — `README.md` (project overview, hardware, quick-start, doc links)

@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-19
-**Phase:** Phase 10 — Documentation & Setup (item 1 complete)
+**Phase:** Phase 10 — Documentation & Setup (items 1–2 complete)
 
 ---
 
@@ -9,10 +9,13 @@
 
 Full architectural redesign complete (Phases 1–9). Phase 10 in progress.
 
-**Phase 10 item 1 (done 2026-06-19):**
-- Created `README.md`: project overview, hardware table (~$270 total), quick-start commands, feature table (weather/CTA/calendar/tasks/Spotify/AndroidTV/recommendations/autonomous tools), project structure, doc links, autonomous tool creation walkthrough, config reference
+**Phase 10 item 2 (done 2026-06-19):**
+- Created `docs/setup-guide.md`: 11-step first-time setup covering OS flash, HailoRT driver install + verification, repo clone, pip install, LLM/STT/TTS model downloads, settings.yaml configuration table, Google OAuth first-run flow, voice enrollment for both users (with device-index tip), systemd service install, test phrases, and optional custom wake word training.
 
-**Next:** Phase 10 item 2 — `docs/setup-guide.md`
+**Phase 10 item 1 (done 2026-06-19):**
+- Created `README.md`: project overview, hardware table (~$270 total), quick-start commands, feature table, project structure, doc links, autonomous tool creation walkthrough, config reference.
+
+**Next:** Phase 10 item 3 — `docs/api-keys-setup.md`
 
 ## Documents
 
