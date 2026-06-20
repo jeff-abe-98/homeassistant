@@ -1,13 +1,16 @@
 # Current Work
 
-**Last updated:** 2026-06-19
-**Phase:** Phase 10 — Documentation & Setup (items 1–4 complete)
+**Last updated:** 2026-06-20
+**Phase:** Phase 10 — Documentation & Setup (all 5 items complete)
 
 ---
 
 ## Status
 
 Full architectural redesign complete (Phases 1–9). Phase 10 in progress.
+
+**Phase 10 item 5 (done 2026-06-20):**
+- Created `docs/troubleshooting.md`: 6 sections — (1) HailoRT Not Found (PCIe seat, driver install, venv package, Gen 3 flag), (2) USB Microphone Not Detected (arecord, hw vs plughw, device index config, audio group), (3) Wake Word Not Triggering (model file, threshold tuning, false positive/negative tradeoffs, custom training), (4) Tool Errors (per-integration: Weather/CTA, Google Calendar/Tasks, Spotify, Android TV, generated tools), (5) GitHub Sync Failures (connectivity, PAT validity, scopes, offline queue), (6) General Debugging Tips (journalctl, direct run, first-run-check.sh).
 
 **Phase 10 item 4 (done 2026-06-19):**
 - Created `scripts/first-run-check.sh`: 7-section preflight script — (1) hailortcli installed + AI HAT+ 2 PCIe detected, (2) no CHANGE_ME placeholders + androidtv IP configured, (3) LLM/STT/TTS model .hef/.onnx files present, (4) Google OAuth credentials + token files, (5) Spotify per-user token files, (6) ≥2 voice profiles enrolled, (7) systemd homeassistant-pi.service + scheduler.timer active. Exits non-zero on any failure; PASS/FAIL lines guide the user to the right docs section.
@@ -21,7 +24,7 @@ Full architectural redesign complete (Phases 1–9). Phase 10 in progress.
 **Phase 10 item 1 (done 2026-06-19):**
 - Created `README.md`: project overview, hardware table (~$270 total), quick-start commands, feature table, project structure, doc links, autonomous tool creation walkthrough, config reference.
 
-**Next:** Phase 10 item 5 — `docs/troubleshooting.md`
+**Next:** All phases complete — Phase 10 done. Awaiting physical Pi deployment or new inbox items.
 
 ## Documents
 
