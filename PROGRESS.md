@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-21 UTC]
+**Completed:** Routine check-in (session 164) — inbox empty, all 10 phases complete; no new work; updated startup log
+**Files changed:** INBOX.md, PROGRESS.md
+**Next up:** All phases complete — awaiting physical Pi deployment or new inbox items
+**Blockers:** None
+---
+
+## [2026-06-21 UTC]
 **Completed:** Routine check-in (session 163) — inbox empty, all 10 phases complete; no new work; updated startup log
 **Files changed:** INBOX.md, PROGRESS.md
 **Next up:** All phases complete — awaiting physical Pi deployment or new inbox items
@@ -67,16 +74,3 @@ Most recent run at top.
 **Blockers:** None
 ---
 
-## [2026-06-19 UTC]
-**Completed:** Phase 10 item 2 — created `docs/setup-guide.md`: 11-step first-time Pi setup (OS flash, HailoRT install, clone, pip, model downloads, settings.yaml config table, Google OAuth, voice enrollment, systemd, test phrases, optional custom wake word)
-**Files changed:** docs/setup-guide.md, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
-**Next up:** Phase 10 item 3 — `docs/api-keys-setup.md`
-**Blockers:** None
----
-
-## [2026-06-19 UTC]
-**Completed:** Phase 10 item 1 — created README.md with project overview, hardware table, quick-start commands, feature table, project structure, doc links, autonomous tool creation explanation, and config reference
-**Files changed:** README.md, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
-**Next up:** Phase 10 item 2 — `docs/setup-guide.md`
-**Blockers:** None
----
