@@ -4,6 +4,13 @@ Most recent run at top.
 
 ---
 
+## [2026-06-23 UTC]
+**Completed:** Routine check-in (session 175) — inbox empty, all 10 phases complete; no new work; updated startup log
+**Files changed:** INBOX.md, PROGRESS.md
+**Next up:** All phases complete — awaiting physical Pi deployment or new inbox items
+**Blockers:** None
+---
+
 ## [2026-06-22 UTC]
 **Completed:** Routine check-in (session 174) — inbox empty, all 10 phases complete; no new work; updated startup log
 **Files changed:** INBOX.md, PROGRESS.md
@@ -66,12 +73,3 @@ Most recent run at top.
 **Next up:** All phases complete — awaiting physical Pi deployment or new inbox items
 **Blockers:** None
 ---
-
-## [2026-06-21 UTC]
-**Completed:** Routine check-in (session 165) — inbox empty, all 10 phases complete; no new work; updated startup log
-**Files changed:** INBOX.md, PROGRESS.md
-**Next up:** All phases complete — awaiting physical Pi deployment or new inbox items
-**Blockers:** None
----
-
-
