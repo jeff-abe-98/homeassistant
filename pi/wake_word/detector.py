@@ -6,15 +6,14 @@ from typing import Callable
 
 import numpy as np
 import pyaudio
-from scipy.signal import resample_poly
 
 from shared.config import WakeWordConfig
 
-_SAMPLE_RATE = 48000    # native USB mic rate
+_SAMPLE_RATE = 16000
 _CHANNELS = 1
 _FORMAT = pyaudio.paInt16
-# 80 ms frames at 48 kHz; downsampled to 16 kHz before openWakeWord inference
-_CHUNK_SAMPLES = 3840
+# openWakeWord expects 80ms frames at 16kHz
+_CHUNK_SAMPLES = 1280
 
 
 class WakeWordDetector:
@@ -83,9 +82,7 @@ class WakeWordDetector:
                 raw = self._stream.read(_CHUNK_SAMPLES, exception_on_overflow=False)
             except OSError:
                 break
-            audio_48k = np.frombuffer(raw, dtype=np.int16)
-            # openWakeWord model requires 16 kHz input
-            audio = resample_poly(audio_48k, 1, 3).astype(np.int16)
+            audio = np.frombuffer(raw, dtype=np.int16)
             scores = self._model.predict(audio)
 
             above_threshold = any(
