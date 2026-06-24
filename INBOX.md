@@ -28,6 +28,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-24 (session 186)
+**Status:** Phase 11 item 3 complete (third-party overhead audit instrumentation + latency-overhead.md); implementing Phase 11 item 4 next
+**Next task:** Phase 11 item 4 — analyse findings and rank bottlenecks (`latency-analysis.md`)
+**Blockers:** Phase 11 measurements require physical Pi hardware to collect actual timing data
+
 ### 2026-06-24 (session 185)
 **Status:** Phase 11 item 1 complete (audio capture pipeline timing); implementing Phase 11 item 2 — inference pipeline profiling
 **Next task:** Phase 11 item 2 — profile speaker-ID, STT, LLM, tool, TTS, playback

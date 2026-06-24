@@ -162,8 +162,8 @@ class HailoLLMClient:
         elapsed = (time.perf_counter() - t0) * 1000
         label = "cold" if is_cold else "warm"
         log.debug(
-            "LATENCY llm_generate_%s=%.1fms tokens_out≈%d",
-            label, elapsed, len(result.split()) if isinstance(result, str) else 0,
+            "LATENCY llm_generate_%s=%.1fms tokens_out≈%d max_tokens=%d",
+            label, elapsed, len(result.split()) if isinstance(result, str) else 0, max_tokens,
         )
         return result
 

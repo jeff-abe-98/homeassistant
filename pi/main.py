@@ -77,6 +77,21 @@ _KEYWORD_ROUTES: list[tuple[str, tuple[str, ...]]] = [
 ]
 
 
+def _executor_timed(fn, *args, label: str = ""):
+    """Wrap a callable so the thread-pool queue-wait time is logged on entry."""
+    t_submit = time.perf_counter()
+
+    def _run():
+        logger.debug(
+            "LATENCY executor_queue_wait=%.3fms task=%s",
+            (time.perf_counter() - t_submit) * 1000,
+            label,
+        )
+        return fn(*args)
+
+    return _run
+
+
 def _keyword_route(text: str) -> str | None:
     """Return a tool name if the transcript clearly matches one via keywords."""
     import re
@@ -160,8 +175,17 @@ async def _capture_utterance(t_wake: float = 0.0) -> tuple[bytes, int]:
     raw = b"".join(pcm_chunks)
     # Resample from capture rate (48 kHz) down to 16 kHz required by Whisper STT.
     if raw and sample_rate != 16000:
+        audio_int16 = np.frombuffer(raw, dtype=np.int16)
+        # Time simple 3:1 integer decimation as a quality/speed comparison reference.
+        if sample_rate == 48000:
+            t_dec = time.perf_counter()
+            _decimated = audio_int16[::3]  # not used for output; comparison only
+            logger.debug(
+                "LATENCY decimation_48k_to_16k=%.2fms out_samples=%d",
+                (time.perf_counter() - t_dec) * 1000, len(_decimated),
+            )
         t_resample_start = time.perf_counter()
-        audio = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
+        audio = audio_int16.astype(np.float32)
         g = gcd(sample_rate, 16000)
         audio = resample_poly(audio, 16000 // g, sample_rate // g).astype(np.int16)
         raw = audio.tobytes()
@@ -282,7 +306,7 @@ async def _handle_activation(
     # Identify speaker on CPU while STT runs on Hailo NPU (concurrent)
     t_identify_stt = time.perf_counter()
     user, transcript_text = await asyncio.gather(
-        loop.run_in_executor(None, identify, pcm_bytes, sample_rate),
+        loop.run_in_executor(None, _executor_timed(identify, pcm_bytes, sample_rate, label="identify")),
         stt.transcribe(pcm_bytes, sample_rate),
     )
     logger.debug(
@@ -380,13 +404,13 @@ async def _handle_activation(
 
     # Synthesise and play the response
     t_tts = time.perf_counter()
-    audio = await loop.run_in_executor(None, tts.synthesize, response_text)
+    audio = await loop.run_in_executor(None, _executor_timed(tts.synthesize, response_text, label="tts_synthesize"))
     logger.debug(
         "LATENCY tts_synthesize=%.1fms bytes=%d response_chars=%d",
         (time.perf_counter() - t_tts) * 1000, len(audio), len(response_text),
     )
     t_play = time.perf_counter()
-    await loop.run_in_executor(None, player.play, audio)
+    await loop.run_in_executor(None, _executor_timed(player.play, audio, label="audio_play"))
     logger.debug("LATENCY audio_play_total=%.1fms", (time.perf_counter() - t_play) * 1000)
 
 

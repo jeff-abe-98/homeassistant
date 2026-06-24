@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import threading
 import time
 from typing import Callable
@@ -8,6 +9,8 @@ import numpy as np
 import pyaudio
 
 from shared.config import WakeWordConfig
+
+log = logging.getLogger(__name__)
 
 _SAMPLE_RATE = 16000
 _CHANNELS = 1
@@ -55,6 +58,7 @@ class WakeWordDetector:
         self._running = True
         self._consecutive = 0
         self._last_triggered = 0.0
+        t_open = time.perf_counter()
         self._stream = self._pa.open(
             rate=_SAMPLE_RATE,
             channels=_CHANNELS,
@@ -62,15 +66,18 @@ class WakeWordDetector:
             input=True,
             frames_per_buffer=_CHUNK_SAMPLES,
         )
+        log.debug("LATENCY wakeword_stream_open=%.1fms", (time.perf_counter() - t_open) * 1000)
         self._thread = threading.Thread(target=self._listen, daemon=True)
         self._thread.start()
 
     def stop(self) -> None:
         self._running = False
+        t_close = time.perf_counter()
         if self._stream is not None:
             self._stream.stop_stream()
             self._stream.close()
             self._stream = None
+        log.debug("LATENCY wakeword_stream_close=%.1fms", (time.perf_counter() - t_close) * 1000)
         if self._thread is not None:
             self._thread.join(timeout=2.0)
             self._thread = None

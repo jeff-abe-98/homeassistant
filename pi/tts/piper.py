@@ -2,8 +2,12 @@
 from __future__ import annotations
 
 import io
+import logging
+import time
 import wave
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 class PiperTTS:
@@ -27,11 +31,13 @@ class PiperTTS:
         if config_path is None:
             config_path = Path(str(model_path) + ".json")
 
+        t0 = time.perf_counter()
         self._voice = PiperVoice.load(
             str(model_path),
             config_path=str(config_path),
             use_cuda=use_cuda,
         )
+        logger.debug("LATENCY tts_model_load=%.1fms model=%s", (time.perf_counter() - t0) * 1000, model_path.name)
 
     @property
     def sample_rate(self) -> int:
@@ -50,9 +56,15 @@ class PiperTTS:
         text = text.strip()
         if not text:
             return b""
+        t0 = time.perf_counter()
         buf = io.BytesIO()
         with wave.open(buf, "wb") as wf:
             self._voice.synthesize_wav(text, wf)
         buf.seek(0)
         with wave.open(buf, "rb") as wf:
-            return wf.readframes(wf.getnframes())
+            result = wf.readframes(wf.getnframes())
+        logger.debug(
+            "LATENCY tts_synthesize_internal=%.1fms chars=%d bytes=%d",
+            (time.perf_counter() - t0) * 1000, len(text), len(result),
+        )
+        return result

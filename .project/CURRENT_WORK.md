@@ -1,7 +1,7 @@
 # Current Work
 
 **Last updated:** 2026-06-24
-**Phase:** Phase 11 — Latency Profiling & Speedup (items 1–2 complete)
+**Phase:** Phase 11 — Latency Profiling & Speedup (items 1–3 complete)
 
 ---
 
@@ -36,7 +36,14 @@ Full architectural redesign and documentation complete (Phases 1–10). Phase 11
 **Phase 10 item 1 (done 2026-06-19):**
 - Created `README.md`: project overview, hardware table (~$270 total), quick-start commands, feature table, project structure, doc links, autonomous tool creation walkthrough, config reference.
 
-**Next:** Phase 11 item 3 — audit third-party and system overhead (`latency-overhead.md`).
+**Phase 11 item 3 (done 2026-06-24):**
+- Added `import logging`/`time` + `wakeword_stream_open`/`wakeword_stream_close` LATENCY logs to `pi/wake_word/detector.py`.
+- Added `tts_model_load` (in `__init__`) and `tts_synthesize_internal` (in `synthesize()`) LATENCY logs to `pi/tts/piper.py`.
+- Added `max_tokens=<N>` to `llm_generate_cold/warm` LATENCY log in `pi/llm/hailo_client.py`.
+- Added `decimation_48k_to_16k` comparison log and `_executor_timed()` helper to `pi/main.py`; wired executor overhead logging for identify, tts_synthesize, and audio_play executor calls.
+- Created `.project/research/latency-overhead.md`: 5 sections (PyAudio open/close, resample_poly vs decimation, executor queue wait, token budget, Piper model load); measurement tables; hypotheses.
+
+**Next:** Phase 11 item 4 — analyse findings and rank bottlenecks (`latency-analysis.md`).
 
 ## Documents
 
