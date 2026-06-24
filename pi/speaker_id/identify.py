@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import logging
+import time
 from pathlib import Path
 
 import numpy as np
 
 from pi.speaker_id.embeddings import embed_audio, list_profiles, load_embedding
+
+log = logging.getLogger(__name__)
 
 _PROFILES_DIR = Path(__file__).parent.parent.parent / "config" / "voice_profiles"
 
@@ -51,5 +55,15 @@ def identify(
     Returns the enrolled profile name with the highest cosine similarity, or
     "unknown" if no profile meets *threshold*.
     """
+    from pi.speaker_id.embeddings import _encoder as _enc_state  # noqa: PLC0415
+    is_cold = _enc_state is None
+
+    t_embed = time.perf_counter()
     embedding = embed_audio(pcm_bytes, sample_rate)
-    return identify_embedding(embedding, threshold=threshold, profiles_dir=profiles_dir)
+    label = "cold" if is_cold else "warm"
+    log.debug("LATENCY speaker_id_embed_%s=%.1fms", label, (time.perf_counter() - t_embed) * 1000)
+
+    t_match = time.perf_counter()
+    result = identify_embedding(embedding, threshold=threshold, profiles_dir=profiles_dir)
+    log.debug("LATENCY speaker_id_match=%.2fms result=%s", (time.perf_counter() - t_match) * 1000, result)
+    return result

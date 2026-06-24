@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-24 UTC]
+**Completed:** Phase 11 item 2 — inference pipeline profiling instrumentation: 17 LATENCY log lines added across 5 files (main, hailo_client, hailo_transcriber, playback, identify); cold/warm labelling for LLM/STT/speaker-ID; `.project/research/latency-inference.md` created
+**Files changed:** pi/main.py, pi/llm/hailo_client.py, pi/stt/hailo_transcriber.py, pi/audio/playback.py, pi/speaker_id/identify.py, .project/research/latency-inference.md, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
+**Next up:** Phase 11 item 3 — audit third-party and system overhead (`latency-overhead.md`)
+**Blockers:** Physical Pi needed to collect actual timing measurements
+---
+
+## [2026-06-24 UTC]
 **Completed:** Phase 11 item 1 — audio capture pipeline profiling instrumentation added to `pi/audio/capture.py` and `pi/main.py`; measurement template created at `.project/research/latency-audio.md`
 **Files changed:** pi/audio/capture.py, pi/main.py, .project/research/latency-audio.md, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
 **Next up:** Phase 11 item 2 — profile the inference pipeline (speaker-ID, STT, LLM, tool, TTS, playback)

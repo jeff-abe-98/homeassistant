@@ -5,6 +5,7 @@ import asyncio
 import json
 import logging
 import re
+import time
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -134,6 +135,7 @@ class HailoLLMClient:
         """Load model on first call (lazy init avoids blocking __init__)."""
         if self._llm is not None:
             return
+        t0 = time.perf_counter()
         if self._vdevice is None:
             self._vdevice = _VDevice()
         self._llm = _HailoLLM(
@@ -141,6 +143,7 @@ class HailoLLMClient:
             model_path=self._cfg.llm_model_path,
         )
         log.info("HailoLLMClient: loaded model from %s", self._cfg.llm_model_path)
+        log.debug("LATENCY llm_cold_load=%.1fms", (time.perf_counter() - t0) * 1000)
 
     def _generate_sync(
         self,
@@ -148,12 +151,21 @@ class HailoLLMClient:
         max_tokens: int = 200,
         temperature: float = 0.7,
     ) -> str:
+        is_cold = self._llm is None
         self._ensure_loaded()
-        return self._llm.generate_all(
+        t0 = time.perf_counter()
+        result = self._llm.generate_all(
             messages,
             max_generated_tokens=max_tokens,
             temperature=temperature,
         )
+        elapsed = (time.perf_counter() - t0) * 1000
+        label = "cold" if is_cold else "warm"
+        log.debug(
+            "LATENCY llm_generate_%s=%.1fms tokens_out≈%d",
+            label, elapsed, len(result.split()) if isinstance(result, str) else 0,
+        )
+        return result
 
     async def _generate(self, messages: list[dict], **kwargs: Any) -> str:
         loop = asyncio.get_event_loop()
@@ -200,6 +212,7 @@ class HailoLLMClient:
         Qwen2-1.5B-Instruct-Function-Calling-v1 model outputs
         <tool_call>{...}</tool_call> which _parse_tool_call decodes.
         """
+        t_prompt_build = time.perf_counter()
         tool_section = _tools_to_system_section(tools)
         augmented = list(messages)
         if augmented and augmented[0]["role"] == "system":
@@ -209,6 +222,11 @@ class HailoLLMClient:
             }
         else:
             augmented.insert(0, {"role": "system", "content": tool_section})
+        log.debug(
+            "LATENCY llm_prompt_build=%.2fms system_chars=%d",
+            (time.perf_counter() - t_prompt_build) * 1000,
+            len(augmented[0]["content"]) if augmented else 0,
+        )
 
         raw = await self._generate(augmented)
         return _parse_tool_call(raw)

@@ -279,10 +279,15 @@ async def _handle_activation(
     # Capture the spoken utterance
     pcm_bytes, sample_rate = await _capture_utterance(t_wake=t_wake)
 
-    # Identify speaker on CPU while STT runs on Hailo NPU
+    # Identify speaker on CPU while STT runs on Hailo NPU (concurrent)
+    t_identify_stt = time.perf_counter()
     user, transcript_text = await asyncio.gather(
         loop.run_in_executor(None, identify, pcm_bytes, sample_rate),
         stt.transcribe(pcm_bytes, sample_rate),
+    )
+    logger.debug(
+        "LATENCY identify_stt_parallel=%.1fms speaker=%s transcript_chars=%d",
+        (time.perf_counter() - t_identify_stt) * 1000, user, len(transcript_text),
     )
     logger.info("Speaker: %s  Transcript: %r", user, transcript_text)
 
@@ -303,7 +308,13 @@ async def _handle_activation(
         text=transcript_text,
         user=user,
     )
+    t_route = time.perf_counter()
     tool_call, fallback_text = await router.route(transcript, context_turns)
+    logger.debug(
+        "LATENCY llm_route=%.1fms tool=%s",
+        (time.perf_counter() - t_route) * 1000,
+        tool_call.tool_name if tool_call else "none",
+    )
 
     # Execute the selected tool, or fall back to the LLM's conversational reply
     if tool_call:
@@ -316,7 +327,12 @@ async def _handle_activation(
             )
         else:
             try:
+                t_tool = time.perf_counter()
                 response_text = await tool.run(tool_call.params, user)
+                logger.debug(
+                    "LATENCY tool_run name=%s %.1fms",
+                    tool_call.tool_name, (time.perf_counter() - t_tool) * 1000,
+                )
             except Exception:
                 logger.exception("Tool %r failed", tool_call.tool_name)
                 response_text = (
@@ -330,7 +346,12 @@ async def _handle_activation(
         if kw_tool:
             logger.info("Keyword fallback → %s", kw_tool_name)
             try:
+                t_tool = time.perf_counter()
                 response_text = await kw_tool.run({"query": transcript_text}, user)
+                logger.debug(
+                    "LATENCY tool_run name=%s %.1fms",
+                    kw_tool_name, (time.perf_counter() - t_tool) * 1000,
+                )
             except Exception:
                 logger.exception("Keyword-fallback tool %r failed", kw_tool_name)
                 response_text = "Sorry, I had trouble completing that. Please try again."
@@ -358,8 +379,15 @@ async def _handle_activation(
     session.end()
 
     # Synthesise and play the response
+    t_tts = time.perf_counter()
     audio = await loop.run_in_executor(None, tts.synthesize, response_text)
+    logger.debug(
+        "LATENCY tts_synthesize=%.1fms bytes=%d response_chars=%d",
+        (time.perf_counter() - t_tts) * 1000, len(audio), len(response_text),
+    )
+    t_play = time.perf_counter()
     await loop.run_in_executor(None, player.play, audio)
+    logger.debug("LATENCY audio_play_total=%.1fms", (time.perf_counter() - t_play) * 1000)
 
 
 # ---------------------------------------------------------------------------

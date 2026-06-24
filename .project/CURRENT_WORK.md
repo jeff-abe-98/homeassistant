@@ -1,13 +1,22 @@
 # Current Work
 
 **Last updated:** 2026-06-24
-**Phase:** Phase 11 — Latency Profiling & Speedup (item 1 complete)
+**Phase:** Phase 11 — Latency Profiling & Speedup (items 1–2 complete)
 
 ---
 
 ## Status
 
 Full architectural redesign and documentation complete (Phases 1–10). Phase 11 in progress.
+
+**Phase 11 item 2 (done 2026-06-24):**
+- Added 17 LATENCY DEBUG log lines across 5 files covering every inference stage.
+- `pi/main.py`: `identify_stt_parallel` (total wall-clock for concurrent speaker-ID + STT gather), `llm_route` (full router.route() call with selected tool name), `tool_run` (per-tool timing with tool name label), `tts_synthesize` (Piper synthesis with byte count), `audio_play_total` (executor round-trip for playback).
+- `pi/llm/hailo_client.py`: `llm_cold_load` (model load from disk), `llm_prompt_build` (tool schema injection into system prompt), `llm_generate_cold/warm` (generate_all on NPU with cold/warm label and approx token count).
+- `pi/stt/hailo_transcriber.py`: `stt_cold_load` (model load), `stt_pcm_to_float32` (PCM conversion), `stt_transcribe_cold/warm` (generate_all_text with cold/warm label).
+- `pi/audio/playback.py`: `tts_resample_22050to48000` (scipy resample with sample count), `audio_playback` (sd.play+wait with audio_s).
+- `pi/speaker_id/identify.py`: `speaker_id_embed_cold/warm` (resemblyzer embed_utterance with cold/warm), `speaker_id_match` (cosine similarity with result name).
+- Created `.project/research/latency-inference.md`: 6-stage measurement tables (5 runs each), cold vs warm columns, end-to-end budget template, and expected findings. Physical Pi needed for actual timings.
 
 **Phase 11 item 1 (done 2026-06-24):**
 - Added `time.perf_counter()` timing instrumentation (DEBUG level) to `pi/audio/capture.py` and `pi/main.py`.
@@ -27,7 +36,7 @@ Full architectural redesign and documentation complete (Phases 1–10). Phase 11
 **Phase 10 item 1 (done 2026-06-19):**
 - Created `README.md`: project overview, hardware table (~$270 total), quick-start commands, feature table, project structure, doc links, autonomous tool creation walkthrough, config reference.
 
-**Next:** All phases complete — Phase 10 done. Awaiting physical Pi deployment or new inbox items.
+**Next:** Phase 11 item 3 — audit third-party and system overhead (`latency-overhead.md`).
 
 ## Documents
 

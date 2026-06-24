@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from typing import Any
 
 import numpy as np
@@ -54,6 +55,7 @@ class HailoTranscriber:
             raise RuntimeError(
                 "hailo_platform is not installed. On Pi run: sudo apt install hailo-all hailo-genai"
             )
+        t0 = time.perf_counter()
         if self._vdevice is None:
             self._vdevice = _VDevice()
         self._stt = _HailoSTT(
@@ -61,12 +63,22 @@ class HailoTranscriber:
             model_path=self._cfg.stt_model_path,
         )
         log.info("HailoTranscriber: loaded model from %s", self._cfg.stt_model_path)
+        log.debug("LATENCY stt_cold_load=%.1fms", (time.perf_counter() - t0) * 1000)
 
     def _transcribe_sync(self, pcm_bytes: bytes, sample_rate: int) -> str:
         """Blocking transcription call — run in executor to keep async loop free."""
+        is_cold = self._stt is None
         self._ensure_loaded()
+
+        t_conv = time.perf_counter()
         audio = _pcm_to_float32(pcm_bytes)
+        log.debug("LATENCY stt_pcm_to_float32=%.2fms samples=%d", (time.perf_counter() - t_conv) * 1000, len(audio))
+
+        t_gen = time.perf_counter()
         result = self._stt.generate_all_text(audio)
+        label = "cold" if is_cold else "warm"
+        log.debug("LATENCY stt_transcribe_%s=%.1fms", label, (time.perf_counter() - t_gen) * 1000)
+
         if isinstance(result, str):
             return result.strip()
         return ""
