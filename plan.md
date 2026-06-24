@@ -102,6 +102,21 @@
 
 ---
 
+## Phase 11 — Latency Profiling & Speedup
+*Goal: Measure end-to-end response latency, identify the biggest bottlenecks across every stage of the pipeline, and produce a prioritised list of implementation tasks. No code changes until the analysis item.*
+
+- [ ] **Profile the audio capture pipeline** — add `time.perf_counter()` timestamps (log at DEBUG level) around: wake-word-event → VAD stream open, each VAD frame loop iteration (capture + is_speech call), VAD silence detection firing, 48 kHz → 16 kHz resample in `_capture_utterance`, total time from wake-word event to returning PCM bytes. Run 10 real utterances and record min/median/max for each stage. Note how much of the 12-second limit is silence at the end vs. actual speech, and how long scipy `resample_poly` takes on the Pi. Document results in `.project/research/latency-audio.md`.
+
+- [ ] **Profile the inference pipeline** — add timestamps around: speaker-ID (`identify()` in executor), STT `transcribe()` call, LLM `chat_with_tools()` call (distinguish prompt-build vs. generate), tool `run()` call (for weather, CTA, calendar individually), TTS `synthesize()` call, 22050 → 48000 resample inside `AudioPlayer.play()`. Run 5 queries per tool type. Separately measure cold-start (first call per session) vs. warm (subsequent calls) to quantify prewarm value. Document results in `.project/research/latency-inference.md`.
+
+- [ ] **Audit third-party and system overhead** — measure time spent on: PyAudio stream open/close per activation (could be kept open), `scipy.signal.resample_poly` CPU time vs. simple integer decimation (`audio[::3]`) for wake-word and capture resamples, `asyncio.run_in_executor` thread-pool overhead for blocking calls, model `.generate_all()` token budget impact (current `max_tokens=200` — try 100 and 50), Piper TTS model load (it may re-load per call if not cached). Document findings in `.project/research/latency-overhead.md`.
+
+- [ ] **Analyse findings and rank bottlenecks** — read all three research docs; compute an end-to-end latency budget table (stage → median ms → % of total); rank stages by impact; for each top-5 bottleneck, assess feasibility: is there a drop-in fix, does it require architecture change, or is it hardware-limited? Cross-reference against what users actually perceive (silence timeout dominates perceived wait even if STT is fast). Write conclusions in `.project/research/latency-analysis.md`. No code changes in this item.
+
+- [ ] **Add implementation tasks to plan** — translate the analysis into concrete, sequenced action items and append them as Phase 12 in `plan.md`. Each item must name the specific file(s) to change, the change (e.g. "reduce `silence_duration_ms` from 1200 → 800 in VoiceCapture default", "replace `resample_poly` with `audio[::3]` in detector.py", "stream Piper TTS output to AudioPlayer chunk-by-chunk"), and the expected latency saving from the analysis. Items should be ordered fastest-win-first.
+
+---
+
 ## Blockers Log
 
 | Date | Phase | Blocker | Status |
