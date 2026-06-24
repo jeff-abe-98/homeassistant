@@ -28,6 +28,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-24 (session 184)
+**Status:** Phase 11 started; implemented audio capture pipeline profiling instrumentation (Phase 11 item 1)
+**Next task:** Phase 11 item 2 — profile the inference pipeline (speaker-ID, STT, LLM, tool, TTS, playback)
+**Blockers:** Phase 11 measurements require physical Pi hardware to collect actual timing data
+
 ### 2026-06-24 (session 183)
 **Status:** All phases 1–10 complete; inbox empty; no unchecked plan items — awaiting physical Pi deployment or new inbox items
 **Next task:** No unchecked items — all documentation and implementation phases done

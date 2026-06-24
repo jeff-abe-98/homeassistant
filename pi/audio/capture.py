@@ -7,7 +7,10 @@ and empty audio_bytes signals end of utterance.
 from __future__ import annotations
 
 import collections
+import logging
+import statistics
 import threading
+import time
 import uuid
 from typing import Generator
 
@@ -15,6 +18,8 @@ import pyaudio
 import webrtcvad
 
 from shared.models import AudioChunk
+
+logger = logging.getLogger(__name__)
 
 SAMPLE_RATE = 48000   # native USB mic rate; caller resamples to 16 kHz for STT
 CHANNELS = 1
@@ -68,6 +73,7 @@ class VoiceCapture:
         The generator never returns on its own — stop it by calling close() or
         by using GeneratorExit (e.g. break out of the for-loop).
         """
+        t_open_start = time.perf_counter()
         self._stream = self._pa.open(
             format=pyaudio.paInt16,
             channels=CHANNELS,
@@ -76,6 +82,8 @@ class VoiceCapture:
             input_device_index=self._device_index,
             frames_per_buffer=FRAME_SIZE,
         )
+        t_stream_open = time.perf_counter()
+        logger.debug("LATENCY vad_stream_open=%.1fms", (t_stream_open - t_open_start) * 1000)
 
         pre_ring: collections.deque[tuple[bytes, bool]] = collections.deque(
             maxlen=self._pre_frames
@@ -88,11 +96,19 @@ class VoiceCapture:
         session_id = ""
         sequence = 0
 
+        # Per-utterance frame timing accumulators (populated in triggered state).
+        _frame_read_ms: list[float] = []
+        _frame_vad_ms: list[float] = []
+        _t_triggered: float = 0.0
+
         self._stop_event.clear()
         try:
             while not self._stop_event.is_set():
+                _t0 = time.perf_counter()
                 frame = self._stream.read(FRAME_SIZE, exception_on_overflow=False)
+                _t1 = time.perf_counter()
                 is_speech = self._vad.is_speech(frame, SAMPLE_RATE)
+                _t2 = time.perf_counter()
 
                 if not triggered:
                     pre_ring.append((frame, is_speech))
@@ -100,6 +116,13 @@ class VoiceCapture:
                         voiced = sum(1 for _, v in pre_ring if v)
                         if voiced / pre_ring.maxlen >= self._speech_ratio:
                             triggered = True
+                            _t_triggered = time.perf_counter()
+                            logger.debug(
+                                "LATENCY vad_trigger_fired stream_age=%.1fms",
+                                (_t_triggered - t_stream_open) * 1000,
+                            )
+                            _frame_read_ms.clear()
+                            _frame_vad_ms.clear()
                             post_trigger_frames = 0
                             session_id = str(uuid.uuid4())
                             sequence = 0
@@ -116,6 +139,8 @@ class VoiceCapture:
                                 sequence += 1
                             pre_ring.clear()
                 else:
+                    _frame_read_ms.append((_t1 - _t0) * 1000)
+                    _frame_vad_ms.append((_t2 - _t1) * 1000)
                     yield AudioChunk(
                         session_id=session_id,
                         sequence=sequence,
@@ -132,6 +157,26 @@ class VoiceCapture:
                         if len(sil_ring) == sil_ring.maxlen:
                             unvoiced = sum(1 for v in sil_ring if not v)
                             if unvoiced / sil_ring.maxlen >= self._silence_ratio:
+                                if _frame_read_ms:
+                                    logger.debug(
+                                        "LATENCY utterance_end frames=%d "
+                                        "read_avg=%.2fms read_min=%.2fms read_max=%.2fms "
+                                        "vad_avg=%.3fms vad_min=%.3fms vad_max=%.3fms "
+                                        "total_triggered=%.1fms audio_ms=%d silence_tail≈%.1fms",
+                                        len(_frame_read_ms),
+                                        statistics.mean(_frame_read_ms),
+                                        min(_frame_read_ms),
+                                        max(_frame_read_ms),
+                                        statistics.mean(_frame_vad_ms),
+                                        min(_frame_vad_ms),
+                                        max(_frame_vad_ms),
+                                        (time.perf_counter() - _t_triggered) * 1000,
+                                        len(_frame_read_ms) * FRAME_DURATION_MS,
+                                        (time.perf_counter() - _t_triggered) * 1000
+                                        - len(_frame_read_ms) * FRAME_DURATION_MS,
+                                    )
+                                _frame_read_ms.clear()
+                                _frame_vad_ms.clear()
                                 yield AudioChunk(
                                     session_id=session_id,
                                     sequence=sequence,

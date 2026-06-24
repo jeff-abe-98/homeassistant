@@ -1,16 +1,19 @@
 # Current Work
 
-**Last updated:** 2026-06-20
-**Phase:** Phase 10 — Documentation & Setup (all 5 items complete)
+**Last updated:** 2026-06-24
+**Phase:** Phase 11 — Latency Profiling & Speedup (item 1 complete)
 
 ---
 
 ## Status
 
-Full architectural redesign complete (Phases 1–9). Phase 10 in progress.
+Full architectural redesign and documentation complete (Phases 1–10). Phase 11 in progress.
 
-**Phase 10 item 5 (done 2026-06-20):**
-- Created `docs/troubleshooting.md`: 6 sections — (1) HailoRT Not Found (PCIe seat, driver install, venv package, Gen 3 flag), (2) USB Microphone Not Detected (arecord, hw vs plughw, device index config, audio group), (3) Wake Word Not Triggering (model file, threshold tuning, false positive/negative tradeoffs, custom training), (4) Tool Errors (per-integration: Weather/CTA, Google Calendar/Tasks, Spotify, Android TV, generated tools), (5) GitHub Sync Failures (connectivity, PAT validity, scopes, offline queue), (6) General Debugging Tips (journalctl, direct run, first-run-check.sh).
+**Phase 11 item 1 (done 2026-06-24):**
+- Added `time.perf_counter()` timing instrumentation (DEBUG level) to `pi/audio/capture.py` and `pi/main.py`.
+- `pi/audio/capture.py`: logs `vad_stream_open` (PyAudio.open() duration), `vad_trigger_fired` (stream age when speech detected), and `utterance_end` (per-frame read/VAD stats with min/avg/max + silence tail estimate).
+- `pi/main.py`: logs `wake_to_capture_start` (wake event → _capture_utterance entry), `capture_stream_first_chunk` (first audio chunk latency), `resample_48k_to_16k` (scipy resample duration), `capture_total` (full capture duration + utterance audio length). Added `t_wake` param through `_handle_activation` → `_capture_utterance`.
+- Created `.project/research/latency-audio.md`: full measurement procedure, 6 measurement tables ready to fill with 10-utterance data, expected findings/hypotheses. Physical Pi needed to collect actual timings.
 
 **Phase 10 item 4 (done 2026-06-19):**
 - Created `scripts/first-run-check.sh`: 7-section preflight script — (1) hailortcli installed + AI HAT+ 2 PCIe detected, (2) no CHANGE_ME placeholders + androidtv IP configured, (3) LLM/STT/TTS model .hef/.onnx files present, (4) Google OAuth credentials + token files, (5) Spotify per-user token files, (6) ≥2 voice profiles enrolled, (7) systemd homeassistant-pi.service + scheduler.timer active. Exits non-zero on any failure; PASS/FAIL lines guide the user to the right docs section.

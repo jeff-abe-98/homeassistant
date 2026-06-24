@@ -5,6 +5,7 @@ import asyncio
 import logging
 import sqlite3
 import threading
+import time
 import uuid
 from math import gcd
 
@@ -101,11 +102,16 @@ def _is_capability_gap(fallback_text: str) -> bool:
 _MAX_CAPTURE_SECONDS = 12
 
 
-async def _capture_utterance() -> tuple[bytes, int]:
+async def _capture_utterance(t_wake: float = 0.0) -> tuple[bytes, int]:
     """Capture one spoken utterance via VAD. Returns (pcm_bytes, sample_rate).
 
     Hard-cuts at _MAX_CAPTURE_SECONDS if VAD never fires the silence threshold.
+    t_wake: perf_counter timestamp when wake-word event fired, for latency logging.
     """
+    t0 = time.perf_counter()
+    if t_wake:
+        logger.debug("LATENCY wake_to_capture_start=%.1fms", (t0 - t_wake) * 1000)
+
     loop = asyncio.get_running_loop()
     chunk_queue: asyncio.Queue[AudioChunk] = asyncio.Queue()
     capture = VoiceCapture()
@@ -122,6 +128,7 @@ async def _capture_utterance() -> tuple[bytes, int]:
     pcm_chunks: list[bytes] = []
     sample_rate = SAMPLE_RATE
     deadline = loop.time() + _MAX_CAPTURE_SECONDS
+    t_first_chunk: float | None = None
 
     while True:
         remaining = deadline - loop.time()
@@ -135,6 +142,12 @@ async def _capture_utterance() -> tuple[bytes, int]:
             logger.warning("VAD capture hit %ds limit — cutting off", _MAX_CAPTURE_SECONDS)
             capture.stop()
             break
+        if t_first_chunk is None:
+            t_first_chunk = time.perf_counter()
+            logger.debug(
+                "LATENCY capture_stream_first_chunk=%.1fms",
+                (t_first_chunk - t0) * 1000,
+            )
         sample_rate = chunk.sample_rate
         if chunk.audio_bytes:
             pcm_chunks.append(chunk.audio_bytes)
@@ -142,15 +155,29 @@ async def _capture_utterance() -> tuple[bytes, int]:
             break
 
     feed_thread.join(timeout=2.0)
+    t_pcm_done = time.perf_counter()
 
     raw = b"".join(pcm_chunks)
     # Resample from capture rate (48 kHz) down to 16 kHz required by Whisper STT.
     if raw and sample_rate != 16000:
+        t_resample_start = time.perf_counter()
         audio = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
         g = gcd(sample_rate, 16000)
         audio = resample_poly(audio, 16000 // g, sample_rate // g).astype(np.int16)
         raw = audio.tobytes()
         sample_rate = 16000
+        logger.debug(
+            "LATENCY resample_48k_to_16k=%.1fms output_bytes=%d",
+            (time.perf_counter() - t_resample_start) * 1000,
+            len(raw),
+        )
+
+    utterance_seconds = len(raw) / (16000 * 2) if raw else 0.0
+    logger.debug(
+        "LATENCY capture_total=%.1fms utterance_audio=%.2fs",
+        (t_pcm_done - t0) * 1000,
+        utterance_seconds,
+    )
     return raw, sample_rate
 
 
@@ -241,6 +268,7 @@ async def _handle_activation(
     conn: sqlite3.Connection,
     known_tool_names: set[str],
     tool_queue: ToolRequestQueue | None = None,
+    t_wake: float = 0.0,
 ) -> None:
     """Process one wake-word activation end-to-end."""
     loop = asyncio.get_running_loop()
@@ -249,7 +277,7 @@ async def _handle_activation(
     new_tool_names = _reload_tools(registry, known_tool_names)
 
     # Capture the spoken utterance
-    pcm_bytes, sample_rate = await _capture_utterance()
+    pcm_bytes, sample_rate = await _capture_utterance(t_wake=t_wake)
 
     # Identify speaker on CPU while STT runs on Hailo NPU
     user, transcript_text = await asyncio.gather(
@@ -383,8 +411,9 @@ async def main() -> None:
             detector.start()
             logger.info("Listening for wake word…")
             await wake_event.wait()
+            t_wake = time.perf_counter()
             detector.stop()
-            logger.info("Wake word detected — processing utterance")
+            logger.debug("LATENCY wake_word_detected; starting activation handler")
 
             try:
                 await _handle_activation(
@@ -397,6 +426,7 @@ async def main() -> None:
                     conn,
                     known_tool_names,
                     tool_queue=tool_queue,
+                    t_wake=t_wake,
                 )
             except Exception:
                 logger.exception("Activation pipeline failed")
