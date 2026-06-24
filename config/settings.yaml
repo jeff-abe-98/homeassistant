@@ -87,7 +87,7 @@ tts:
 
 audio:
   # sounddevice output device index (run: python -c "import sounddevice as sd; print(sd.query_devices())")
-  output_device: 0        # USB2.0 Device: Audio (hw:3,0)
+  output_device: null     # null = ALSA default (handles mono→stereo for homeassistant user)
   output_sample_rate: 48000
 
 voice_profiles:

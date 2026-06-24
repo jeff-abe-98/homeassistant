@@ -319,7 +319,12 @@ async def main() -> None:
     router = ToolRouter(llm, registry)
 
     tts = PiperTTS(config.tts.model_path, use_cuda=config.tts.use_cuda)
-    player = AudioPlayer(sample_rate=tts.sample_rate, device=0, channels=1)
+    player = AudioPlayer(
+        sample_rate=tts.sample_rate,
+        device=config.audio.output_device,
+        output_sample_rate=config.audio.output_sample_rate,
+        channels=1,
+    )
 
     prewarm = PrewarmScheduler(llm, stt, "schedule.json", conn)
     prewarm.start(loop)
