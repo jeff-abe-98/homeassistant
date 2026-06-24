@@ -89,6 +89,13 @@ class PiperConfig:
 
 
 @dataclass
+class AudioConfig:
+    input_device: int | None = None
+    output_device: int | None = 0
+    output_sample_rate: int = 48000
+
+
+@dataclass
 class LoggingConfig:
     log_dir: str = "logs"
     log_file: str = "homeassistant.log"
@@ -109,6 +116,7 @@ class AppConfig:
     androidtv: AndroidTvConfig = field(default_factory=AndroidTvConfig)
     wake_word: WakeWordConfig = field(default_factory=WakeWordConfig)
     tts: PiperConfig = field(default_factory=PiperConfig)
+    audio: AudioConfig = field(default_factory=AudioConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
 
 
@@ -144,6 +152,7 @@ def load(path: str | None = None) -> AppConfig:
     atv = raw.get("androidtv", {})
     wkw = raw.get("wake_word", {})
     tts = raw.get("tts", {})
+    aud = raw.get("audio", {})
     log = raw.get("logging", {})
     users_raw = raw.get("users", {})
 
@@ -209,6 +218,11 @@ def load(path: str | None = None) -> AppConfig:
         tts=PiperConfig(
             model_path=tts.get("model_path", "pi/tts/models/en_US-lessac-medium.onnx"),
             use_cuda=bool(tts.get("use_cuda", False)),
+        ),
+        audio=AudioConfig(
+            input_device=aud.get("input_device", None),
+            output_device=aud.get("output_device", 0),
+            output_sample_rate=int(aud.get("output_sample_rate", 48000)),
         ),
         logging=LoggingConfig(
             log_dir=log.get("log_dir", "logs"),

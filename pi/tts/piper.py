@@ -1,6 +1,8 @@
 """Piper TTS wrapper — converts text to raw 16-bit PCM audio bytes."""
 from __future__ import annotations
 
+import io
+import wave
 from pathlib import Path
 
 
@@ -48,4 +50,9 @@ class PiperTTS:
         text = text.strip()
         if not text:
             return b""
-        return b"".join(self._voice.synthesize_stream_raw(text))
+        buf = io.BytesIO()
+        with wave.open(buf, "wb") as wf:
+            self._voice.synthesize_wav(text, wf)
+        buf.seek(0)
+        with wave.open(buf, "rb") as wf:
+            return wf.readframes(wf.getnframes())

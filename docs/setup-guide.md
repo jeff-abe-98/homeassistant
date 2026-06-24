@@ -89,24 +89,26 @@ pip install -r requirements-pi.txt
 
 ## Step 5 — Download Hailo-Compiled Models
 
-The Hailo NPU requires models compiled to `.hef` format. Download from the [Hailo Model Zoo](https://github.com/hailo-ai/hailo_model_zoo).
+The Hailo NPU requires models compiled to `.hef` format. These are served directly from Hailo's public CDN — no account required.
 
-**LLM model** — one of:
-- `llama3.2-3b.hef` (recommended)
-- `qwen3-1.7b.hef` (smaller, faster)
+> **Note on package availability:** The `hailo-genai` and `hailo-gen-ai-model-zoo` apt packages referenced in older guides are **not** in the Raspberry Pi apt repository (as of June 2026). `hailo-download-resources` is therefore unavailable. Use the direct CDN downloads below instead. The `hailo_platform.genai` Python API (LLM and Speech2Text classes) **is** already included in the `python3-h10-hailort` package installed by `hailo-h10-all`.
 
-**STT model:**
-- `whisper-base.hef`
-
-Place them in the Pi filesystem at the paths set in `config/settings.yaml`:
+> **Note on model availability:** No 3B or larger LLM model exists for Hailo-10H. The largest available model is 1.7B. `Qwen2.5-1.5B-Instruct` is the recommended general-purpose model. See `.project/research/hailo-llm.md` for model comparison notes.
 
 ```bash
 mkdir -p pi/llm/models pi/stt/models
-# Copy or download .hef files into these directories
+
+# LLM model (~2.4 GB)
+wget -O pi/llm/models/qwen2.5-instruct-1.5b.hef \
+  https://dev-public.hailo.ai/v5.1.1/blob/Qwen2.5-1.5B-Instruct.hef
+
+# STT model (~137 MB)
+wget -O pi/stt/models/whisper-base.hef \
+  https://dev-public.hailo.ai/v5.1.1/blob/Whisper-Base.hef
 ```
 
-The default config expects:
-- `pi/llm/models/llama3.2-3b.hef`
+The default config (`config/settings.yaml`) expects:
+- `pi/llm/models/qwen2.5-instruct-1.5b.hef`
 - `pi/stt/models/whisper-base.hef`
 
 ---

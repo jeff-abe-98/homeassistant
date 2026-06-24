@@ -36,9 +36,10 @@ class HailoTranscriber:
     so the calling main loop can skip the LLM step when no speech is detected.
     """
 
-    def __init__(self, cfg: HailoConfig) -> None:
+    def __init__(self, cfg: HailoConfig, vdevice: Any = None) -> None:
         self._cfg = cfg
-        self._vdevice: Any = None
+        self._vdevice: Any = vdevice
+        self._owns_vdevice: bool = vdevice is None
         self._stt: Any = None
 
     # ------------------------------------------------------------------
@@ -53,10 +54,11 @@ class HailoTranscriber:
             raise RuntimeError(
                 "hailo_platform is not installed. On Pi run: sudo apt install hailo-all hailo-genai"
             )
-        self._vdevice = _VDevice()
+        if self._vdevice is None:
+            self._vdevice = _VDevice()
         self._stt = _HailoSTT(
             vdevice=self._vdevice,
-            model=self._cfg.stt_model_path,
+            model_path=self._cfg.stt_model_path,
         )
         log.info("HailoTranscriber: loaded model from %s", self._cfg.stt_model_path)
 
@@ -64,7 +66,7 @@ class HailoTranscriber:
         """Blocking transcription call — run in executor to keep async loop free."""
         self._ensure_loaded()
         audio = _pcm_to_float32(pcm_bytes)
-        result = self._stt.transcribe(audio, sample_rate=sample_rate)
+        result = self._stt.generate_all_text(audio)
         if isinstance(result, str):
             return result.strip()
         return ""
@@ -102,7 +104,7 @@ class HailoTranscriber:
                 self._stt.release()
             except Exception:
                 pass
-        if self._vdevice is not None:
+        if self._owns_vdevice and self._vdevice is not None:
             try:
                 self._vdevice.release()
             except Exception:

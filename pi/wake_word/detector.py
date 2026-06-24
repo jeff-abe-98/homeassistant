@@ -6,14 +6,15 @@ from typing import Callable
 
 import numpy as np
 import pyaudio
+from scipy.signal import resample_poly
 
 from shared.config import WakeWordConfig
 
-_SAMPLE_RATE = 16000
+_SAMPLE_RATE = 48000    # native USB mic rate
 _CHANNELS = 1
 _FORMAT = pyaudio.paInt16
-# openWakeWord expects 80ms frames at 16kHz
-_CHUNK_SAMPLES = 1280
+# 80 ms frames at 48 kHz; downsampled to 16 kHz before openWakeWord inference
+_CHUNK_SAMPLES = 3840
 
 
 class WakeWordDetector:
@@ -27,11 +28,21 @@ class WakeWordDetector:
     """
 
     def __init__(self, config: WakeWordConfig, on_detection: Callable[[], None]) -> None:
+        import os
         from openwakeword.model import Model  # deferred — not installed on server
 
         self._config = config
         self._on_detection = on_detection
-        self._model = Model(wakeword_models=[config.model], inference_framework="onnx")
+
+        model_path = config.model
+        if not os.path.isfile(model_path):
+            import openwakeword
+            resources = os.path.join(os.path.dirname(openwakeword.__file__), "resources", "models")
+            candidate = os.path.join(resources, f"{model_path}_v0.1.onnx")
+            if os.path.isfile(candidate):
+                model_path = candidate
+
+        self._model = Model(wakeword_model_paths=[model_path])
         self._pa = pyaudio.PyAudio()
         self._stream: pyaudio.Stream | None = None
         self._thread: threading.Thread | None = None
@@ -64,6 +75,7 @@ class WakeWordDetector:
         if self._thread is not None:
             self._thread.join(timeout=2.0)
             self._thread = None
+        self._pa.terminate()
 
     def _listen(self) -> None:
         while self._running:
@@ -71,7 +83,9 @@ class WakeWordDetector:
                 raw = self._stream.read(_CHUNK_SAMPLES, exception_on_overflow=False)
             except OSError:
                 break
-            audio = np.frombuffer(raw, dtype=np.int16)
+            audio_48k = np.frombuffer(raw, dtype=np.int16)
+            # openWakeWord model requires 16 kHz input
+            audio = resample_poly(audio_48k, 1, 3).astype(np.int16)
             scores = self._model.predict(audio)
 
             above_threshold = any(

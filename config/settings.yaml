@@ -5,7 +5,7 @@
 hailo:
   # Paths to Hailo-compiled model files (.hef) on the Pi filesystem.
   # Download from Hailo Model Zoo after installing HailoRT.
-  llm_model_path: pi/llm/models/llama3.2-3b.hef
+  llm_model_path: pi/llm/models/qwen2.5-instruct-1.5b.hef
   stt_model_path: pi/stt/models/whisper-base.hef
 
 memory:
@@ -50,18 +50,18 @@ spotify:
 
 cta:
   # Register free API key at: https://www.transitchicago.com/developers/traintrackerapply/
-  api_key: CHANGE_ME
+  api_key: cf2d115499934a2dbe21fa2e6b424315
   # Blue Line stop IDs for Western & Milwaukee (O'Hare-bound and Forest Park-bound platforms)
   stop_id_ohare: 30238
   stop_id_forest_park: 30239
 
 weather:
-  api_key: CHANGE_ME
+  api_key: 3816095f8fae97af0c85efa4dfacd7e8
   location: "Chicago, IL"
   units: imperial   # imperial = °F, metric = °C
 
 androidtv:
-  host: 192.168.x.x   # Replace with TV's local IP address
+  host: 192.168.0.250
   port: 6466           # Android TV Remote Service protocol (no ADB needed)
   # TLS cert pair generated automatically on first run (stored locally, never committed)
   cert_file: config/androidtv_cert.pem
@@ -73,7 +73,7 @@ androidtv:
 
 users:
   owner:
-    name: Owner          # Replace with actual first name
+    name: Jeff
     spotify_token_file: config/spotify_token_owner.json
   emily:
     name: Emily
@@ -84,6 +84,11 @@ tts:
   # Place .onnx + .onnx.json files in pi/tts/models/
   model_path: pi/tts/models/en_US-lessac-medium.onnx
   use_cuda: false
+
+audio:
+  # sounddevice output device index (run: python -c "import sounddevice as sd; print(sd.query_devices())")
+  output_device: 0        # USB2.0 Device: Audio (hw:3,0)
+  output_sample_rate: 48000
 
 voice_profiles:
   directory: config/voice_profiles/

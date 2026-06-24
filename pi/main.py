@@ -6,6 +6,10 @@ import logging
 import sqlite3
 import threading
 import uuid
+from math import gcd
+
+import numpy as np
+from scipy.signal import resample_poly
 
 from pi.audio.capture import SAMPLE_RATE, VoiceCapture
 from pi.audio.playback import AudioPlayer
@@ -60,8 +64,14 @@ def _is_capability_gap(fallback_text: str) -> bool:
 # ---------------------------------------------------------------------------
 
 
+_MAX_CAPTURE_SECONDS = 12
+
+
 async def _capture_utterance() -> tuple[bytes, int]:
-    """Capture one spoken utterance via VAD. Returns (pcm_bytes, sample_rate)."""
+    """Capture one spoken utterance via VAD. Returns (pcm_bytes, sample_rate).
+
+    Hard-cuts at _MAX_CAPTURE_SECONDS if VAD never fires the silence threshold.
+    """
     loop = asyncio.get_running_loop()
     chunk_queue: asyncio.Queue[AudioChunk] = asyncio.Queue()
     capture = VoiceCapture()
@@ -77,9 +87,20 @@ async def _capture_utterance() -> tuple[bytes, int]:
 
     pcm_chunks: list[bytes] = []
     sample_rate = SAMPLE_RATE
+    deadline = loop.time() + _MAX_CAPTURE_SECONDS
 
     while True:
-        chunk = await chunk_queue.get()
+        remaining = deadline - loop.time()
+        if remaining <= 0:
+            logger.warning("VAD capture hit %ds limit — cutting off", _MAX_CAPTURE_SECONDS)
+            capture.stop()
+            break
+        try:
+            chunk = await asyncio.wait_for(chunk_queue.get(), timeout=remaining)
+        except asyncio.TimeoutError:
+            logger.warning("VAD capture hit %ds limit — cutting off", _MAX_CAPTURE_SECONDS)
+            capture.stop()
+            break
         sample_rate = chunk.sample_rate
         if chunk.audio_bytes:
             pcm_chunks.append(chunk.audio_bytes)
@@ -87,7 +108,16 @@ async def _capture_utterance() -> tuple[bytes, int]:
             break
 
     feed_thread.join(timeout=2.0)
-    return b"".join(pcm_chunks), sample_rate
+
+    raw = b"".join(pcm_chunks)
+    # Resample from capture rate (48 kHz) down to 16 kHz required by Whisper STT.
+    if raw and sample_rate != 16000:
+        audio = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
+        g = gcd(sample_rate, 16000)
+        audio = resample_poly(audio, 16000 // g, sample_rate // g).astype(np.int16)
+        raw = audio.tobytes()
+        sample_rate = 16000
+    return raw, sample_rate
 
 
 # ---------------------------------------------------------------------------
@@ -269,8 +299,17 @@ async def main() -> None:
     config: AppConfig = load_config()
     loop = asyncio.get_running_loop()
 
-    stt = HailoTranscriber(config.hailo)
-    llm = HailoLLMClient(config.hailo)
+    from hailo_platform import VDevice as _VDevice
+    _shared_vdevice = _VDevice()
+    stt = HailoTranscriber(config.hailo, vdevice=_shared_vdevice)
+    llm = HailoLLMClient(config.hailo, vdevice=_shared_vdevice)
+
+    logger.info("Loading STT model…")
+    stt._ensure_loaded()
+    logger.info("Loading LLM model…")
+    llm._ensure_loaded()
+    logger.info("Models ready.")
+
     conn = init_db(_MEMORY_DB_PATH)
     tool_queue = ToolRequestQueue(config.tool_requests.db_path)
 
@@ -280,7 +319,7 @@ async def main() -> None:
     router = ToolRouter(llm, registry)
 
     tts = PiperTTS(config.tts.model_path, use_cuda=config.tts.use_cuda)
-    player = AudioPlayer(sample_rate=tts.sample_rate)
+    player = AudioPlayer(sample_rate=tts.sample_rate, device=0, channels=1)
 
     prewarm = PrewarmScheduler(llm, stt, "schedule.json", conn)
     prewarm.start(loop)
@@ -316,6 +355,10 @@ async def main() -> None:
         prewarm.cancel()
         llm.close()
         stt.close()
+        try:
+            _shared_vdevice.release()
+        except Exception:
+            pass
         conn.close()
         tool_queue.close()
 

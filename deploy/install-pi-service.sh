@@ -53,7 +53,7 @@ fi
 # ── 2. Copy project files ─────────────────────────────────────────────────────
 echo "==> Copying project to $INSTALL_DIR"
 mkdir -p "$INSTALL_DIR"
-rsync -a --exclude='.git' --exclude='venv' --exclude='__pycache__' \
+rsync -a --exclude='.git' --exclude='venv' --exclude='.venv' --exclude='__pycache__' \
     "$PROJECT_ROOT/" "$INSTALL_DIR/"
 chown -R "$SERVICE_USER:$SERVICE_USER" "$INSTALL_DIR"
 
@@ -61,7 +61,7 @@ chown -R "$SERVICE_USER:$SERVICE_USER" "$INSTALL_DIR"
 VENV="$INSTALL_DIR/venv"
 if [ ! -d "$VENV" ]; then
     echo "==> Creating venv at $VENV"
-    python3 -m venv "$VENV"
+    python3 -m venv --system-site-packages "$VENV"
 fi
 echo "==> Installing Pi requirements"
 "$VENV/bin/pip" install --quiet --upgrade pip

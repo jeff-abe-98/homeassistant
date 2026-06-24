@@ -114,7 +114,7 @@ class HailoLLMClient:
     once on first call and reused across all subsequent requests.
     """
 
-    def __init__(self, cfg: HailoConfig, timeout: float = 30.0) -> None:
+    def __init__(self, cfg: HailoConfig, timeout: float | None = None, vdevice: Any = None) -> None:
         if not _HAILO_AVAILABLE:
             raise ImportError(
                 "hailo_platform is not installed. "
@@ -122,7 +122,8 @@ class HailoLLMClient:
             )
         self._cfg = cfg
         self._timeout = timeout
-        self._vdevice: Any = None
+        self._vdevice: Any = vdevice
+        self._owns_vdevice: bool = vdevice is None
         self._llm: Any = None
 
     # ------------------------------------------------------------------
@@ -133,10 +134,11 @@ class HailoLLMClient:
         """Load model on first call (lazy init avoids blocking __init__)."""
         if self._llm is not None:
             return
-        self._vdevice = _VDevice()
+        if self._vdevice is None:
+            self._vdevice = _VDevice()
         self._llm = _HailoLLM(
             vdevice=self._vdevice,
-            model=self._cfg.llm_model_path,
+            model_path=self._cfg.llm_model_path,
         )
         log.info("HailoLLMClient: loaded model from %s", self._cfg.llm_model_path)
 
@@ -147,15 +149,11 @@ class HailoLLMClient:
         temperature: float = 0.7,
     ) -> str:
         self._ensure_loaded()
-        result = self._llm.generate(
+        return self._llm.generate_all(
             messages,
             max_generated_tokens=max_tokens,
             temperature=temperature,
         )
-        # generate() may return str or a token iterator — normalise to str.
-        if isinstance(result, str):
-            return result
-        return "".join(result)
 
     async def _generate(self, messages: list[dict], **kwargs: Any) -> str:
         loop = asyncio.get_event_loop()
@@ -222,7 +220,7 @@ class HailoLLMClient:
                 self._llm.release()
             except Exception:
                 pass
-        if self._vdevice is not None:
+        if self._owns_vdevice and self._vdevice is not None:
             try:
                 self._vdevice.release()
             except Exception:

@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import numpy as np
 import sounddevice as sd
+from scipy.signal import resample_poly
+from math import gcd
 
 
 class AudioPlayer:
@@ -26,8 +28,10 @@ class AudioPlayer:
         channels: int = 1,
         device: int | str | None = None,
         dtype: str = "int16",
+        output_sample_rate: int = 48000,
     ) -> None:
         self._sample_rate = sample_rate
+        self._output_sample_rate = output_sample_rate
         self._channels = channels
         self._device = device
         self._dtype = dtype
@@ -41,10 +45,13 @@ class AudioPlayer:
         """
         if not audio_bytes:
             return
-        samples = np.frombuffer(audio_bytes, dtype=self._dtype)
+        samples = np.frombuffer(audio_bytes, dtype=self._dtype).astype(np.float32) / 32768.0
+        if self._sample_rate != self._output_sample_rate:
+            g = gcd(self._sample_rate, self._output_sample_rate)
+            samples = resample_poly(samples, self._output_sample_rate // g, self._sample_rate // g).astype(np.float32)
         if self._channels > 1:
-            samples = samples.reshape(-1, self._channels)
-        sd.play(samples, samplerate=self._sample_rate, device=self._device)
+            samples = np.stack([samples] * self._channels, axis=-1)
+        sd.play(samples, samplerate=self._output_sample_rate, device=self._device)
         sd.wait()
 
     def stop(self) -> None:
