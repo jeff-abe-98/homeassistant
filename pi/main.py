@@ -52,6 +52,40 @@ _INABILITY_PHRASES = (
     "don't know how to",
 )
 
+# Keyword fallback for when the 1.5B model fails to produce a <tool_call>.
+# Each entry maps a registered tool name to trigger phrases.
+_KEYWORD_ROUTES: list[tuple[str, tuple[str, ...]]] = [
+    ("get_weather",        ("weather", "temperature", "forecast", "rain", "snow",
+                            "wind", "sunny", "cloudy", "humidity", "degrees",
+                            "hot outside", "cold outside", "warm outside")),
+    ("cta_arrivals",       ("train", "cta", "blue line", "el ", "arrival",
+                            "transit", "next train", "when does the")),
+    ("get_calendar_events",("calendar", "my schedule", "what do i have",
+                            "what's on my", "appointments", "events today",
+                            "events tomorrow")),
+    ("add_calendar_event", ("add.*to.*calendar", "schedule.*meeting",
+                            "put.*on.*calendar", "set.*appointment")),
+    ("spotify_control",    ("play ", "pause", "skip", "next song", "stop music",
+                            "spotify", "shuffle", "volume")),
+    ("list_tasks",         ("my tasks", "to.?do list", "what.*remind",
+                            "show.*tasks", "list.*tasks")),
+    ("add_task",           ("add.*task", "remind me to", "add.*to.?do",
+                            "note.*down", "remember to")),
+    ("androidtv_control",  ("turn on.*tv", "turn off.*tv", "open.*netflix",
+                            "open.*youtube", "tv control", "on the tv")),
+]
+
+
+def _keyword_route(text: str) -> str | None:
+    """Return a tool name if the transcript clearly matches one via keywords."""
+    import re
+    lower = text.lower()
+    for tool_name, keywords in _KEYWORD_ROUTES:
+        for kw in keywords:
+            if re.search(kw, lower):
+                return tool_name
+    return None
+
 
 def _is_capability_gap(fallback_text: str) -> bool:
     """Return True if the LLM response indicates a missing capability."""
@@ -262,7 +296,17 @@ async def _handle_activation(
                 )
     else:
         raw_fallback = fallback_text or ""
-        if tool_queue is not None and _is_capability_gap(raw_fallback):
+        # Small model often misses tool calls — try keyword routing as a fallback.
+        kw_tool_name = _keyword_route(transcript_text)
+        kw_tool = registry.get(kw_tool_name) if kw_tool_name else None
+        if kw_tool:
+            logger.info("Keyword fallback → %s", kw_tool_name)
+            try:
+                response_text = await kw_tool.run({"query": transcript_text}, user)
+            except Exception:
+                logger.exception("Keyword-fallback tool %r failed", kw_tool_name)
+                response_text = "Sorry, I had trouble completing that. Please try again."
+        elif tool_queue is not None and _is_capability_gap(raw_fallback):
             response_text = await _handle_capability_gap(
                 transcript_text,
                 user,
