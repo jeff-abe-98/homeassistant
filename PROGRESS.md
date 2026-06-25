@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-25 UTC]
+**Completed:** Phase 12 item 1 — reduce silence tail: `silence_duration_ms` default 1200→800 in `pi/audio/capture.py`; `AudioConfig.silence_duration_ms` added to `shared/config.py` and wired in `load()`; `audio.silence_duration_ms: 800` added to `config/settings.yaml`; `_capture_utterance()` and `_handle_capability_gap()` in `pi/main.py` wired to pass config value. Expected saving: ~400ms per activation.
+**Files changed:** pi/audio/capture.py, shared/config.py, config/settings.yaml, pi/main.py, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
+**Next up:** Phase 12 item 2 — reduce LLM `max_tokens` 200→100 in `pi/llm/hailo_client.py`
+**Blockers:** Physical Pi needed to validate latency savings with real measurements
+---
+
+## [2026-06-25 UTC]
 **Completed:** Phase 11 item 5 — appended Phase 12 to plan.md with 6 concrete latency-speedup tasks ordered fastest-win-first: (1) silence_duration_ms 1200→800 (~400ms), (2) max_tokens 200→100 (0–500ms), (3) resample_poly → pcm[::3] (10–50ms), (4) keep PyAudio streams open (100–300ms), (5) eliminate second LLM call for tools (~900ms), (6) VAD-trimmed Whisper buffer (TBD hardware)
 **Files changed:** plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
 **Next up:** Phase 12 item 1 — reduce `silence_duration_ms` from 1200 to 800 in `pi/audio/capture.py`

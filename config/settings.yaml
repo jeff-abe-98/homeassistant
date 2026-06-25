@@ -89,6 +89,8 @@ audio:
   # sounddevice output device index (run: python -c "import sounddevice as sd; print(sd.query_devices())")
   output_device: null     # null = ALSA default (handles mono→stereo for homeassistant user)
   output_sample_rate: 48000
+  # Consecutive ms of silence required to end an utterance (lower = faster response; 800ms is the safe midpoint).
+  silence_duration_ms: 800
 
 voice_profiles:
   directory: config/voice_profiles/

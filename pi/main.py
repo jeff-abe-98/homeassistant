@@ -117,7 +117,10 @@ def _is_capability_gap(fallback_text: str) -> bool:
 _MAX_CAPTURE_SECONDS = 12
 
 
-async def _capture_utterance(t_wake: float = 0.0) -> tuple[bytes, int]:
+async def _capture_utterance(
+    t_wake: float = 0.0,
+    silence_duration_ms: int = 800,
+) -> tuple[bytes, int]:
     """Capture one spoken utterance via VAD. Returns (pcm_bytes, sample_rate).
 
     Hard-cuts at _MAX_CAPTURE_SECONDS if VAD never fires the silence threshold.
@@ -129,7 +132,7 @@ async def _capture_utterance(t_wake: float = 0.0) -> tuple[bytes, int]:
 
     loop = asyncio.get_running_loop()
     chunk_queue: asyncio.Queue[AudioChunk] = asyncio.Queue()
-    capture = VoiceCapture()
+    capture = VoiceCapture(silence_duration_ms=silence_duration_ms)
 
     def _feed() -> None:
         for chunk in capture.stream():
@@ -234,6 +237,7 @@ async def _handle_capability_gap(
     player: AudioPlayer,
     tool_queue: ToolRequestQueue,
     loop: asyncio.AbstractEventLoop,
+    silence_duration_ms: int = 800,
 ) -> str:
     """Ask for priority (if queue non-empty), enqueue, sync to GitHub.
 
@@ -250,7 +254,7 @@ async def _handle_capability_gap(
         q_audio = await loop.run_in_executor(None, tts.synthesize, question)
         await loop.run_in_executor(None, player.play, q_audio)
 
-        pcm_bytes, sample_rate = await _capture_utterance()
+        pcm_bytes, sample_rate = await _capture_utterance(silence_duration_ms=silence_duration_ms)
         priority_text = await stt.transcribe(pcm_bytes, sample_rate)
         pt_lower = priority_text.lower()
 
@@ -301,7 +305,10 @@ async def _handle_activation(
     new_tool_names = _reload_tools(registry, known_tool_names)
 
     # Capture the spoken utterance
-    pcm_bytes, sample_rate = await _capture_utterance(t_wake=t_wake)
+    pcm_bytes, sample_rate = await _capture_utterance(
+        t_wake=t_wake,
+        silence_duration_ms=config.audio.silence_duration_ms,
+    )
 
     # Identify speaker on CPU while STT runs on Hailo NPU (concurrent)
     t_identify_stt = time.perf_counter()
@@ -389,6 +396,7 @@ async def _handle_activation(
                 player,
                 tool_queue,
                 loop,
+                silence_duration_ms=config.audio.silence_duration_ms,
             )
         else:
             response_text = fallback_text or "I'm not sure how to help with that."

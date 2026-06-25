@@ -46,7 +46,7 @@ class VoiceCapture:
         self,
         vad_aggressiveness: int = 1,
         pre_speech_padding_ms: int = 300,
-        silence_duration_ms: int = 1200,
+        silence_duration_ms: int = 800,
         min_speech_ms: int = 1500,
         speech_ratio: float = 0.6,
         silence_ratio: float = 0.75,

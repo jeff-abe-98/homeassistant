@@ -28,6 +28,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-25 (session 189)
+**Status:** Phase 12 started; implementing item 1 — reduce silence tail from 1200→800ms (`pi/audio/capture.py`, `shared/config.py`, `config/settings.yaml`, `pi/main.py`)
+**Next task:** Phase 12 item 1 — silence_duration_ms 1200→800
+**Blockers:** Physical Pi needed to validate latency estimates with real measurements
+
 ### 2026-06-25 (session 188)
 **Status:** Phase 11 items 1–4 complete (profiling + analysis done); implementing Phase 11 item 5 — add Phase 12 implementation tasks to plan.md
 **Next task:** Phase 11 item 5 — translate latency-analysis.md into Phase 12 in plan.md (6 concrete tasks, fastest-win-first)

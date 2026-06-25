@@ -1,13 +1,21 @@
 # Current Work
 
 **Last updated:** 2026-06-25
-**Phase:** Phase 12 — Latency Speedup Implementation (starting)
+**Phase:** Phase 12 — Latency Speedup Implementation
 
 ---
 
 ## Status
 
-Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete.
+Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete. Phase 12 item 1 done.
+
+**Phase 12 item 1 (done 2026-06-25):**
+- Changed `silence_duration_ms` default in `VoiceCapture.__init__()` from 1200 → 800 in `pi/audio/capture.py`.
+- Added `silence_duration_ms: int = 800` field to `AudioConfig` in `shared/config.py`; wired into `load()` via `aud.get("silence_duration_ms", 800)`.
+- Added `silence_duration_ms: 800` key (with comment) under `audio:` in `config/settings.yaml`.
+- `_capture_utterance()` and `_handle_capability_gap()` in `pi/main.py` now accept `silence_duration_ms` param; `_handle_activation()` passes `config.audio.silence_duration_ms` to both.
+- 109 tests pass; no regressions.
+- **Next:** Phase 12 item 2 — reduce LLM `max_tokens` 200→100 in `pi/llm/hailo_client.py`.
 
 **Phase 11 item 5 (done 2026-06-25):**
 - Checked off Phase 11 item 5 in `plan.md`.

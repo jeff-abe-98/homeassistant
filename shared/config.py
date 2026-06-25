@@ -93,6 +93,7 @@ class AudioConfig:
     input_device: int | None = None
     output_device: int | None = 0
     output_sample_rate: int = 48000
+    silence_duration_ms: int = 800
 
 
 @dataclass
@@ -223,6 +224,7 @@ def load(path: str | None = None) -> AppConfig:
             input_device=aud.get("input_device", None),
             output_device=aud.get("output_device", 0),
             output_sample_rate=int(aud.get("output_sample_rate", 48000)),
+            silence_duration_ms=int(aud.get("silence_duration_ms", 800)),
         ),
         logging=LoggingConfig(
             log_dir=log.get("log_dir", "logs"),
