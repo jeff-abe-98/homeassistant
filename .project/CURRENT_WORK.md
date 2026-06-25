@@ -1,13 +1,24 @@
 # Current Work
 
 **Last updated:** 2026-06-25
-**Phase:** Phase 11 — Latency Profiling & Speedup (items 1–4 complete)
+**Phase:** Phase 12 — Latency Speedup Implementation (starting)
 
 ---
 
 ## Status
 
-Full architectural redesign and documentation complete (Phases 1–10). Phase 11 items 1–4 complete.
+Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete.
+
+**Phase 11 item 5 (done 2026-06-25):**
+- Checked off Phase 11 item 5 in `plan.md`.
+- Appended Phase 12 to `plan.md` with 6 concrete, sequenced latency-speedup tasks ordered fastest-win-first:
+  1. Reduce `silence_duration_ms` 1200→800 (`pi/audio/capture.py`, `config/settings.yaml`, `shared/config.py`) — ~400ms saving
+  2. Reduce `max_tokens` 200→100 (`pi/llm/hailo_client.py`) — 0–500ms saving
+  3. Replace `resample_poly` with `pcm_48k[::3]` (`pi/main.py`) — 10–50ms saving
+  4. Keep PyAudio streams open permanently (`pi/wake_word/detector.py`, `pi/audio/capture.py`, `pi/main.py`) — 100–300ms saving
+  5. Eliminate second LLM call for tool narration (`pi/tools/weather.py`, `pi/tools/cta.py`, `pi/tools/calendar.py`, `pi/llm/router.py`, `pi/main.py`) — ~900ms saving
+  6. Pass VAD-trimmed buffer to Whisper (`pi/stt/hailo_transcriber.py`, `pi/main.py`) — TBD, hardware-dependent
+- **Next:** Phase 12 item 1 — reduce silence tail from 1200→800ms.
 
 **Phase 11 item 4 (done 2026-06-25):**
 - Created `.project/research/latency-analysis.md`: synthesised all three profiling docs.

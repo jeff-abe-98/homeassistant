@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-25 UTC]
+**Completed:** Phase 11 item 5 — appended Phase 12 to plan.md with 6 concrete latency-speedup tasks ordered fastest-win-first: (1) silence_duration_ms 1200→800 (~400ms), (2) max_tokens 200→100 (0–500ms), (3) resample_poly → pcm[::3] (10–50ms), (4) keep PyAudio streams open (100–300ms), (5) eliminate second LLM call for tools (~900ms), (6) VAD-trimmed Whisper buffer (TBD hardware)
+**Files changed:** plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
+**Next up:** Phase 12 item 1 — reduce `silence_duration_ms` from 1200 to 800 in `pi/audio/capture.py`
+**Blockers:** Physical Pi needed to validate latency savings with real measurements
+---
+
+## [2026-06-25 UTC]
 **Completed:** Phase 11 item 4 — latency analysis: synthesised all three profiling docs into `.project/research/latency-analysis.md`; end-to-end budget tables for conversational (~2970ms) and tool-query (~4170ms) warm paths; top-5 bottlenecks ranked with feasibility assessment; Phase B target after fixes 1–4: ~1670ms / ~2470ms; fix-order table written for Phase 12
 **Files changed:** .project/research/latency-analysis.md, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
 **Next up:** Phase 11 item 5 — add implementation tasks as Phase 12 in plan.md
