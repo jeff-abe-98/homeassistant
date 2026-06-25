@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-25 UTC]
+**Completed:** Phase 12 item 3 — replaced `scipy.signal.resample_poly` with stride-3 integer decimation (`audio_int16[::3]`) in `pi/main.py`; removed unused `resample_poly` and `gcd` imports. Adds comment noting decimation is adequate for Whisper speech input. Expected saving: 10–50ms per activation.
+**Files changed:** pi/main.py, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
+**Next up:** Phase 12 item 4 — keep PyAudio streams open permanently (`pi/wake_word/detector.py`, `pi/audio/capture.py`, `pi/main.py`)
+**Blockers:** Physical Pi needed to validate latency savings with real measurements
+---
+
+## [2026-06-25 UTC]
 **Completed:** Phase 12 item 2 — reduce LLM `max_tokens` default 200→100 in `_generate_sync()` in `pi/llm/hailo_client.py`. Tool responses ≤40 tokens; conversational ≤80; 100 eliminates worst-case ceiling with zero quality risk. Expected saving: 0–500ms, typical ~100ms.
 **Files changed:** pi/llm/hailo_client.py, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
 **Next up:** Phase 12 item 3 — replace `resample_poly` with `pcm_48k[::3]` in `pi/main.py`

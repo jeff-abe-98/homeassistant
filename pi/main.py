@@ -7,10 +7,8 @@ import sqlite3
 import threading
 import time
 import uuid
-from math import gcd
 
 import numpy as np
-from scipy.signal import resample_poly
 
 from pi.audio.capture import SAMPLE_RATE, VoiceCapture
 from pi.audio.playback import AudioPlayer
@@ -179,25 +177,15 @@ async def _capture_utterance(
     # Resample from capture rate (48 kHz) down to 16 kHz required by Whisper STT.
     if raw and sample_rate != 16000:
         audio_int16 = np.frombuffer(raw, dtype=np.int16)
-        # Time simple 3:1 integer decimation as a quality/speed comparison reference.
-        if sample_rate == 48000:
-            t_dec = time.perf_counter()
-            _decimated = audio_int16[::3]  # not used for output; comparison only
-            logger.debug(
-                "LATENCY decimation_48k_to_16k=%.2fms out_samples=%d",
-                (time.perf_counter() - t_dec) * 1000, len(_decimated),
-            )
-        t_resample_start = time.perf_counter()
-        audio = audio_int16.astype(np.float32)
-        g = gcd(sample_rate, 16000)
-        audio = resample_poly(audio, 16000 // g, sample_rate // g).astype(np.int16)
-        raw = audio.tobytes()
-        sample_rate = 16000
+        t_dec = time.perf_counter()
+        # Integer decimation (stride-3, 48→16 kHz) is adequate for Whisper speech input.
+        audio_int16 = audio_int16[::3]
         logger.debug(
-            "LATENCY resample_48k_to_16k=%.1fms output_bytes=%d",
-            (time.perf_counter() - t_resample_start) * 1000,
-            len(raw),
+            "LATENCY decimation_48k_to_16k=%.2fms out_samples=%d",
+            (time.perf_counter() - t_dec) * 1000, len(audio_int16),
         )
+        raw = audio_int16.tobytes()
+        sample_rate = 16000
 
     utterance_seconds = len(raw) / (16000 * 2) if raw else 0.0
     logger.debug(

@@ -7,13 +7,20 @@
 
 ## Status
 
-Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete. Phase 12 items 1–2 done.
+Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete. Phase 12 items 1–3 done.
+
+**Phase 12 item 3 (done 2026-06-25):**
+- Removed `from scipy.signal import resample_poly` and `from math import gcd` imports from `pi/main.py`.
+- Replaced the `resample_poly` block in `_capture_utterance()` with `audio_int16 = audio_int16[::3]` (stride-3 integer decimation, 48→16 kHz).
+- Added one-line comment: "Integer decimation (stride-3, 48→16 kHz) is adequate for Whisper speech input."
+- Kept the `LATENCY decimation_48k_to_16k` log line for measuring on real hardware.
+- The comparison benchmark block (which computed `_decimated` but discarded it) was removed — decimation IS now the output path.
+- **Next:** Phase 12 item 4 — keep PyAudio streams open permanently (`pi/wake_word/detector.py`, `pi/audio/capture.py`, `pi/main.py`).
 
 **Phase 12 item 2 (done 2026-06-25):**
 - Changed `max_tokens` default in `_generate_sync()` from 200 → 100 in `pi/llm/hailo_client.py`.
 - Tool routing responses are ≤40 tokens; conversational responses rarely exceed 80; 100 is safe ceiling.
 - The existing `LATENCY llm_generate_*` log line already includes `max_tokens=<N>` so the saving will be visible in debug logs on real hardware.
-- **Next:** Phase 12 item 3 — replace `resample_poly` with `pcm_48k[::3]` in `pi/main.py`.
 
 **Phase 12 item 1 (done 2026-06-25):**
 - Changed `silence_duration_ms` default in `VoiceCapture.__init__()` from 1200 → 800 in `pi/audio/capture.py`.
