@@ -67,6 +67,133 @@ class VoiceCapture:
     # Public API
     # ------------------------------------------------------------------
 
+    def open_stream(self) -> "pyaudio.Stream":
+        """Open the 48 kHz capture stream and keep it alive across utterances.
+
+        Idempotent — returns the existing stream if already open.
+        Call close() to release the stream and PyAudio.
+        """
+        if self._stream is None:
+            t = time.perf_counter()
+            self._stream = self._pa.open(
+                format=pyaudio.paInt16,
+                channels=CHANNELS,
+                rate=SAMPLE_RATE,
+                input=True,
+                input_device_index=self._device_index,
+                frames_per_buffer=FRAME_SIZE,
+            )
+            logger.debug("LATENCY vad_stream_open=%.1fms", (time.perf_counter() - t) * 1000)
+        return self._stream
+
+    def capture_from_stream(
+        self,
+        stream: "pyaudio.Stream",
+        t_stream_open: float = 0.0,
+    ) -> Generator[AudioChunk, None, None]:
+        """Yield AudioChunks for exactly one utterance from an already-open stream.
+
+        Resets all VAD state on each call. Returns after yielding is_final=True.
+        Does not open or close the stream — caller manages its lifecycle.
+        """
+        pre_ring: collections.deque[tuple[bytes, bool]] = collections.deque(
+            maxlen=self._pre_frames
+        )
+        sil_ring: collections.deque[bool] = collections.deque(
+            maxlen=self._sil_frames
+        )
+        triggered = False
+        post_trigger_frames = 0
+        session_id = ""
+        sequence = 0
+
+        _frame_read_ms: list[float] = []
+        _frame_vad_ms: list[float] = []
+        _t_triggered: float = 0.0
+
+        while not self._stop_event.is_set():
+            _t0 = time.perf_counter()
+            try:
+                frame = stream.read(FRAME_SIZE, exception_on_overflow=False)
+            except OSError:
+                break
+            _t1 = time.perf_counter()
+            is_speech = self._vad.is_speech(frame, SAMPLE_RATE)
+            _t2 = time.perf_counter()
+
+            if not triggered:
+                pre_ring.append((frame, is_speech))
+                if len(pre_ring) == pre_ring.maxlen:
+                    voiced = sum(1 for _, v in pre_ring if v)
+                    if voiced / pre_ring.maxlen >= self._speech_ratio:
+                        triggered = True
+                        _t_triggered = time.perf_counter()
+                        logger.debug(
+                            "LATENCY vad_trigger_fired stream_age=%.1fms",
+                            (_t_triggered - t_stream_open) * 1000,
+                        )
+                        _frame_read_ms.clear()
+                        _frame_vad_ms.clear()
+                        post_trigger_frames = 0
+                        session_id = str(uuid.uuid4())
+                        sequence = 0
+                        sil_ring.clear()
+                        for f, _ in pre_ring:
+                            yield AudioChunk(
+                                session_id=session_id,
+                                sequence=sequence,
+                                audio_bytes=f,
+                                sample_rate=SAMPLE_RATE,
+                                is_final=False,
+                            )
+                            sequence += 1
+                        pre_ring.clear()
+            else:
+                _frame_read_ms.append((_t1 - _t0) * 1000)
+                _frame_vad_ms.append((_t2 - _t1) * 1000)
+                yield AudioChunk(
+                    session_id=session_id,
+                    sequence=sequence,
+                    audio_bytes=frame,
+                    sample_rate=SAMPLE_RATE,
+                    is_final=False,
+                )
+                sequence += 1
+                post_trigger_frames += 1
+                # Don't start silence detection until min_speech_ms of audio
+                # has been captured — prevents wake word tail from ending session.
+                if post_trigger_frames >= self._min_speech_frames:
+                    sil_ring.append(is_speech)
+                    if len(sil_ring) == sil_ring.maxlen:
+                        unvoiced = sum(1 for v in sil_ring if not v)
+                        if unvoiced / sil_ring.maxlen >= self._silence_ratio:
+                            if _frame_read_ms:
+                                logger.debug(
+                                    "LATENCY utterance_end frames=%d "
+                                    "read_avg=%.2fms read_min=%.2fms read_max=%.2fms "
+                                    "vad_avg=%.3fms vad_min=%.3fms vad_max=%.3fms "
+                                    "total_triggered=%.1fms audio_ms=%d silence_tail≈%.1fms",
+                                    len(_frame_read_ms),
+                                    statistics.mean(_frame_read_ms),
+                                    min(_frame_read_ms),
+                                    max(_frame_read_ms),
+                                    statistics.mean(_frame_vad_ms),
+                                    min(_frame_vad_ms),
+                                    max(_frame_vad_ms),
+                                    (time.perf_counter() - _t_triggered) * 1000,
+                                    len(_frame_read_ms) * FRAME_DURATION_MS,
+                                    (time.perf_counter() - _t_triggered) * 1000
+                                    - len(_frame_read_ms) * FRAME_DURATION_MS,
+                                )
+                            yield AudioChunk(
+                                session_id=session_id,
+                                sequence=sequence,
+                                audio_bytes=b"",
+                                sample_rate=SAMPLE_RATE,
+                                is_final=True,
+                            )
+                            return  # One utterance complete; stream stays open
+
     def stream(self) -> Generator[AudioChunk, None, None]:
         """Yield AudioChunks indefinitely; one utterance at a time.
 
@@ -85,110 +212,10 @@ class VoiceCapture:
         t_stream_open = time.perf_counter()
         logger.debug("LATENCY vad_stream_open=%.1fms", (t_stream_open - t_open_start) * 1000)
 
-        pre_ring: collections.deque[tuple[bytes, bool]] = collections.deque(
-            maxlen=self._pre_frames
-        )
-        sil_ring: collections.deque[bool] = collections.deque(
-            maxlen=self._sil_frames
-        )
-        triggered = False
-        post_trigger_frames = 0
-        session_id = ""
-        sequence = 0
-
-        # Per-utterance frame timing accumulators (populated in triggered state).
-        _frame_read_ms: list[float] = []
-        _frame_vad_ms: list[float] = []
-        _t_triggered: float = 0.0
-
         self._stop_event.clear()
         try:
             while not self._stop_event.is_set():
-                _t0 = time.perf_counter()
-                frame = self._stream.read(FRAME_SIZE, exception_on_overflow=False)
-                _t1 = time.perf_counter()
-                is_speech = self._vad.is_speech(frame, SAMPLE_RATE)
-                _t2 = time.perf_counter()
-
-                if not triggered:
-                    pre_ring.append((frame, is_speech))
-                    if len(pre_ring) == pre_ring.maxlen:
-                        voiced = sum(1 for _, v in pre_ring if v)
-                        if voiced / pre_ring.maxlen >= self._speech_ratio:
-                            triggered = True
-                            _t_triggered = time.perf_counter()
-                            logger.debug(
-                                "LATENCY vad_trigger_fired stream_age=%.1fms",
-                                (_t_triggered - t_stream_open) * 1000,
-                            )
-                            _frame_read_ms.clear()
-                            _frame_vad_ms.clear()
-                            post_trigger_frames = 0
-                            session_id = str(uuid.uuid4())
-                            sequence = 0
-                            sil_ring.clear()
-                            # Flush pre-speech buffer to give context
-                            for f, _ in pre_ring:
-                                yield AudioChunk(
-                                    session_id=session_id,
-                                    sequence=sequence,
-                                    audio_bytes=f,
-                                    sample_rate=SAMPLE_RATE,
-                                    is_final=False,
-                                )
-                                sequence += 1
-                            pre_ring.clear()
-                else:
-                    _frame_read_ms.append((_t1 - _t0) * 1000)
-                    _frame_vad_ms.append((_t2 - _t1) * 1000)
-                    yield AudioChunk(
-                        session_id=session_id,
-                        sequence=sequence,
-                        audio_bytes=frame,
-                        sample_rate=SAMPLE_RATE,
-                        is_final=False,
-                    )
-                    sequence += 1
-                    post_trigger_frames += 1
-                    # Don't start silence detection until min_speech_ms of audio
-                    # has been captured — prevents wake word tail from ending session.
-                    if post_trigger_frames >= self._min_speech_frames:
-                        sil_ring.append(is_speech)
-                        if len(sil_ring) == sil_ring.maxlen:
-                            unvoiced = sum(1 for v in sil_ring if not v)
-                            if unvoiced / sil_ring.maxlen >= self._silence_ratio:
-                                if _frame_read_ms:
-                                    logger.debug(
-                                        "LATENCY utterance_end frames=%d "
-                                        "read_avg=%.2fms read_min=%.2fms read_max=%.2fms "
-                                        "vad_avg=%.3fms vad_min=%.3fms vad_max=%.3fms "
-                                        "total_triggered=%.1fms audio_ms=%d silence_tail≈%.1fms",
-                                        len(_frame_read_ms),
-                                        statistics.mean(_frame_read_ms),
-                                        min(_frame_read_ms),
-                                        max(_frame_read_ms),
-                                        statistics.mean(_frame_vad_ms),
-                                        min(_frame_vad_ms),
-                                        max(_frame_vad_ms),
-                                        (time.perf_counter() - _t_triggered) * 1000,
-                                        len(_frame_read_ms) * FRAME_DURATION_MS,
-                                        (time.perf_counter() - _t_triggered) * 1000
-                                        - len(_frame_read_ms) * FRAME_DURATION_MS,
-                                    )
-                                _frame_read_ms.clear()
-                                _frame_vad_ms.clear()
-                                yield AudioChunk(
-                                    session_id=session_id,
-                                    sequence=sequence,
-                                    audio_bytes=b"",
-                                    sample_rate=SAMPLE_RATE,
-                                    is_final=True,
-                                )
-                                sequence += 1
-                                pre_ring.clear()
-                                sil_ring.clear()
-                                triggered = False
-                                post_trigger_frames = 0
+                yield from self.capture_from_stream(self._stream, t_stream_open)
         finally:
             self.close()
 

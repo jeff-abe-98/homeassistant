@@ -314,7 +314,10 @@ async def test_main_loop_single_activation(tmp_path) -> None:
                 fired[0] = True
                 self._cb()  # → loop.call_soon_threadsafe(wake_event.set)
 
-        def stop(self) -> None:
+        def drain(self, n_frames: int = 50) -> None:
+            pass
+
+        def close(self) -> None:
             pass
 
     # Track when _handle_activation finishes the first cycle

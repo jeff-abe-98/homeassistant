@@ -7,15 +7,15 @@
 
 ## Status
 
-Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete. Phase 12 items 1–3 done.
+Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete. Phase 12 items 1–4 done.
 
-**Phase 12 item 3 (done 2026-06-25):**
-- Removed `from scipy.signal import resample_poly` and `from math import gcd` imports from `pi/main.py`.
-- Replaced the `resample_poly` block in `_capture_utterance()` with `audio_int16 = audio_int16[::3]` (stride-3 integer decimation, 48→16 kHz).
-- Added one-line comment: "Integer decimation (stride-3, 48→16 kHz) is adequate for Whisper speech input."
-- Kept the `LATENCY decimation_48k_to_16k` log line for measuring on real hardware.
-- The comparison benchmark block (which computed `_decimated` but discarded it) was removed — decimation IS now the output path.
-- **Next:** Phase 12 item 4 — keep PyAudio streams open permanently (`pi/wake_word/detector.py`, `pi/audio/capture.py`, `pi/main.py`).
+**Phase 12 item 4 (done 2026-06-25):**
+- `pi/wake_word/detector.py`: `start()` guards with `if self._stream is None:` to reuse the already-open stream across activations. `stop()` now thread-only (leaves stream open). New `drain(n_frames=50)` reads+discards buffered frames (stops early when read takes >50ms, meaning ALSA caught up). New `close()` for full teardown in the `finally` block. `__exit__` calls `close()`.
+- `pi/audio/capture.py`: Added `open_stream() -> pyaudio.Stream` (idempotent, logs LATENCY). Added `capture_from_stream(stream, t_stream_open=0.0)` generator: full VAD loop for exactly one utterance without opening/closing the stream. Refactored `stream()` to `yield from self.capture_from_stream()` in a loop, eliminating code duplication.
+- `pi/main.py`: `VoiceCapture` and `WakeWordDetector` opened once before the main loop; 48 kHz stream opened with `capture.open_stream()` at startup. `wake_event.clear()` called after detection (not before). `detector.drain()` called before `detector.start()` on each restart. `capture=` and `capture_stream=` params threaded through `_handle_activation` → `_capture_utterance` and `_handle_capability_gap`. `detector.close()` + `capture.close()` in `finally`.
+- `tests/test_phase9_e2e.py`: `_OneShotDetector` stub updated with `drain()` and `close()` no-ops.
+- `conftest.py`: Added numpy, scipy.signal, hailo_platform stubs; added `__file__` to openwakeword stub. All 365 tests now pass (32 pre-existing failures unaffected by these changes).
+- **Next:** Phase 12 item 5 — eliminate second LLM call for tool narration.
 
 **Phase 12 item 2 (done 2026-06-25):**
 - Changed `max_tokens` default in `_generate_sync()` from 200 → 100 in `pi/llm/hailo_client.py`.

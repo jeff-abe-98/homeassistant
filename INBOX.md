@@ -28,6 +28,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-25 (session 192)
+**Status:** Phase 12 items 1–3 done; implementing Phase 12 item 4 — keep PyAudio streams open permanently (`pi/wake_word/detector.py`, `pi/audio/capture.py`, `pi/main.py`)
+**Next task:** Phase 12 item 4 — persistent PyAudio streams (remove open/close per activation)
+**Blockers:** Physical Pi needed to validate latency savings with real measurements
+
 ### 2026-06-25 (session 191)
 **Status:** Phase 12 items 1–2 done; implementing Phase 12 item 3 — replace `resample_poly` with `[::3]` integer decimation in `pi/main.py`
 **Next task:** Phase 12 item 3 — replace `resample_poly` with `pcm_48k[::3]` stride downsample

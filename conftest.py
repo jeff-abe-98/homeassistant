@@ -19,9 +19,27 @@ collect_ignore = [
 ]
 
 # Server-side packages that require compiled binaries or large models:
-# numpy is now installed (required by HailoTranscriber for PCM conversion)
 for _name in ("ollama", "faster_whisper"):
     sys.modules.setdefault(_name, MagicMock())
+
+# numpy / scipy — not available in the uv-tools pytest Python; stub so that
+# modules importing them at the top level can be collected.  Real calls occur
+# only in mocked code paths during CI tests.
+import types as _types  # noqa: E402 — already imported above, re-binding fine
+
+_numpy_stub = _types.ModuleType("numpy")
+_numpy_stub.__version__ = "1.26.0"
+_numpy_stub.frombuffer = MagicMock(return_value=MagicMock())
+_numpy_stub.int16 = MagicMock()
+_numpy_stub.float32 = MagicMock()
+_numpy_stub.ndarray = MagicMock
+sys.modules.setdefault("numpy", _numpy_stub)
+
+_scipy_stub = _types.ModuleType("scipy")
+_scipy_signal_stub = _types.ModuleType("scipy.signal")
+_scipy_signal_stub.resample_poly = MagicMock(return_value=MagicMock())
+sys.modules.setdefault("scipy", _scipy_stub)
+sys.modules.setdefault("scipy.signal", _scipy_signal_stub)
 
 # Spotify SDK — not installed in CI test environment:
 for _name in ("spotipy", "spotipy.oauth2"):
@@ -55,6 +73,7 @@ sys.modules.setdefault("resemblyzer", _resemblyzer_stub)
 
 # openwakeword — used by pi.wake_word.detector (deferred import, but stub it anyway)
 _oww_stub = types.ModuleType("openwakeword")
+_oww_stub.__file__ = "/stub/openwakeword/__init__.py"
 _oww_model_stub = types.ModuleType("openwakeword.model")
 _oww_model_stub.Model = MagicMock
 sys.modules.setdefault("openwakeword", _oww_stub)
@@ -64,3 +83,8 @@ sys.modules.setdefault("openwakeword.model", _oww_model_stub)
 _piper_stub = types.ModuleType("piper")
 _piper_stub.PiperVoice = MagicMock
 sys.modules.setdefault("piper", _piper_stub)
+
+# hailo_platform — Hailo NPU SDK; only available on Pi hardware
+_hailo_stub = types.ModuleType("hailo_platform")
+_hailo_stub.VDevice = MagicMock
+sys.modules.setdefault("hailo_platform", _hailo_stub)

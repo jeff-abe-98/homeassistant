@@ -118,11 +118,15 @@ _MAX_CAPTURE_SECONDS = 12
 async def _capture_utterance(
     t_wake: float = 0.0,
     silence_duration_ms: int = 800,
+    capture: VoiceCapture | None = None,
+    capture_stream=None,
 ) -> tuple[bytes, int]:
     """Capture one spoken utterance via VAD. Returns (pcm_bytes, sample_rate).
 
     Hard-cuts at _MAX_CAPTURE_SECONDS if VAD never fires the silence threshold.
     t_wake: perf_counter timestamp when wake-word event fired, for latency logging.
+    capture + capture_stream: when provided, reads from the already-open stream
+    instead of opening a new one — eliminates per-activation PyAudio open cost.
     """
     t0 = time.perf_counter()
     if t_wake:
@@ -130,13 +134,25 @@ async def _capture_utterance(
 
     loop = asyncio.get_running_loop()
     chunk_queue: asyncio.Queue[AudioChunk] = asyncio.Queue()
-    capture = VoiceCapture(silence_duration_ms=silence_duration_ms)
 
-    def _feed() -> None:
-        for chunk in capture.stream():
-            asyncio.run_coroutine_threadsafe(chunk_queue.put(chunk), loop)
-            if chunk.is_final:
-                break
+    _active_capture: VoiceCapture
+    if capture is not None and capture_stream is not None:
+        _active_capture = capture
+        _active_capture._stop_event.clear()
+
+        def _feed() -> None:
+            for chunk in _active_capture.capture_from_stream(capture_stream, t_stream_open=t0):
+                asyncio.run_coroutine_threadsafe(chunk_queue.put(chunk), loop)
+                if chunk.is_final:
+                    break
+    else:
+        _active_capture = VoiceCapture(silence_duration_ms=silence_duration_ms)
+
+        def _feed() -> None:
+            for chunk in _active_capture.stream():
+                asyncio.run_coroutine_threadsafe(chunk_queue.put(chunk), loop)
+                if chunk.is_final:
+                    break
 
     feed_thread = threading.Thread(target=_feed, daemon=True)
     feed_thread.start()
@@ -150,13 +166,13 @@ async def _capture_utterance(
         remaining = deadline - loop.time()
         if remaining <= 0:
             logger.warning("VAD capture hit %ds limit — cutting off", _MAX_CAPTURE_SECONDS)
-            capture.stop()
+            _active_capture.stop()
             break
         try:
             chunk = await asyncio.wait_for(chunk_queue.get(), timeout=remaining)
         except asyncio.TimeoutError:
             logger.warning("VAD capture hit %ds limit — cutting off", _MAX_CAPTURE_SECONDS)
-            capture.stop()
+            _active_capture.stop()
             break
         if t_first_chunk is None:
             t_first_chunk = time.perf_counter()
@@ -226,6 +242,8 @@ async def _handle_capability_gap(
     tool_queue: ToolRequestQueue,
     loop: asyncio.AbstractEventLoop,
     silence_duration_ms: int = 800,
+    capture: VoiceCapture | None = None,
+    capture_stream=None,
 ) -> str:
     """Ask for priority (if queue non-empty), enqueue, sync to GitHub.
 
@@ -242,7 +260,11 @@ async def _handle_capability_gap(
         q_audio = await loop.run_in_executor(None, tts.synthesize, question)
         await loop.run_in_executor(None, player.play, q_audio)
 
-        pcm_bytes, sample_rate = await _capture_utterance(silence_duration_ms=silence_duration_ms)
+        pcm_bytes, sample_rate = await _capture_utterance(
+            silence_duration_ms=silence_duration_ms,
+            capture=capture,
+            capture_stream=capture_stream,
+        )
         priority_text = await stt.transcribe(pcm_bytes, sample_rate)
         pt_lower = priority_text.lower()
 
@@ -285,6 +307,8 @@ async def _handle_activation(
     known_tool_names: set[str],
     tool_queue: ToolRequestQueue | None = None,
     t_wake: float = 0.0,
+    capture: VoiceCapture | None = None,
+    capture_stream=None,
 ) -> None:
     """Process one wake-word activation end-to-end."""
     loop = asyncio.get_running_loop()
@@ -296,6 +320,8 @@ async def _handle_activation(
     pcm_bytes, sample_rate = await _capture_utterance(
         t_wake=t_wake,
         silence_duration_ms=config.audio.silence_duration_ms,
+        capture=capture,
+        capture_stream=capture_stream,
     )
 
     # Identify speaker on CPU while STT runs on Hailo NPU (concurrent)
@@ -385,6 +411,8 @@ async def _handle_activation(
                 tool_queue,
                 loop,
                 silence_duration_ms=config.audio.silence_duration_ms,
+                capture=capture,
+                capture_stream=capture_stream,
             )
         else:
             response_text = fallback_text or "I'm not sure how to help with that."
@@ -449,19 +477,28 @@ async def main() -> None:
     prewarm = PrewarmScheduler(llm, stt, "schedule.json", conn)
     prewarm.start(loop)
 
+    # Open 48 kHz capture stream once at startup to eliminate per-activation PyAudio open cost.
+    capture = VoiceCapture(silence_duration_ms=config.audio.silence_duration_ms)
+    capture_stream = capture.open_stream()
+
+    wake_event = asyncio.Event()
+    detector = WakeWordDetector(
+        config=config.wake_word,
+        on_detection=lambda: loop.call_soon_threadsafe(wake_event.set),
+    )
+    detector.start()
+
     try:
         while True:
-            wake_event = asyncio.Event()
-            detector = WakeWordDetector(
-                config=config.wake_word,
-                on_detection=lambda: loop.call_soon_threadsafe(wake_event.set),
-            )
-            detector.start()
             logger.info("Listening for wake word…")
             await wake_event.wait()
             t_wake = time.perf_counter()
-            detector.stop()
+            wake_event.clear()
             logger.debug("LATENCY wake_word_detected; starting activation handler")
+
+            # Discard audio that accumulated in the 16 kHz wake-word buffer during the
+            # previous activation so the next listen cycle begins with fresh audio.
+            detector.drain()
 
             try:
                 await _handle_activation(
@@ -475,11 +512,17 @@ async def main() -> None:
                     known_tool_names,
                     tool_queue=tool_queue,
                     t_wake=t_wake,
+                    capture=capture,
+                    capture_stream=capture_stream,
                 )
             except Exception:
                 logger.exception("Activation pipeline failed")
+
+            detector.start()  # Restart listening on the already-open stream
     finally:
         prewarm.cancel()
+        detector.close()
+        capture.close()
         llm.close()
         stt.close()
         try:

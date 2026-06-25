@@ -58,19 +58,45 @@ class WakeWordDetector:
         self._running = True
         self._consecutive = 0
         self._last_triggered = 0.0
-        t_open = time.perf_counter()
-        self._stream = self._pa.open(
-            rate=_SAMPLE_RATE,
-            channels=_CHANNELS,
-            format=_FORMAT,
-            input=True,
-            frames_per_buffer=_CHUNK_SAMPLES,
-        )
-        log.debug("LATENCY wakeword_stream_open=%.1fms", (time.perf_counter() - t_open) * 1000)
+        if self._stream is None:
+            t_open = time.perf_counter()
+            self._stream = self._pa.open(
+                rate=_SAMPLE_RATE,
+                channels=_CHANNELS,
+                format=_FORMAT,
+                input=True,
+                frames_per_buffer=_CHUNK_SAMPLES,
+            )
+            log.debug("LATENCY wakeword_stream_open=%.1fms", (time.perf_counter() - t_open) * 1000)
         self._thread = threading.Thread(target=self._listen, daemon=True)
         self._thread.start()
 
+    def drain(self, n_frames: int = 50) -> None:
+        """Discard buffered wake-word audio so the next start() begins with fresh audio.
+
+        Reads and discards frames until the ALSA buffer catches up to real-time
+        (detected when a read takes >50 ms) or n_frames are consumed.
+        """
+        if self._stream is None:
+            return
+        for _ in range(n_frames):
+            t0 = time.perf_counter()
+            try:
+                self._stream.read(_CHUNK_SAMPLES, exception_on_overflow=False)
+            except OSError:
+                break
+            if (time.perf_counter() - t0) > 0.05:
+                break
+
     def stop(self) -> None:
+        """Stop the listening thread but keep the stream open for the next start() call."""
+        self._running = False
+        if self._thread is not None:
+            self._thread.join(timeout=2.0)
+            self._thread = None
+
+    def close(self) -> None:
+        """Full teardown: stop thread, close stream, terminate PyAudio."""
         self._running = False
         t_close = time.perf_counter()
         if self._stream is not None:
@@ -118,4 +144,4 @@ class WakeWordDetector:
         return self
 
     def __exit__(self, *_: object) -> None:
-        self.stop()
+        self.close()
