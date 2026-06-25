@@ -1,13 +1,21 @@
 # Current Work
 
-**Last updated:** 2026-06-24
-**Phase:** Phase 11 — Latency Profiling & Speedup (items 1–3 complete)
+**Last updated:** 2026-06-25
+**Phase:** Phase 11 — Latency Profiling & Speedup (items 1–4 complete)
 
 ---
 
 ## Status
 
-Full architectural redesign and documentation complete (Phases 1–10). Phase 11 in progress.
+Full architectural redesign and documentation complete (Phases 1–10). Phase 11 items 1–4 complete.
+
+**Phase 11 item 4 (done 2026-06-25):**
+- Created `.project/research/latency-analysis.md`: synthesised all three profiling docs.
+- End-to-end budget table: conversational warm ~2970ms Phase B; tool-query warm ~4170ms.
+- Top-5 bottlenecks ranked: (1) silence tail 1200ms — drop-in, (2) LLM routing — HW-limited / max_tokens, (3) tool narration 2nd LLM call — architecture change, (4) STT — HW-limited, (5) PyAudio stream open — drop-in.
+- Fixes 1–4 estimated to bring Phase B to ~1670ms conversational / ~2470ms tool — within "acceptable" UX range.
+- Phase 12 task list appended in the analysis for next session implementation.
+- **Next:** Phase 11 item 5 — add concrete implementation tasks as Phase 12 in `plan.md`.
 
 **Phase 11 item 2 (done 2026-06-24):**
 - Added 17 LATENCY DEBUG log lines across 5 files covering every inference stage.
