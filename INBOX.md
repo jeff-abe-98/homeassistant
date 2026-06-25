@@ -28,6 +28,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-25 (session 190)
+**Status:** Phase 12 item 1 done (silence_duration_ms 1200→800); implementing Phase 12 item 2 — reduce LLM max_tokens 200→100 in `pi/llm/hailo_client.py`
+**Next task:** Phase 12 item 2 — `max_tokens` 200→100 in `_generate_sync()`
+**Blockers:** Physical Pi needed to validate latency savings with real measurements
+
 ### 2026-06-25 (session 189)
 **Status:** Phase 12 started; implementing item 1 — reduce silence tail from 1200→800ms (`pi/audio/capture.py`, `shared/config.py`, `config/settings.yaml`, `pi/main.py`)
 **Next task:** Phase 12 item 1 — silence_duration_ms 1200→800

@@ -148,7 +148,7 @@ class HailoLLMClient:
     def _generate_sync(
         self,
         messages: list[dict],
-        max_tokens: int = 200,
+        max_tokens: int = 100,
         temperature: float = 0.7,
     ) -> str:
         is_cold = self._llm is None

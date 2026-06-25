@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-25 UTC]
+**Completed:** Phase 12 item 2 — reduce LLM `max_tokens` default 200→100 in `_generate_sync()` in `pi/llm/hailo_client.py`. Tool responses ≤40 tokens; conversational ≤80; 100 eliminates worst-case ceiling with zero quality risk. Expected saving: 0–500ms, typical ~100ms.
+**Files changed:** pi/llm/hailo_client.py, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
+**Next up:** Phase 12 item 3 — replace `resample_poly` with `pcm_48k[::3]` in `pi/main.py`
+**Blockers:** Physical Pi needed to validate latency savings with real measurements
+---
+
+## [2026-06-25 UTC]
 **Completed:** Phase 12 item 1 — reduce silence tail: `silence_duration_ms` default 1200→800 in `pi/audio/capture.py`; `AudioConfig.silence_duration_ms` added to `shared/config.py` and wired in `load()`; `audio.silence_duration_ms: 800` added to `config/settings.yaml`; `_capture_utterance()` and `_handle_capability_gap()` in `pi/main.py` wired to pass config value. Expected saving: ~400ms per activation.
 **Files changed:** pi/audio/capture.py, shared/config.py, config/settings.yaml, pi/main.py, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
 **Next up:** Phase 12 item 2 — reduce LLM `max_tokens` 200→100 in `pi/llm/hailo_client.py`

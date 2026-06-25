@@ -7,7 +7,13 @@
 
 ## Status
 
-Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete. Phase 12 item 1 done.
+Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete. Phase 12 items 1–2 done.
+
+**Phase 12 item 2 (done 2026-06-25):**
+- Changed `max_tokens` default in `_generate_sync()` from 200 → 100 in `pi/llm/hailo_client.py`.
+- Tool routing responses are ≤40 tokens; conversational responses rarely exceed 80; 100 is safe ceiling.
+- The existing `LATENCY llm_generate_*` log line already includes `max_tokens=<N>` so the saving will be visible in debug logs on real hardware.
+- **Next:** Phase 12 item 3 — replace `resample_poly` with `pcm_48k[::3]` in `pi/main.py`.
 
 **Phase 12 item 1 (done 2026-06-25):**
 - Changed `silence_duration_ms` default in `VoiceCapture.__init__()` from 1200 → 800 in `pi/audio/capture.py`.
