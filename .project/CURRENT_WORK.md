@@ -7,7 +7,13 @@
 
 ## Status
 
-Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete. Phase 12 items 1–5 done.
+Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete. Phase 12 all 6 items done — Phase 12 complete.
+
+**Phase 12 item 6 (done 2026-06-26):**
+- `pi/stt/hailo_transcriber.py`: Added `max_seconds: float = 30.0` to `transcribe()` signature and `_transcribe_sync()`. After `_pcm_to_float32`, slices array to `[:int(max_seconds * sample_rate)]` when shorter than full buffer; logs LATENCY stt_trim when trimming occurs. Whisper's Hailo backend zero-pads shorter buffers, so passing actual utterance length avoids wasting NPU cycles on trailing silence.
+- `pi/main.py`: After `_capture_utterance()` returns `(pcm_bytes, sample_rate)`, computes `actual_utterance_seconds = len(pcm_bytes) / (sample_rate * 2)` and passes `max_seconds=min(10.0, actual_utterance_seconds + 1.0)` to `stt.transcribe()` in both `_handle_activation` and `_handle_capability_gap`.
+- `tests/test_hailo_stt.py`: 4 new tests — truncation when audio exceeds max_seconds, no-op when audio fits, default 30.0 passes full array, empty bytes short-circuits before truncation.
+- **Next:** Phase 12 complete — all 6 latency-speedup items done.
 
 **Phase 12 item 5 (done 2026-06-26):**
 - `pi/tools/base.py`: Added `needs_narration: bool = False` class attribute to `BaseTool`.

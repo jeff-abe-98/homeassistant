@@ -65,7 +65,7 @@ class HailoTranscriber:
         log.info("HailoTranscriber: loaded model from %s", self._cfg.stt_model_path)
         log.debug("LATENCY stt_cold_load=%.1fms", (time.perf_counter() - t0) * 1000)
 
-    def _transcribe_sync(self, pcm_bytes: bytes, sample_rate: int) -> str:
+    def _transcribe_sync(self, pcm_bytes: bytes, sample_rate: int, max_seconds: float = 30.0) -> str:
         """Blocking transcription call — run in executor to keep async loop free."""
         is_cold = self._stt is None
         self._ensure_loaded()
@@ -73,6 +73,11 @@ class HailoTranscriber:
         t_conv = time.perf_counter()
         audio = _pcm_to_float32(pcm_bytes)
         log.debug("LATENCY stt_pcm_to_float32=%.2fms samples=%d", (time.perf_counter() - t_conv) * 1000, len(audio))
+
+        max_samples = int(max_seconds * sample_rate)
+        if len(audio) > max_samples:
+            log.debug("LATENCY stt_trim samples=%d→%d (%.2fs cap)", len(audio), max_samples, max_seconds)
+            audio = audio[:max_samples]
 
         t_gen = time.perf_counter()
         result = self._stt.generate_all_text(audio)
@@ -87,12 +92,21 @@ class HailoTranscriber:
     # Public interface
     # ------------------------------------------------------------------
 
-    async def transcribe(self, pcm_bytes: bytes, sample_rate: int = 16000) -> str:
+    async def transcribe(
+        self,
+        pcm_bytes: bytes,
+        sample_rate: int = 16000,
+        max_seconds: float = 30.0,
+    ) -> str:
         """Transcribe raw int16 PCM audio. Returns empty string on any failure.
 
         Args:
             pcm_bytes: Raw 16-bit PCM audio bytes (mono, little-endian).
             sample_rate: Sample rate in Hz (default 16000, required by Whisper).
+            max_seconds: Truncate audio to this many seconds before inference.
+                Whisper zero-pads shorter buffers, so passing the actual
+                utterance length avoids wasted NPU computation on silence.
+                Default 30.0 (Whisper's native context window).
 
         Returns:
             Transcribed text, or empty string if audio is silent/empty or an
@@ -103,7 +117,7 @@ class HailoTranscriber:
         loop = asyncio.get_event_loop()
         try:
             return await loop.run_in_executor(
-                None, lambda: self._transcribe_sync(pcm_bytes, sample_rate)
+                None, lambda: self._transcribe_sync(pcm_bytes, sample_rate, max_seconds)
             )
         except Exception:
             log.exception("HailoTranscriber: transcription failed")

@@ -288,3 +288,69 @@ def test_close_is_safe_on_release_error() -> None:
 
     assert tr._stt is None
     assert tr._vdevice is None
+
+
+# ---------------------------------------------------------------------------
+# max_seconds truncation
+# ---------------------------------------------------------------------------
+
+
+def test_max_seconds_truncates_long_audio() -> None:
+    """When max_seconds < actual audio duration, the array is truncated before generate_all_text."""
+    from unittest.mock import patch as _patch
+
+    tr, mock_stt = _make_transcriber()
+    mock_stt.generate_all_text.return_value = "hello"
+
+    # Simulate 5s of float32 audio at 16 kHz (80000 samples) from _pcm_to_float32.
+    fake_audio = list(range(80000))
+
+    with _patch("pi.stt.hailo_transcriber._pcm_to_float32", return_value=fake_audio):
+        asyncio.run(tr.transcribe(_make_pcm(80000), sample_rate=16000, max_seconds=2.0))
+
+    audio_arg = mock_stt.generate_all_text.call_args[0][0]
+    assert len(audio_arg) == 32000  # 2.0 * 16000 samples
+
+
+def test_max_seconds_no_truncation_when_audio_fits() -> None:
+    """When max_seconds >= actual audio duration, audio is passed through unmodified."""
+    from unittest.mock import patch as _patch
+
+    tr, mock_stt = _make_transcriber()
+    mock_stt.generate_all_text.return_value = "hello"
+
+    # 1 second of audio (16000 samples); max_seconds=30.0 → no truncation.
+    fake_audio = list(range(16000))
+
+    with _patch("pi.stt.hailo_transcriber._pcm_to_float32", return_value=fake_audio):
+        asyncio.run(tr.transcribe(_make_pcm(16000), sample_rate=16000, max_seconds=30.0))
+
+    audio_arg = mock_stt.generate_all_text.call_args[0][0]
+    assert len(audio_arg) == 16000
+
+
+def test_max_seconds_default_is_30() -> None:
+    """Default max_seconds=30.0 does not truncate typical-length audio."""
+    from unittest.mock import patch as _patch
+
+    tr, mock_stt = _make_transcriber()
+    mock_stt.generate_all_text.return_value = "test"
+
+    # 10 seconds of audio (160000 samples); well under the 30s cap.
+    fake_audio = list(range(160000))
+
+    with _patch("pi.stt.hailo_transcriber._pcm_to_float32", return_value=fake_audio):
+        asyncio.run(tr.transcribe(_make_pcm(160000), sample_rate=16000))
+
+    audio_arg = mock_stt.generate_all_text.call_args[0][0]
+    assert len(audio_arg) == 160000
+
+
+def test_max_seconds_empty_bytes_still_short_circuits() -> None:
+    """Empty pcm_bytes returns '' even when max_seconds is set."""
+    tr, mock_stt = _make_transcriber()
+
+    result = asyncio.run(tr.transcribe(b"", max_seconds=5.0))
+
+    assert result == ""
+    mock_stt.generate_all_text.assert_not_called()

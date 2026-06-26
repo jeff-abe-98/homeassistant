@@ -28,6 +28,11 @@ The agent reads this at the start of every run.
 ## Agent Startup Log
 *The agent writes a brief status note here at the start of each session.*
 
+### 2026-06-26 (session 194)
+**Status:** Phase 12 items 1–5 done; implementing Phase 12 item 6 — pass VAD-trimmed buffer to Whisper
+**Next task:** Phase 12 item 6 — truncate PCM to actual utterance length before Whisper inference
+**Blockers:** Physical Pi needed to validate latency savings with real measurements
+
 ### 2026-06-26 (session 193)
 **Status:** Phase 12 items 1–4 done (silence tail, max_tokens, integer decimation, persistent PyAudio streams); implementing Phase 12 item 5 — eliminate second LLM call for tool narration
 **Next task:** Phase 12 item 5 — move narration out of WeatherTool/CtaTool/CalendarTool into router.narrate()

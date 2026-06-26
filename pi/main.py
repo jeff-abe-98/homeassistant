@@ -265,7 +265,8 @@ async def _handle_capability_gap(
             capture=capture,
             capture_stream=capture_stream,
         )
-        priority_text = await stt.transcribe(pcm_bytes, sample_rate)
+        _gap_seconds = len(pcm_bytes) / (sample_rate * 2) if pcm_bytes else 0.0
+        priority_text = await stt.transcribe(pcm_bytes, sample_rate, max_seconds=min(10.0, _gap_seconds + 1.0))
         pt_lower = priority_text.lower()
 
         if any(kw in pt_lower for kw in ("yes", "more", "urgent", "important", "higher")):
@@ -324,11 +325,16 @@ async def _handle_activation(
         capture_stream=capture_stream,
     )
 
+    # Trim STT context to actual utterance length (+ 1s margin) to avoid
+    # wasting NPU cycles on trailing silence up to Whisper's 30s maximum.
+    actual_utterance_seconds = len(pcm_bytes) / (sample_rate * 2) if pcm_bytes else 0.0
+    stt_max_seconds = min(10.0, actual_utterance_seconds + 1.0)
+
     # Identify speaker on CPU while STT runs on Hailo NPU (concurrent)
     t_identify_stt = time.perf_counter()
     user, transcript_text = await asyncio.gather(
         loop.run_in_executor(None, _executor_timed(identify, pcm_bytes, sample_rate, label="identify")),
-        stt.transcribe(pcm_bytes, sample_rate),
+        stt.transcribe(pcm_bytes, sample_rate, max_seconds=stt_max_seconds),
     )
     logger.debug(
         "LATENCY identify_stt_parallel=%.1fms speaker=%s transcript_chars=%d",
