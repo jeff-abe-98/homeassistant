@@ -47,7 +47,9 @@ def config() -> AppConfig:
     return AppConfig()
 
 
-def _router_returning_tool(registry: ToolRegistry, tool_name: str, params: dict) -> ToolRouter:
+def _router_returning_tool(
+    registry: ToolRegistry, tool_name: str, params: dict, *, complete_return: str = "Fallback."
+) -> ToolRouter:
     """Return a ToolRouter whose LLM always picks a specific tool."""
     from pi.llm.hailo_client import HailoLLMClient
 
@@ -56,7 +58,7 @@ def _router_returning_tool(registry: ToolRegistry, tool_name: str, params: dict)
 
     mock_llm = MagicMock(spec=HailoLLMClient)
     mock_llm.chat_with_tools = AsyncMock(return_value=msg)
-    mock_llm.complete = AsyncMock(return_value="Fallback.")
+    mock_llm.complete = AsyncMock(return_value=complete_return)
 
     return ToolRouter(llm=mock_llm, registry=registry)
 
@@ -185,16 +187,16 @@ def test_weather_tool_end_to_end(config, db_conn) -> None:
     mock_http_client = AsyncMock()
     mock_http_client.get = AsyncMock(side_effect=[fake_current, fake_forecast])
 
-    # Weather tool with an injected mock LLM
     tool = WeatherTool()
-    mock_tool_llm = MagicMock()
-    mock_tool_llm.complete = AsyncMock(return_value="It's 72 degrees and clear in Chicago.")
-    tool._llm = mock_tool_llm
-
     registry = ToolRegistry()
     registry.register(tool)
 
-    router = _router_returning_tool(registry, "get_weather", {"query": "what's the weather today"})
+    router = _router_returning_tool(
+        registry,
+        "get_weather",
+        {"query": "what's the weather today"},
+        complete_return="It's 72 degrees and clear in Chicago.",
+    )
 
     # Mock httpx.AsyncClient context manager
     mock_client_cm = MagicMock()
@@ -260,10 +262,6 @@ def test_cta_tool_end_to_end(config, db_conn) -> None:
     mock_client_cm.__aexit__ = AsyncMock(return_value=False)
 
     tool = CtaTool()
-    mock_tool_llm = MagicMock()
-    mock_tool_llm.complete = AsyncMock(return_value="The next O'Hare-bound train arrives in 3 minutes.")
-    tool._llm = mock_tool_llm
-
     registry = ToolRegistry()
     registry.register(tool)
 
@@ -271,6 +269,7 @@ def test_cta_tool_end_to_end(config, db_conn) -> None:
         registry,
         "cta_arrivals",
         {"query": "when's the next Blue Line", "direction": "ohare"},
+        complete_return="The next O'Hare-bound train arrives in 3 minutes.",
     )
 
     with (

@@ -107,20 +107,20 @@ class TestCalendarToolRun:
         assert "don't have anything" in result.lower()
 
     @pytest.mark.asyncio
-    async def test_events_narrated_via_llm(self):
+    async def test_events_returns_raw_data(self):
+        """run() returns raw events text (no internal LLM call) when events exist."""
         events = [{"summary": "Team standup", "start": {"dateTime": "2026-05-10T09:00:00-05:00"}}]
         mock_service = MagicMock()
         mock_service.events().list().execute.return_value = {"items": events}
         tool = CalendarTool()
-        mock_llm_response = "You have a Team standup at nine AM."
+        assert tool.needs_narration is True
         with (
             patch("pi.tools.calendar.is_configured", return_value=True),
             patch("pi.tools.calendar.build_service", return_value=mock_service),
-            patch.object(tool, "_llm_client") as mock_client_fn,
         ):
-            mock_client_fn.return_value.complete = AsyncMock(return_value=mock_llm_response)
             result = await tool.run({"query": "what do I have today", "when": "today"}, "owner")
-        assert result == mock_llm_response
+        assert "Team standup" in result
+        assert "Calendar events:" in result
 
     @pytest.mark.asyncio
     async def test_api_exception_returns_friendly_message(self):
@@ -135,52 +135,32 @@ class TestCalendarToolRun:
         assert "trouble" in result.lower()
 
     @pytest.mark.asyncio
-    async def test_known_user_name_in_system_prompt(self):
-        """Known user name should appear in the LLM system prompt for personalization."""
+    async def test_query_embedded_in_raw_data(self):
+        """User question is embedded in the raw data block for narration context."""
         events = [{"summary": "Yoga", "start": {"dateTime": "2026-05-11T07:00:00-05:00"}}]
         mock_service = MagicMock()
         mock_service.events().list().execute.return_value = {"items": events}
         tool = CalendarTool()
-        captured: list[tuple[str, str]] = []
-
-        async def _spy(system: str, user_msg: str) -> str:
-            captured.append((system, user_msg))
-            return "Emily, you have yoga at seven AM."
-
         with (
             patch("pi.tools.calendar.is_configured", return_value=True),
             patch("pi.tools.calendar.build_service", return_value=mock_service),
-            patch.object(tool, "_llm_client") as mock_client_fn,
         ):
-            mock_client_fn.return_value.complete = AsyncMock(side_effect=_spy)
-            await tool.run({"query": "what do I have tomorrow", "when": "tomorrow"}, "emily")
-
-        system_prompt, _ = captured[0]
-        assert "emily" in system_prompt.lower()
+            result = await tool.run({"query": "what do I have tomorrow", "when": "tomorrow"}, "emily")
+        assert "what do I have tomorrow" in result
 
     @pytest.mark.asyncio
-    async def test_unknown_user_not_in_system_prompt(self):
-        """'unknown' user should not inject a name into the system prompt."""
+    async def test_raw_data_does_not_include_unknown_user_label(self):
+        """'unknown' user identity should not appear in the raw data block."""
         events = [{"summary": "Meeting", "start": {"dateTime": "2026-05-11T10:00:00-05:00"}}]
         mock_service = MagicMock()
         mock_service.events().list().execute.return_value = {"items": events}
         tool = CalendarTool()
-        captured: list[tuple[str, str]] = []
-
-        async def _spy(system: str, user_msg: str) -> str:
-            captured.append((system, user_msg))
-            return "You have a meeting at ten AM."
-
         with (
             patch("pi.tools.calendar.is_configured", return_value=True),
             patch("pi.tools.calendar.build_service", return_value=mock_service),
-            patch.object(tool, "_llm_client") as mock_client_fn,
         ):
-            mock_client_fn.return_value.complete = AsyncMock(side_effect=_spy)
-            await tool.run({"query": "what do I have today", "when": "today"}, "unknown")
-
-        system_prompt, _ = captured[0]
-        assert "unknown" not in system_prompt.lower()
+            result = await tool.run({"query": "what do I have today", "when": "today"}, "unknown")
+        assert "unknown" not in result.lower()
 
     @pytest.mark.asyncio
     async def test_tomorrow_query_uses_correct_window(self):

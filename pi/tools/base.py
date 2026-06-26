@@ -15,6 +15,7 @@ class BaseTool(ABC):
     name: str
     description: str
     parameters: dict  # JSON Schema for LLM function calling
+    needs_narration: bool = False  # True → run() returns raw data; caller calls router.narrate()
 
     @abstractmethod
     async def run(self, params: dict, user: str) -> str:

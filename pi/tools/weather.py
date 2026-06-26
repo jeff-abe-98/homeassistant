@@ -1,13 +1,10 @@
-"""Weather tool — fetches OpenWeatherMap data and narrates via LLM."""
+"""Weather tool — fetches OpenWeatherMap data and returns raw facts for narration."""
 
 from __future__ import annotations
-
-import json
 
 import httpx
 
 import shared.config as cfg_module
-from pi.llm.hailo_client import HailoLLMClient
 from pi.tools.base import BaseTool
 
 _OWM_CURRENT = "https://api.openweathermap.org/data/2.5/weather"
@@ -16,6 +13,7 @@ _OWM_FORECAST = "https://api.openweathermap.org/data/2.5/forecast"
 
 class WeatherTool(BaseTool):
     name = "get_weather"
+    needs_narration = True  # run() returns raw data; caller must call router.narrate()
     description = (
         "Get the current weather conditions or multi-day forecast for the user's location. "
         "Use for any question about weather, temperature, rain, wind, or forecast."
@@ -34,15 +32,6 @@ class WeatherTool(BaseTool):
         "required": ["query"],
     }
 
-    def __init__(self) -> None:
-        self._llm: HailoLLMClient | None = None
-
-    def _llm_client(self) -> HailoLLMClient:
-        if self._llm is None:
-            cfg = cfg_module.load()
-            self._llm = HailoLLMClient(cfg.hailo)
-        return self._llm
-
     async def run(self, params: dict, user: str) -> str:
         cfg = cfg_module.load()
         api_key = cfg.weather.api_key
@@ -55,22 +44,37 @@ class WeatherTool(BaseTool):
         async with httpx.AsyncClient(timeout=10.0) as client:
             current_resp, forecast_resp = await _fetch_both(client, location, api_key, units)
 
-        payload = {
-            "current": current_resp,
-            "forecast": forecast_resp,
-        }
+        query = params.get("query", "current weather")
+        return _summarize_weather(current_resp, forecast_resp, query, units)
 
-        system = (
-            "You are a home assistant. Narrate the following weather data naturally "
-            "in plain spoken English. Be concise — two or three sentences. "
-            "Answer the user's specific question if one is given. "
-            "No markdown, no bullet points."
-        )
-        user_msg = (
-            f"Question: {params.get('query', 'current weather')}\n\n"
-            f"Weather data:\n{json.dumps(payload, indent=2)}"
-        )
-        return await self._llm_client().complete(system, user_msg)
+
+def _summarize_weather(current: dict, forecast: dict, query: str, units: str = "imperial") -> str:
+    """Condense OWM response into a plain-text data block for LLM narration."""
+    unit_sym = "°F" if units == "imperial" else "°C"
+    main = current.get("main", {})
+    weather = current.get("weather", [{}])[0]
+    wind = current.get("wind", {})
+    name = current.get("name", "your location")
+
+    lines = [
+        f"Location: {name}",
+        f"Temperature: {main.get('temp')}{unit_sym} (feels like {main.get('feels_like')}{unit_sym})",
+        f"Conditions: {weather.get('description', '')}",
+        f"Humidity: {main.get('humidity')}%",
+        f"Wind: {wind.get('speed', 0)} mph",
+    ]
+
+    items = forecast.get("list", [])[:5]
+    if items:
+        lines.append("Upcoming forecast:")
+        for item in items:
+            dt_txt = item.get("dt_txt", "")[:13]  # "YYYY-MM-DD HH"
+            temp = item.get("main", {}).get("temp", "?")
+            desc = item.get("weather", [{}])[0].get("description", "")
+            lines.append(f"  {dt_txt}: {temp}{unit_sym}, {desc}")
+
+    lines.append(f"User question: {query}")
+    return "\n".join(lines)
 
 
 async def _fetch_both(

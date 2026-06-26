@@ -2,20 +2,25 @@
 
 from __future__ import annotations
 
-import json
 from datetime import datetime
 
 import httpx
 
 import shared.config as cfg_module
-from pi.llm.hailo_client import HailoLLMClient
 from pi.tools.base import BaseTool
 
 _CTA_ARRIVALS_URL = "https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx"
 
+_DIRECTION_LABELS = {
+    "ohare": "O'Hare-bound",
+    "forest_park": "Forest Park-bound",
+    "both": "both directions",
+}
+
 
 class CtaTool(BaseTool):
     name = "cta_arrivals"
+    needs_narration = True  # run() returns raw data; caller must call router.narrate()
     description = (
         "Get upcoming CTA Blue Line train arrival times at Western & Milwaukee. "
         "Use for any question about the Blue Line train, 'L', or CTA arrivals. "
@@ -44,15 +49,6 @@ class CtaTool(BaseTool):
         "required": ["query"],
     }
 
-    def __init__(self) -> None:
-        self._llm: HailoLLMClient | None = None
-
-    def _llm_client(self) -> HailoLLMClient:
-        if self._llm is None:
-            cfg = cfg_module.load()
-            self._llm = HailoLLMClient(cfg.hailo)
-        return self._llm
-
     async def run(self, params: dict, user: str) -> str:
         cfg = cfg_module.load()
         api_key = cfg.cta.api_key
@@ -79,27 +75,25 @@ class CtaTool(BaseTool):
             data = r.json()
 
         arrivals = _parse_arrivals(data)
-
-        if direction == "ohare":
-            direction_note = "The user asked specifically about trains toward O'Hare. Focus only on O'Hare-bound arrivals."
-        elif direction == "forest_park":
-            direction_note = "The user asked specifically about trains toward Forest Park. Focus only on Forest Park-bound arrivals."
-        else:
-            direction_note = "The user did not specify a direction. Group arrivals by direction (O'Hare and Forest Park)."
-
-        system = (
-            "You are a home assistant. Narrate the following CTA Blue Line arrival data naturally "
-            "in plain spoken English. Be concise — one or two sentences. "
-            "State arrival times relative to now (e.g. 'in 3 minutes', 'in 8 minutes'). "
-            f"{direction_note} No markdown, no bullet points."
-        )
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        user_msg = (
-            f"Question: {params.get('query', 'next Blue Line train')}\n"
-            f"Current time: {now_str}\n\n"
-            f"Arrival data:\n{json.dumps(arrivals, indent=2)}"
-        )
-        return await self._llm_client().complete(system, user_msg)
+        query = params.get("query", "next Blue Line train")
+        direction_label = _DIRECTION_LABELS.get(direction, "both directions")
+
+        lines = [
+            f"Current time: {now_str}",
+            f"Direction filter: {direction_label}",
+            "CTA Blue Line arrivals at Western & Milwaukee:",
+        ]
+        for a in arrivals:
+            delayed = " [DELAYED]" if a.get("is_delayed") else ""
+            approaching = " [APPROACHING]" if a.get("is_approaching") else ""
+            lines.append(
+                f"  To {a['destination']}: arrives {a['arrival_time']}{approaching}{delayed}"
+            )
+        if not arrivals:
+            lines.append("  No arrivals found.")
+        lines.append(f"User question: {query}")
+        return "\n".join(lines)
 
 
 def _parse_arrivals(data: dict) -> list[dict]:

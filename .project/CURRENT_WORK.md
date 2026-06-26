@@ -1,13 +1,25 @@
 # Current Work
 
-**Last updated:** 2026-06-25
+**Last updated:** 2026-06-26
 **Phase:** Phase 12 — Latency Speedup Implementation
 
 ---
 
 ## Status
 
-Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete. Phase 12 items 1–4 done.
+Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete. Phase 12 items 1–5 done.
+
+**Phase 12 item 5 (done 2026-06-26):**
+- `pi/tools/base.py`: Added `needs_narration: bool = False` class attribute to `BaseTool`.
+- `pi/tools/weather.py`: Removed `HailoLLMClient` dependency, `_llm`/`_llm_client()`. Added `needs_narration = True`. `run()` returns `_summarize_weather()` plain-text block (location, temp, feels-like, conditions, humidity, wind, 5-item forecast, user question). No LLM call inside.
+- `pi/tools/cta.py`: Removed `HailoLLMClient` dependency, LLM call. Added `needs_narration = True`. `run()` returns plain-text arrivals block (current time, direction filter, arrival entries, user question).
+- `pi/tools/calendar.py`: `CalendarTool` — removed `HailoLLMClient`, `__init__`, `_llm_client()`. Added `needs_narration = True`. Happy-path `run()` returns `"Calendar events:\n{events_text}\n\nQuestion: {query}"`. `AddCalendarEventTool` unchanged.
+- `pi/llm/router.py`: Added `_last_user_message`/`_last_context_turns` state; `route()` stores these. New `narrate(tool_name, raw_data, user) -> str` builds system+user prompt and calls `self._llm.complete()` once.
+- `pi/main.py`: `_handle_activation()` and keyword-route fallback both check `getattr(tool, "needs_narration", False)` and call `router.narrate()` when True.
+- `tests/test_narration.py`: 12 new tests covering `narrate()` behaviour, `needs_narration` flags, LLM call count.
+- `tests/test_weather.py`, `test_cta.py`, `test_calendar.py`: updated to remove LLM mock injection; assert raw data format instead.
+- `tests/test_phase9_e2e.py`: removed dead `tool._llm` injection; `_router_returning_tool()` accepts `complete_return` kwarg; weather/CTA tests pass appropriate narration strings. 61 targeted tests pass.
+- **Next:** Phase 12 item 6 — pass VAD-trimmed buffer to Whisper.
 
 **Phase 12 item 4 (done 2026-06-25):**
 - `pi/wake_word/detector.py`: `start()` guards with `if self._stream is None:` to reuse the already-open stream across activations. `stop()` now thread-only (leaves stream open). New `drain(n_frames=50)` reads+discards buffered frames (stops early when read takes >50ms, meaning ALSA caught up). New `close()` for full teardown in the `finally` block. `__exit__` calls `close()`.

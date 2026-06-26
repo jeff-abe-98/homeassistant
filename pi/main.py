@@ -373,11 +373,15 @@ async def _handle_activation(
         else:
             try:
                 t_tool = time.perf_counter()
-                response_text = await tool.run(tool_call.params, user)
+                raw_result = await tool.run(tool_call.params, user)
                 logger.debug(
                     "LATENCY tool_run name=%s %.1fms",
                     tool_call.tool_name, (time.perf_counter() - t_tool) * 1000,
                 )
+                if getattr(tool, "needs_narration", False):
+                    response_text = await router.narrate(tool_call.tool_name, raw_result, user)
+                else:
+                    response_text = raw_result
             except Exception:
                 logger.exception("Tool %r failed", tool_call.tool_name)
                 response_text = (
@@ -392,11 +396,15 @@ async def _handle_activation(
             logger.info("Keyword fallback → %s", kw_tool_name)
             try:
                 t_tool = time.perf_counter()
-                response_text = await kw_tool.run({"query": transcript_text}, user)
+                raw_result = await kw_tool.run({"query": transcript_text}, user)
                 logger.debug(
                     "LATENCY tool_run name=%s %.1fms",
                     kw_tool_name, (time.perf_counter() - t_tool) * 1000,
                 )
+                if getattr(kw_tool, "needs_narration", False):
+                    response_text = await router.narrate(kw_tool_name, raw_result, user)
+                else:
+                    response_text = raw_result
             except Exception:
                 logger.exception("Keyword-fallback tool %r failed", kw_tool_name)
                 response_text = "Sorry, I had trouble completing that. Please try again."

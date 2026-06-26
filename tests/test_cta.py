@@ -4,7 +4,6 @@ Run with: pytest tests/test_cta.py -v
 """
 from __future__ import annotations
 
-import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -107,17 +106,17 @@ _FAKE_ETA_RESPONSE = {
 
 
 @pytest.mark.asyncio
-async def test_cta_happy_path_both_directions() -> None:
+async def test_cta_happy_path_both_directions_returns_raw_data() -> None:
+    """run() returns raw arrivals data; no internal LLM call."""
     from pi.tools.cta import CtaTool
 
     tool = CtaTool()
+    assert tool.needs_narration is True
 
     mock_cfg = MagicMock()
     mock_cfg.cta.api_key = "real-key"
     mock_cfg.cta.stop_id_ohare = 30238
     mock_cfg.cta.stop_id_forest_park = 30239
-    mock_cfg.ollama.host = "http://localhost:11434"
-    mock_cfg.ollama.model = "llama3.1:8b-instruct-q4_K_M"
 
     mock_resp = MagicMock()
     mock_resp.raise_for_status = MagicMock()
@@ -129,26 +128,16 @@ async def test_cta_happy_path_both_directions() -> None:
     mock_http_ctx.__aenter__ = AsyncMock(return_value=mock_http_client)
     mock_http_ctx.__aexit__ = AsyncMock(return_value=False)
 
-    mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(
-        return_value="The next Blue Line toward O'Hare arrives in 3 minutes, toward Forest Park in 6 minutes."
-    )
-
     with (
         patch("pi.tools.cta.cfg_module.load", return_value=mock_cfg),
         patch("pi.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
-        patch("pi.tools.cta.HailoLLMClient", return_value=mock_llm),
     ):
         result = await tool.run({"query": "when's the next Blue Line?"}, user="owner")
 
-    assert "Blue Line" in result or "minute" in result.lower()
-    mock_llm.complete.assert_awaited_once()
-    call_args = mock_llm.complete.call_args
-    user_msg = call_args[0][1]
-    payload = json.loads(user_msg.split("Arrival data:\n")[1])
-    assert len(payload) == 2
-    assert payload[0]["destination"] == "O'Hare"
-    assert payload[1]["destination"] == "Forest Park"
+    # Result is raw arrivals data for both destinations
+    assert "O'Hare" in result
+    assert "Forest Park" in result
+    assert "User question:" in result
 
 
 @pytest.mark.asyncio
@@ -161,8 +150,6 @@ async def test_cta_happy_path_ohare_direction() -> None:
     mock_cfg.cta.api_key = "real-key"
     mock_cfg.cta.stop_id_ohare = 30238
     mock_cfg.cta.stop_id_forest_park = 30239
-    mock_cfg.ollama.host = "http://localhost:11434"
-    mock_cfg.ollama.model = "llama3.1:8b-instruct-q4_K_M"
 
     ohare_only_response = {
         "ctatt": {
@@ -193,15 +180,9 @@ async def test_cta_happy_path_ohare_direction() -> None:
     mock_http_ctx.__aenter__ = AsyncMock(return_value=mock_http_client)
     mock_http_ctx.__aexit__ = AsyncMock(return_value=False)
 
-    mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(
-        return_value="The next Blue Line toward O'Hare arrives in 4 minutes."
-    )
-
     with (
         patch("pi.tools.cta.cfg_module.load", return_value=mock_cfg),
         patch("pi.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
-        patch("pi.tools.cta.HailoLLMClient", return_value=mock_llm),
     ):
         result = await tool.run(
             {"query": "next train toward O'Hare", "direction": "ohare"}, user="owner"
@@ -210,7 +191,7 @@ async def test_cta_happy_path_ohare_direction() -> None:
     # Verify only the O'Hare stop ID was requested
     get_call = mock_http_client.get.call_args
     assert get_call[1]["params"]["stpid"] == "30238"
-    assert "O'Hare" in result or "minute" in result.lower()
+    assert "O'Hare" in result
 
 
 @pytest.mark.asyncio
@@ -223,8 +204,6 @@ async def test_cta_happy_path_forest_park_direction() -> None:
     mock_cfg.cta.api_key = "real-key"
     mock_cfg.cta.stop_id_ohare = 30238
     mock_cfg.cta.stop_id_forest_park = 30239
-    mock_cfg.ollama.host = "http://localhost:11434"
-    mock_cfg.ollama.model = "llama3.1:8b-instruct-q4_K_M"
 
     forest_park_only_response = {
         "ctatt": {
@@ -255,15 +234,9 @@ async def test_cta_happy_path_forest_park_direction() -> None:
     mock_http_ctx.__aenter__ = AsyncMock(return_value=mock_http_client)
     mock_http_ctx.__aexit__ = AsyncMock(return_value=False)
 
-    mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(
-        return_value="The next Blue Line toward Forest Park arrives in 5 minutes."
-    )
-
     with (
         patch("pi.tools.cta.cfg_module.load", return_value=mock_cfg),
         patch("pi.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
-        patch("pi.tools.cta.HailoLLMClient", return_value=mock_llm),
     ):
         result = await tool.run(
             {"query": "next train toward Forest Park", "direction": "forest_park"},
@@ -273,17 +246,12 @@ async def test_cta_happy_path_forest_park_direction() -> None:
     # Verify only the Forest Park stop ID was requested
     get_call = mock_http_client.get.call_args
     assert get_call[1]["params"]["stpid"] == "30239"
-    assert "Forest Park" in result or "minute" in result.lower()
-
-    # Verify direction note was passed to LLM system prompt
-    complete_call = mock_llm.complete.call_args
-    system_prompt = complete_call[0][0]
-    assert "Forest Park" in system_prompt
+    assert "Forest Park" in result
 
 
 @pytest.mark.asyncio
-async def test_cta_direction_note_in_system_prompt_ohare() -> None:
-    """Direction-specific context must appear in the system prompt sent to the LLM."""
+async def test_cta_direction_in_raw_data_ohare() -> None:
+    """Direction label must appear in the raw data block returned by run()."""
     from pi.tools.cta import CtaTool
 
     tool = CtaTool()
@@ -292,8 +260,6 @@ async def test_cta_direction_note_in_system_prompt_ohare() -> None:
     mock_cfg.cta.api_key = "real-key"
     mock_cfg.cta.stop_id_ohare = 30238
     mock_cfg.cta.stop_id_forest_park = 30239
-    mock_cfg.ollama.host = "http://localhost:11434"
-    mock_cfg.ollama.model = "llama3.1:8b-instruct-q4_K_M"
 
     mock_resp = MagicMock()
     mock_resp.raise_for_status = MagicMock()
@@ -305,25 +271,19 @@ async def test_cta_direction_note_in_system_prompt_ohare() -> None:
     mock_http_ctx.__aenter__ = AsyncMock(return_value=mock_http_client)
     mock_http_ctx.__aexit__ = AsyncMock(return_value=False)
 
-    mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(return_value="Next O'Hare train in 3 minutes.")
-
     with (
         patch("pi.tools.cta.cfg_module.load", return_value=mock_cfg),
         patch("pi.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
-        patch("pi.tools.cta.HailoLLMClient", return_value=mock_llm),
     ):
-        await tool.run({"query": "next O'Hare train", "direction": "ohare"}, user="owner")
+        result = await tool.run({"query": "next O'Hare train", "direction": "ohare"}, user="owner")
 
-    complete_call = mock_llm.complete.call_args
-    system_prompt = complete_call[0][0]
-    assert "O'Hare" in system_prompt
-    assert "Forest Park" not in system_prompt
+    assert "O'Hare" in result
+    assert "Direction filter:" in result
 
 
 @pytest.mark.asyncio
-async def test_cta_direction_note_in_system_prompt_both() -> None:
-    """When direction is 'both', system prompt should mention grouping by direction."""
+async def test_cta_direction_in_raw_data_both() -> None:
+    """When direction is 'both', raw data should include both-directions label."""
     from pi.tools.cta import CtaTool
 
     tool = CtaTool()
@@ -332,8 +292,6 @@ async def test_cta_direction_note_in_system_prompt_both() -> None:
     mock_cfg.cta.api_key = "real-key"
     mock_cfg.cta.stop_id_ohare = 30238
     mock_cfg.cta.stop_id_forest_park = 30239
-    mock_cfg.ollama.host = "http://localhost:11434"
-    mock_cfg.ollama.model = "llama3.1:8b-instruct-q4_K_M"
 
     mock_resp = MagicMock()
     mock_resp.raise_for_status = MagicMock()
@@ -345,19 +303,13 @@ async def test_cta_direction_note_in_system_prompt_both() -> None:
     mock_http_ctx.__aenter__ = AsyncMock(return_value=mock_http_client)
     mock_http_ctx.__aexit__ = AsyncMock(return_value=False)
 
-    mock_llm = AsyncMock()
-    mock_llm.complete = AsyncMock(return_value="O'Hare in 3 min, Forest Park in 6 min.")
-
     with (
         patch("pi.tools.cta.cfg_module.load", return_value=mock_cfg),
         patch("pi.tools.cta.httpx.AsyncClient", return_value=mock_http_ctx),
-        patch("pi.tools.cta.HailoLLMClient", return_value=mock_llm),
     ):
-        await tool.run({"query": "next Blue Line train"}, user="owner")
+        result = await tool.run({"query": "next Blue Line train"}, user="owner")
 
-    complete_call = mock_llm.complete.call_args
-    system_prompt = complete_call[0][0]
-    assert "direction" in system_prompt.lower() or "group" in system_prompt.lower()
+    assert "both directions" in result.lower() or "Direction filter:" in result
 
 
 # ---------------------------------------------------------------------------

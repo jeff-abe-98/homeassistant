@@ -5,8 +5,6 @@ from __future__ import annotations
 import datetime
 from zoneinfo import ZoneInfo
 
-import shared.config as cfg_module
-from pi.llm.hailo_client import HailoLLMClient
 from pi.tools.base import BaseTool
 from pi.tools.google_auth import build_service, is_configured
 
@@ -15,6 +13,7 @@ _CHICAGO_TZ = ZoneInfo("America/Chicago")
 
 class CalendarTool(BaseTool):
     name = "get_calendar_events"
+    needs_narration = True  # run() returns raw data; caller must call router.narrate()
     description = (
         "Read the user's Google Calendar events. Use for questions like "
         "'what do I have today', 'what's on my schedule tomorrow', "
@@ -38,15 +37,6 @@ class CalendarTool(BaseTool):
         },
         "required": ["query", "when"],
     }
-
-    def __init__(self) -> None:
-        self._llm: HailoLLMClient | None = None
-
-    def _llm_client(self) -> HailoLLMClient:
-        if self._llm is None:
-            cfg = cfg_module.load()
-            self._llm = HailoLLMClient(cfg.hailo)
-        return self._llm
 
     async def run(self, params: dict, user: str) -> str:
         if not is_configured():
@@ -84,21 +74,10 @@ class CalendarTool(BaseTool):
             return f"You don't have anything scheduled {window_label}."
 
         events_text = _format_events(events)
-        user_hint = (
-            f" You are speaking with {user.title()}."
-            if user and user.lower() != "unknown"
-            else ""
-        )
-        system = (
-            "You are a home assistant. Read back the following calendar events naturally "
-            "in plain spoken English. Be concise — two or three sentences. "
-            f"No markdown, no bullet points.{user_hint}"
-        )
-        user_msg = (
+        return (
             f"Question: {params.get('query', 'what do I have scheduled')}\n\n"
             f"Calendar events:\n{events_text}"
         )
-        return await self._llm_client().complete(system, user_msg)
 
 
 class AddCalendarEventTool(BaseTool):
