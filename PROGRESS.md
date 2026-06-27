@@ -5,6 +5,13 @@ Most recent run at top.
 ---
 
 ## [2026-06-27 UTC]
+**Completed:** Session 200 check-in — all phases 1–12 complete; inbox clean; no unchecked plan items; awaiting Pi deployment or new inbox items
+**Files changed:** INBOX.md, PROGRESS.md
+**Next up:** No unchecked items — awaiting physical Pi deployment or new inbox items
+**Blockers:** Physical Pi needed to validate latency savings with real measurements
+---
+
+## [2026-06-27 UTC]
 **Completed:** Session 199 check-in — all phases 1–12 complete; inbox clean; no unchecked plan items; awaiting Pi deployment or new inbox items
 **Files changed:** INBOX.md, PROGRESS.md
 **Next up:** No unchecked items — awaiting physical Pi deployment or new inbox items
@@ -67,10 +74,4 @@ Most recent run at top.
 **Blockers:** Physical Pi needed to validate latency savings with real measurements
 ---
 
-## [2026-06-25 UTC]
-**Completed:** Phase 12 item 2 — reduce LLM `max_tokens` default 200→100 in `_generate_sync()` in `pi/llm/hailo_client.py`. Tool responses ≤40 tokens; conversational ≤80; 100 eliminates worst-case ceiling with zero quality risk. Expected saving: 0–500ms, typical ~100ms.
-**Files changed:** pi/llm/hailo_client.py, plan.md, .project/CURRENT_WORK.md, INBOX.md, PROGRESS.md
-**Next up:** Phase 12 item 3 — replace `resample_poly` with `pcm_48k[::3]` in `pi/main.py`
-**Blockers:** Physical Pi needed to validate latency savings with real measurements
----
 
