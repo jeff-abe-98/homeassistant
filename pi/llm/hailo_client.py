@@ -153,6 +153,10 @@ class HailoLLMClient:
     ) -> str:
         is_cold = self._llm is None
         self._ensure_loaded()
+        # Reset the Hailo KV-cache before every call — the LLM object persists
+        # across activations and its internal context fills up otherwise.
+        # Conversation continuity is handled explicitly via the messages list.
+        self._llm.clear_context()
         t0 = time.perf_counter()
         result = self._llm.generate_all(
             messages,
@@ -165,7 +169,10 @@ class HailoLLMClient:
             "LATENCY llm_generate_%s=%.1fms tokens_out≈%d max_tokens=%d",
             label, elapsed, len(result.split()) if isinstance(result, str) else 0, max_tokens,
         )
-        return result
+        # Strip Qwen chat special tokens — these must never reach the TTS engine.
+        for _tok in ("<|im_end|>", "<|im_start|>", "<|endoftext|>"):
+            result = result.replace(_tok, "")
+        return result.strip()
 
     async def _generate(self, messages: list[dict], **kwargs: Any) -> str:
         loop = asyncio.get_event_loop()

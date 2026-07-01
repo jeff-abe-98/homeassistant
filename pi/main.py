@@ -30,9 +30,11 @@ from shared.config import load as load_config
 from shared.models import AudioChunk, Transcript
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
+for _lib in ("httpx", "httpcore", "urllib3", "onnxruntime", "matplotlib", "PIL"):
+    logging.getLogger(_lib).setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 _MEMORY_DB_PATH = "memory.db"
@@ -54,6 +56,9 @@ _INABILITY_PHRASES = (
 # Keyword fallback for when the 1.5B model fails to produce a <tool_call>.
 # Each entry maps a registered tool name to trigger phrases.
 _KEYWORD_ROUTES: list[tuple[str, tuple[str, ...]]] = [
+    ("get_time",           ("what time", "what's the time", "current time",
+                            "what day is it", "what's today", "what is today",
+                            "what date", "what's the date")),
     ("get_weather",        ("weather", "temperature", "forecast", "rain", "snow",
                             "wind", "sunny", "cloudy", "humidity", "degrees",
                             "hot outside", "cold outside", "warm outside")),
@@ -96,7 +101,14 @@ def _keyword_route(text: str) -> str | None:
     lower = text.lower()
     for tool_name, keywords in _KEYWORD_ROUTES:
         for kw in keywords:
-            if re.search(kw, lower):
+            # Plain strings get word-boundary anchors so short words like "rain"
+            # don't accidentally match inside longer words like "train".
+            # Patterns that already contain regex metacharacters are used as-is.
+            if any(c in kw for c in r'.*+?^${}()|[\]'):
+                pattern = kw
+            else:
+                pattern = r'\b' + re.escape(kw.strip()) + r'\b'
+            if re.search(pattern, lower):
                 return tool_name
     return None
 
@@ -439,6 +451,8 @@ async def _handle_activation(
     # Persist the conversation turn in session memory
     session.add_turn(transcript_text, response_text)
     session.end()
+
+    logger.info("Response: %r", response_text)
 
     # Synthesise and play the response
     t_tts = time.perf_counter()

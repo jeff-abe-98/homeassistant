@@ -22,6 +22,7 @@ The agent reads this at the start of every run.
 *Anything else — reminders, context, thoughts.*
 
 <!-- Example: Emily's Spotify account is premium, mine is not yet -->
+- Wake word is currently "Hey Jarvis" (using built-in openWakeWord model) — `config/settings.yaml` has `wake_word.model: hey_jarvis`. The custom `hey_clanker.onnx` exists at `pi/wake_word/models/hey_clanker.onnx` but is not pointed to in config. When ready to switch, update `settings.yaml` to `model: pi/wake_word/models/hey_clanker.onnx` and redeploy. Not urgent — Jarvis is working fine for now.
 
 ---
 
