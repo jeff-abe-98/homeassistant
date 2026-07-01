@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
 import re
@@ -126,6 +127,9 @@ class HailoLLMClient:
         self._vdevice: Any = vdevice
         self._owns_vdevice: bool = vdevice is None
         self._llm: Any = None
+        # Keyed by MD5 of system-prompt content → opaque context data from save_context().
+        # Avoids re-encoding the same system prompt on every activation (~5-6s savings).
+        self._context_cache: dict[str, Any] = {}
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -145,6 +149,34 @@ class HailoLLMClient:
         log.info("HailoLLMClient: loaded model from %s", self._cfg.llm_model_path)
         log.debug("LATENCY llm_cold_load=%.1fms", (time.perf_counter() - t0) * 1000)
 
+    def _system_prompt_key(self, content: str) -> str:
+        return hashlib.md5(content.encode()).hexdigest()[:12]
+
+    def _restore_or_build_checkpoint(self, system_content: str) -> str:
+        """Load a saved KV-cache checkpoint for this system prompt, building it
+        on first use.  Returns a label for latency logging: 'cached' or 'warm'."""
+        key = self._system_prompt_key(system_content)
+        if key in self._context_cache:
+            self._llm.load_context(self._context_cache[key])
+            return "cached"
+
+        # First time seeing this system prompt — encode it alone, checkpoint, reuse forever.
+        t0 = time.perf_counter()
+        self._llm.clear_context()
+        self._llm.generate_all(
+            [{"role": "system", "content": system_content}],
+            max_generated_tokens=1,
+            temperature=0.0,
+        )
+        self._context_cache[key] = self._llm.save_context()
+        # Immediately restore so the caller's generate_all starts from this state.
+        self._llm.load_context(self._context_cache[key])
+        log.debug(
+            "LATENCY llm_checkpoint_build=%.1fms key=%s prompts_cached=%d",
+            (time.perf_counter() - t0) * 1000, key, len(self._context_cache),
+        )
+        return "warm"
+
     def _generate_sync(
         self,
         messages: list[dict],
@@ -153,10 +185,16 @@ class HailoLLMClient:
     ) -> str:
         is_cold = self._llm is None
         self._ensure_loaded()
-        # Reset the Hailo KV-cache before every call — the LLM object persists
-        # across activations and its internal context fills up otherwise.
-        # Conversation continuity is handled explicitly via the messages list.
-        self._llm.clear_context()
+
+        system_content = next(
+            (m["content"] for m in messages if m["role"] == "system"), None
+        )
+        if system_content:
+            cache_label = self._restore_or_build_checkpoint(system_content)
+        else:
+            self._llm.clear_context()
+            cache_label = "warm"
+
         t0 = time.perf_counter()
         result = self._llm.generate_all(
             messages,
@@ -164,7 +202,7 @@ class HailoLLMClient:
             temperature=temperature,
         )
         elapsed = (time.perf_counter() - t0) * 1000
-        label = "cold" if is_cold else "warm"
+        label = "cold" if is_cold else cache_label
         log.debug(
             "LATENCY llm_generate_%s=%.1fms tokens_out≈%d max_tokens=%d",
             label, elapsed, len(result.split()) if isinstance(result, str) else 0, max_tokens,
@@ -252,3 +290,4 @@ class HailoLLMClient:
                 pass
         self._llm = None
         self._vdevice = None
+        self._context_cache.clear()
