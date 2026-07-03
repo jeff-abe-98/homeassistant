@@ -194,6 +194,27 @@ class VoiceCapture:
                             )
                             return  # One utterance complete; stream stays open
 
+    def drain(self, stream: "pyaudio.Stream", n_frames: int = 50) -> None:
+        """Discard buffered mic audio so the next capture_from_stream() begins fresh.
+
+        Reads and discards frames until the ALSA buffer catches up to real-time
+        (a read taking close to a full frame duration means no backlog remains)
+        or n_frames are consumed. Call this after playing the wake-word ack chime
+        so its own audio (and any backlog built up while it played) isn't fed
+        into VAD as part of the user's utterance.
+        """
+        t0 = time.perf_counter()
+        caught_up_threshold_s = (FRAME_DURATION_MS / 1000) * 0.5
+        for _ in range(n_frames):
+            t_read = time.perf_counter()
+            try:
+                stream.read(FRAME_SIZE, exception_on_overflow=False)
+            except OSError:
+                break
+            if (time.perf_counter() - t_read) > caught_up_threshold_s:
+                break
+        logger.debug("LATENCY capture_stream_drain=%.1fms", (time.perf_counter() - t0) * 1000)
+
     def stream(self) -> Generator[AudioChunk, None, None]:
         """Yield AudioChunks indefinitely; one utterance at a time.
 

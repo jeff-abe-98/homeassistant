@@ -528,6 +528,12 @@ async def main() -> None:
             # previous activation so the next listen cycle begins with fresh audio.
             detector.drain()
 
+            # Acknowledge the wake word so the user knows to speak now, then drop
+            # any mic audio that accumulated during playback (including the chime's
+            # own bleed-through) before capturing their utterance.
+            await loop.run_in_executor(None, player.play_ack_chime)
+            capture.drain(capture_stream)
+
             try:
                 await _handle_activation(
                     config,

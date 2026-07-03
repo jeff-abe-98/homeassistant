@@ -16,6 +16,33 @@ from scipy.signal import resample_poly
 log = logging.getLogger(__name__)
 
 
+def _generate_ack_chime(sample_rate: int) -> np.ndarray:
+    """Synthesize a short two-note ascending chime (~180ms) acknowledging wake-word detection.
+
+    Generated in code (no bundled audio asset). Each note is faded in/out over 5ms
+    to avoid clicks at the sample boundaries.
+    """
+    note_s = 0.08
+    gap_s = 0.02
+    fade_s = 0.005
+    amplitude = 0.3
+
+    parts: list[np.ndarray] = []
+    for freq in (880.0, 1320.0):
+        n = int(sample_rate * note_s)
+        t = np.arange(n) / sample_rate
+        tone = (amplitude * np.sin(2 * np.pi * freq * t)).astype(np.float32)
+        fade_n = int(sample_rate * fade_s)
+        if fade_n > 0:
+            envelope = np.ones(n, dtype=np.float32)
+            envelope[:fade_n] = np.linspace(0.0, 1.0, fade_n, dtype=np.float32)
+            envelope[-fade_n:] = np.linspace(1.0, 0.0, fade_n, dtype=np.float32)
+            tone *= envelope
+        parts.append(tone)
+        parts.append(np.zeros(int(sample_rate * gap_s), dtype=np.float32))
+    return np.concatenate(parts[:-1])  # drop the trailing gap after the last note
+
+
 class AudioPlayer:
     """Play raw PCM audio bytes through a sounddevice output device.
 
@@ -67,6 +94,19 @@ class AudioPlayer:
         sd.play(samples, samplerate=self._output_sample_rate, device=self._device)
         sd.wait()
         log.debug("LATENCY audio_playback=%.1fms audio_s=%.2f", (time.perf_counter() - t_play) * 1000, len(samples) / self._output_sample_rate)
+
+    def play_ack_chime(self) -> None:
+        """Play a short synthesized tone acknowledging wake-word detection, blocking until done.
+
+        Generated at the output sample rate directly, so no resampling is needed.
+        Callers should wait for this to return before starting to capture the
+        user's utterance, so the chime itself is not picked up by the mic.
+        """
+        samples = _generate_ack_chime(self._output_sample_rate)
+        t_play = time.perf_counter()
+        sd.play(samples, samplerate=self._output_sample_rate, device=self._device)
+        sd.wait()
+        log.debug("LATENCY ack_chime_playback=%.1fms", (time.perf_counter() - t_play) * 1000)
 
     def stop(self) -> None:
         """Stop any currently playing audio immediately."""

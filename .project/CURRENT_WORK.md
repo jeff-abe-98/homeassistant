@@ -1,13 +1,21 @@
 # Current Work
 
-**Last updated:** 2026-06-26
-**Phase:** Phase 12 — Latency Speedup Implementation
+**Last updated:** 2026-07-02
+**Phase:** Phase 12 complete — ad hoc feature added outside plan.md queue
 
 ---
 
 ## Status
 
 Full architectural redesign and documentation complete (Phases 1–10). Phase 11 all 5 items complete. Phase 12 all 6 items done — Phase 12 complete.
+
+**Wake-word ack chime (done 2026-07-02, user-requested, not from plan.md):**
+- `pi/audio/playback.py`: Added `_generate_ack_chime(sample_rate)` — synthesizes a short two-note ascending tone (~180ms, 880Hz→1320Hz, faded in/out 5ms to avoid clicks) purely in code, no bundled audio asset. Added `AudioPlayer.play_ack_chime()` which generates it at the output sample rate and plays it blocking via the existing `sd.play`/`sd.wait()` path.
+- `pi/audio/capture.py`: Added `VoiceCapture.drain(stream, n_frames=50)`, mirroring `WakeWordDetector.drain()` — reads and discards mic frames until a read takes close to a full frame duration (buffer caught up to real time) or `n_frames` are consumed.
+- `pi/main.py`: In the wake loop, right after `detector.drain()` and before `_handle_activation()`: play the ack chime (blocking, via executor) then `capture.drain(capture_stream)` to discard the chime's own mic bleed-through/backlog. This guarantees the actual utterance capture (VAD trigger + pre-speech padding) only begins after the chime has fully played and the mic buffer is fresh, so the user's speech right after the chime is what gets captured.
+- No new tests added — repo convention doesn't unit-test the analogous `WakeWordDetector.drain()` either; coverage comes from `tests/test_phase9_e2e.py::test_main_loop_single_activation`, which still passes with the new call sites (mocked). Verified no regressions: 59 failed/363 passed/2 skipped before and after (failures are pre-existing environment gaps — missing `httpx`, numpy stub in `conftest.py` lacking `zeros`/`sin`/etc. — unrelated to this change).
+- Not committed/pushed — user asked to leave that to them.
+- **Next:** No unchecked plan.md items — awaiting physical Pi deployment or new inbox items.
 
 **Phase 12 item 6 (done 2026-06-26):**
 - `pi/stt/hailo_transcriber.py`: Added `max_seconds: float = 30.0` to `transcribe()` signature and `_transcribe_sync()`. After `_pcm_to_float32`, slices array to `[:int(max_seconds * sample_rate)]` when shorter than full buffer; logs LATENCY stt_trim when trimming occurs. Whisper's Hailo backend zero-pads shorter buffers, so passing actual utterance length avoids wasting NPU cycles on trailing silence.
